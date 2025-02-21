@@ -46,7 +46,16 @@ class FGARetriever:
             responses = await self.fga_client.batch_check(
                 ClientBatchCheckRequest(checks=checks)
             )
-            return {result.request.object: result.allowed for result in responses.result}
+
+            # Create a dictionary comprehension for document IDs
+            results = {doc.document["id"]: False for doc in self.documents}
+
+            for response in responses.result:
+                doc_id = response.request.object.split(":")[-1]  # Assuming object format contains ID after ":"
+                if doc_id in results:
+                    results[doc_id] = response.allowed
+
+            return results
         except Exception as e:
             print(f"Error checking permissions: {e}")
             return {}
@@ -65,7 +74,7 @@ class FGARetriever:
         
         result = [
             doc for doc in self.documents
-            if permissions_map.get(f"doc:{doc.document['id']}", False)
+            if permissions_map.get(doc.document['id'], False)
         ]
         
         return result
