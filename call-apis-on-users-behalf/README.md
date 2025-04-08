@@ -1,10 +1,10 @@
-# [Call APIs on users' behalf](https://demo.auth0.ai/docs/call-apis-on-users-behalf)
+# [Call APIs on users' behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
 
 Use secure standards to get API tokens for Google, Github and more. Seamlessly integrate your app with other products.
 
 ### Examples
 
-Explore the following examples demonstrating the integration of **Auth0** with different frameworks:
+Explore the following examples demonstrating the integration of **Auth0** with different frameworks for tool calling:
 
 - **Call Your APIs on users' behalf with Next.js (JavaScript):**  
    A simple Next.js application that uses Auth0 to authenticate users and call your APIs on their behalf.  

@@ -1,4 +1,4 @@
-# Authenticate Users
+# [Authenticate Users](https://auth0.com/ai/docs/user-authentication)
 
 Easily implement login experiences, tailor made for AI agents. Whether for chatbots or background agents.
 
