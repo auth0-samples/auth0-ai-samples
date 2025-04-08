@@ -10,7 +10,7 @@ import { Context } from "../../types/ai-context";
 const auth0AI = new Auth0AI();
 
 export const buy = (context: Context) => {
-  const useCIBA = auth0AI.withAsyncUserConfirmation({
+  const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
     userID: context.userID,
     bindingMessage: async ({ ticker, qty }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
@@ -37,7 +37,7 @@ export const buy = (context: Context) => {
     },
   });
 
-  return useCIBA(
+  return withAsyncAuthorization(
     tool({
       description: "Use this function to buy stock",
       parameters: z.object({
