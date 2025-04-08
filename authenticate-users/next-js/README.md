@@ -1,3 +1,7 @@
+# Authenticate Users with Auth0
+
+[Quickstart](https://auth0.com/ai/docs/user-authentication)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

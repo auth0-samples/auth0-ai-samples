@@ -1,3 +1,7 @@
+# Authenticate Users with Auth0 and call other's APIs on their behalf
+
+[Quickstart](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
