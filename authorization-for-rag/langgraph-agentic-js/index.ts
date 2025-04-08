@@ -5,8 +5,7 @@ import "dotenv/config";
 
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-langchain";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-langchain/src";
+import { FGARetriever } from "@auth0/ai-langchain/RAG";
 
 import { readDocuments } from "./helpers/read-documents";
 import { RetrievalAgent } from "./helpers/langchain";

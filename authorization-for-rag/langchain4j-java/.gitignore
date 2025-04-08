@@ -12,6 +12,7 @@ build/
 *.iml
 *.ipr
 out/
+bin/
 
 # IDE - VS Code
 .vscode/

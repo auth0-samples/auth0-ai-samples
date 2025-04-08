@@ -1,7 +1,12 @@
 import "dotenv/config";
 
-import { FGARetriever } from "./fga-retriever";
-import { generate, LocalVectorStore, readDocuments } from "./helpers";
+import { FGAFilter } from "@auth0/ai";
+import {
+  DocumentWithScore,
+  generate,
+  LocalVectorStore,
+  readDocuments,
+} from "./helpers";
 
 async function main() {
   // User ID
@@ -16,17 +21,18 @@ async function main() {
   const vectorStore = await LocalVectorStore.fromDocuments(documents);
 
   // 2. Create an instance of the FGARetriever
-  const retriever = FGARetriever.create({
-    documents: await vectorStore.search(query),
-    buildQuery: (doc) => ({
+  const retriever = FGAFilter.create({
+    buildQuery: (doc: DocumentWithScore) => ({
       user: `user:${user}`,
-      object: `doc:${doc.id}`,
+      object: `doc:${doc.document.id}`,
       relation: "viewer",
     }),
   });
 
+  const results = await vectorStore.search(query);
+
   // 3. Filter documents based on user permissions
-  const context = await retriever.retrieve();
+  const context = await retriever.filter(results);
 
   // 4. Generate a response based on the context
   // `generate` is a helper function that takes a query and a context and returns

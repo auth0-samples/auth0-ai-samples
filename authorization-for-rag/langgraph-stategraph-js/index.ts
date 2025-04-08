@@ -8,8 +8,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { Annotation, START, StateGraph } from "@langchain/langgraph";
 import { Document } from "@langchain/core/documents";
 
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-langchain";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-langchain/src";
+import { FGARetriever } from "@auth0/ai-langchain/RAG";
 import { readDocuments } from "./helpers/read-documents";
 
 /**

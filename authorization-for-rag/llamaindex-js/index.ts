@@ -6,8 +6,7 @@
 import "dotenv/config";
 
 import { VectorStoreIndex } from "llamaindex";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
+import { FGARetriever } from "@auth0/ai-llamaindex";
 
 import { readDocuments } from "./helpers/read-documents";
 
@@ -43,7 +42,7 @@ async function main() {
       // FGA tuple to query for the user's permissions
       buildQuery: (document) => ({
         user: `user:${user}`,
-        object: `doc:${document.metadata.id}`,
+        object: `doc:${document.node.metadata.id}`,
         relation: "viewer",
       }),
     }),

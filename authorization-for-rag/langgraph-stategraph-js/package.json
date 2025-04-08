@@ -14,13 +14,13 @@
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.36",
-    "@langchain/langgraph": "^0.2.41",
-    "@langchain/openai": "^0.4.2",
+    "@auth0/ai-langchain": "^2.0.0",
+    "@langchain/core": "^0.3.43",
+    "@langchain/langgraph": "^0.2.63",
+    "@langchain/openai": "^0.5.4",
     "@openfga/sdk": "^0.8.0",
-    "auth0-ai-js": "github:auth0-lab/auth0-ai-js#alpha-1",
     "dotenv": "^16.4.7",
-    "langchain": "^0.3.13",
+    "langchain": "^0.3.20",
     "zod": "^3.24.1"
   },
   "devDependencies": {

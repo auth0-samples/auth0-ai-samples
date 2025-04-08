@@ -5,15 +5,11 @@
  */
 import "dotenv/config";
 
-import {
-  OpenAIAgent,
-  QueryEngineTool,
-  VectorStoreIndex,
-  SimpleDirectoryReader,
-} from "llamaindex";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
+import { OpenAIAgent, QueryEngineTool, VectorStoreIndex } from "llamaindex";
+import { SimpleDirectoryReader } from "@llamaindex/readers/directory";
+import { FGARetriever } from "@auth0/ai-llamaindex";
 
+/**
 /**
  * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
@@ -45,7 +41,7 @@ async function main() {
     // FGA tuple to query for the user's permissions
     buildQuery: (document) => ({
       user: `user:${user}`,
-      object: `doc:${document.metadata.file_name.split(".")[0]}`,
+      object: `doc:${document.node.metadata.file_name.split(".")[0]}`,
       relation: "viewer",
     }),
   });
