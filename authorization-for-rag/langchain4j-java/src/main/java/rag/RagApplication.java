@@ -1,10 +1,14 @@
 package rag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
@@ -12,17 +16,13 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.openfga.sdk.api.client.model.ClientBatchCheckItem;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 
 /**
- * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
+ * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
  * <p>
  * The FGARetriever checks if the user has the "viewer" relation to the document
- * based on predefined tuples in Okta FGA.
+ * based on predefined tuples in Auth0 FGA.
  * <p>
  * Example:
  * - A tuple {user: "user:*", relation: "viewer", object: "doc:public-doc"}

@@ -1,12 +1,12 @@
-# LangChain Retrievers + Okta FGA
+# LangChain Retrievers + Auth0 FGA
 
-This example demonstrates how to combine [LangChain](https://python.langchain.com/docs/introduction/) with robust authorization controls for RAG workflows. Using [Okta FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
+This example demonstrates how to combine [LangChain](https://python.langchain.com/docs/introduction/) with robust authorization controls for RAG workflows. Using [Auth0 FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
 
 ## Getting Started
 
 ### Prerequisites
 
-- An Okta FGA account, you can create one [here](https://dashboard.fga.dev).
+- An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev).
 - An OpenAI account and API key create one [here](https://platform.openai.com).
 
 ### Setup
@@ -17,7 +17,7 @@ This example demonstrates how to combine [LangChain](https://python.langchain.co
     # OpenAI
     OPENAI_API_KEY=xx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-    # Okta FGA
+    # Auth0 FGA
     FGA_STORE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxx
     FGA_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxx
     FGA_CLIENT_SECRET=xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -30,7 +30,7 @@ This example demonstrates how to combine [LangChain](https://python.langchain.co
 
 [Use this page for instructions on how to find your OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key). Once you have your key, update the `.env` file accordingly.
 
-#### Configure Okta FGA
+#### Configure Auth0 FGA
 
 1. **Create a client**
 

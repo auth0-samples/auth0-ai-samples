@@ -1,10 +1,10 @@
-# OpenAI + RAG + Okta FGA
+# OpenAI + RAG + Auth0 FGA
 
 ## Getting Started
 
 ### Prerequisites
 
-- An Okta FGA account, you can create one [here](https://dashboard.fga.dev).
+- An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev).
 - An OpenAI account and API key create one [here](https://platform.openai.com).
 
 ### Setup
@@ -15,7 +15,7 @@
    # OpenAI
    OPENAI_API_KEY=
 
-   # Okta FGA
+   # Auth0 FGA
    FGA_STORE_ID=
    FGA_CLIENT_ID=
    FGA_CLIENT_SECRET=
@@ -28,7 +28,7 @@
 
 [Use this page for instructions on how to find your OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key). Once you have your key, update the `.env` file accordingly.
 
-#### Configure Okta FGA
+#### Configure Auth0 FGA
 
 1. Add the model: Under Model Explorer update the model to contain the model below:
 
@@ -56,7 +56,7 @@
    npm install
    ```
 
-2. Initialize Okta FGA with the necessary model and tuples.
+2. Initialize Auth0 FGA with the necessary model and tuples.
 
    ```sh
    npm run fga:init

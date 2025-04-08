@@ -1,7 +1,7 @@
 {
   "name": "llamaindex-agentic-retrievers-with-fga",
   "version": "0.0.0",
-  "description": "Demonstrates the usage of the Okta FGA with a Llamaindex agent to query documents with permission checks.",
+  "description": "Demonstrates the usage of the Auth0 FGA with a Llamaindex agent to query documents with permission checks.",
   "x-type": "module",
   "main": "index.js",
   "author": {

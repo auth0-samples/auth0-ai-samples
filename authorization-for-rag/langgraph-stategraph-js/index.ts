@@ -1,5 +1,5 @@
 /**
- * LangChain + LangGraph Example: Retrieval with Okta FGA (Fine-Grained Authorization)
+ * LangChain + LangGraph Example: Retrieval with Auth0 FGA (Fine-Grained Authorization)
  */
 import "dotenv/config";
 
@@ -12,11 +12,11 @@ import { FGARetriever } from "@auth0/ai-langchain/RAG";
 import { readDocuments } from "./helpers/read-documents";
 
 /**
- * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
+ * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
  *
  * The FGARetriever checks if the user has the "viewer" relation to the document
- * based on predefined tuples in Okta FGA.
+ * based on predefined tuples in Auth0 FGA.
  *
  * Example:
  * - A tuple {user: "user:*", relation: "viewer", object: "doc:public-doc"} allows all users to view "public-doc".
@@ -26,7 +26,7 @@ import { readDocuments } from "./helpers/read-documents";
  */
 async function main() {
   console.info(
-    "\n..:: LangChain + LangGraph Example: Retrieval with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: LangChain + LangGraph Example: Retrieval with Auth0 FGA (Fine-Grained Authorization)\n\n"
   );
 
   const StateAnnotation = Annotation.Root({
@@ -98,7 +98,7 @@ async function main() {
   console.info(state.response);
 
   /**
-   * If we add the following tuple to the Okta FGA:
+   * If we add the following tuple to the Auth0 FGA:
    *
    *    { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
    *

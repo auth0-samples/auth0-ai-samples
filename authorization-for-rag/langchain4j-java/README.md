@@ -1,4 +1,4 @@
-# LangChain4j Retrievers + Okta FGA
+# LangChain4j Retrievers + Auth0 FGA
 
 This example demonstrates how to combine [LangChain4j](https://docs.langchain4j.dev/) with robust authorization controls for RAG workflows. Using [Auth0 FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
 
@@ -17,7 +17,7 @@ This example demonstrates how to combine [LangChain4j](https://docs.langchain4j.
     # OpenAI
     OPENAI_API_KEY=xx-xxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-    # Okta FGA
+    # Auth0 FGA
     FGA_STORE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxx
     FGA_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxx
     FGA_CLIENT_SECRET=xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxx

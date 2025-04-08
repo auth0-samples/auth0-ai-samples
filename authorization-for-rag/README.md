@@ -1,4 +1,4 @@
-## Authorization for RAG with Okta FGA
+## Authorization for RAG with Auth0 FGA
 
 Authorization for RAG ensure that users can only access documents they are permitted to view. By enforcing strict access controls during the document retrieval process, it prevents unauthorized data exposure and maintains data security. For more information, refer to the [documentation](https://demo.auth0.ai/docs/authorization-for-rag).
 
@@ -19,7 +19,7 @@ Below is a high-level workflow:
 
 ### Examples
 
-Explore the following examples demonstrating the integration of **Okta FGA** with **LangChain** and **LlamaIndex** retrievers:
+Explore the following examples demonstrating the integration of **Auth0 FGA** with **LangChain** and **LlamaIndex** retrievers:
 
 - **LangChain with FGARetriever (JavaScript):**  
    An implementation showcasing how to wrap a LangChain retriever with FGARetriever to enforce authorization checks during document retrieval.  
