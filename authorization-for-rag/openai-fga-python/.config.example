@@ -3,7 +3,7 @@
 OPENAI_API_KEY=<your-api-key>
 
 # Auth0 FGA
-[OKTAFGA]
+[AUTH0FGA]
 FGA_STORE_ID=<your-store-id>
 FGA_CLIENT_ID=<your-client-id>
 FGA_CLIENT_SECRET=<your-client-secret>

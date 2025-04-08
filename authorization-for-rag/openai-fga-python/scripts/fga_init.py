@@ -12,15 +12,15 @@ from openfga_sdk.client.models import ClientTuple, ClientWriteRequest
 
 async def fga_setup(config):
     fga_config = ClientConfiguration(
-        api_url=config["OKTAFGA"]["FGA_API_URL"],
-        store_id=config["OKTAFGA"]["FGA_STORE_ID"],
+        api_url=config["AUTH0FGA"]["FGA_API_URL"],
+        store_id=config["AUTH0FGA"]["FGA_STORE_ID"],
         credentials=Credentials(
             method="client_credentials",
             configuration=CredentialConfiguration(
-                api_issuer=config["OKTAFGA"]["FGA_API_TOKEN_ISSUER"],
-                api_audience=config["OKTAFGA"]["FGA_API_AUDIENCE"],
-                client_id=config["OKTAFGA"]["FGA_CLIENT_ID"],
-                client_secret=config["OKTAFGA"]["FGA_CLIENT_SECRET"],
+                api_issuer=config["AUTH0FGA"]["FGA_API_TOKEN_ISSUER"],
+                api_audience=config["AUTH0FGA"]["FGA_API_AUDIENCE"],
+                client_id=config["AUTH0FGA"]["FGA_CLIENT_ID"],
+                client_secret=config["AUTH0FGA"]["FGA_CLIENT_SECRET"],
             )
         )
     ) 

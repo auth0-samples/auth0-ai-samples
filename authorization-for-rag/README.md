@@ -23,36 +23,40 @@ Explore the following examples demonstrating the integration of **Auth0 FGA** wi
 
 - **LangChain with FGARetriever (JavaScript):**  
    An implementation showcasing how to wrap a LangChain retriever with FGARetriever to enforce authorization checks during document retrieval.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/lanchain-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/lanchain-js)
 
 - **LangChain with FGARetriever (Python):**  
    A Python implementation demonstrating authorization-aware document retrieval using LangChain and FGARetriever.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langchain-python)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langchain-python)
 
 - **LangGraph with FGARetriever (Python):**  
    Shows how to integrate FGARetriever with LangGraph for authorized document retrieval in Python applications.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-python)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-python)
 
 - **LangChain4j with FGARetriever (Java):**  
    A Java implementation demonstrating authorization-aware document retrieval using LangChain4j and FGARetriever.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langchain4j-java)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langchain4j-java)
 
 - **LangGraph Agentic with FGARetriever (JavaScript):**  
    Shows how to integrate FGARetriever with LangGraph's agentic framework for authorized document retrieval in JavaScript.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-agentic-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-agentic-js)
 
 - **LangGraph StateGraph with FGARetriever (JavaScript):**  
    Demonstrates using FGARetriever with LangGraph's state graph approach for authorized retrieval in JavaScript.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-stategraph-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-stategraph-js)
 
 - **LlamaIndex with FGARetriever (JavaScript):**  
    An implementation showing how to use FGARetriever with LlamaIndex for authorized document retrieval in JavaScript.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/llamaindex-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/llamaindex-js)
 
 - **LlamaIndex Agentic with FGARetriever (JavaScript):**  
    Shows how to combine FGARetriever with LlamaIndex's agentic capabilities for authorized retrieval in JavaScript.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/llamaindex-agentic-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/llamaindex-agentic-js)
 
 - **OpenAI with FGARetriever (JavaScript):**  
    A direct implementation using OpenAI's APIs with FGARetriever for authorized document retrieval in JavaScript.  
-   [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/openai-fga-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/openai-fga-js)
+
+- **Vercel AI with FGAFilter (JavaScript):**  
+   A direct implementation using Vercel AI SDk with FGAFilter for authorized document retrieval in JavaScript.  
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/vercel-ai-js)
