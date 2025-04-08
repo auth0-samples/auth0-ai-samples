@@ -10,8 +10,8 @@ async function main() {
   );
   const { response, text } = await askLLM(
     [{ role: "user", content: "Buy 3 stocks of Google" }],
-    // Provide the Auth0 User Id of the approver
-    { userID: "google-oauth2|100929229033039630042" }
+    // Provide the Auth0 User Id of the approver. Something like 'auth0|100929229033039630042'
+    { userID: "<authenticated-user-id>" }
   );
 
   console.log(text);
