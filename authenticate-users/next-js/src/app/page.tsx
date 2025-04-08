@@ -24,7 +24,7 @@ export default function Page() {
 
   // If user exists, show a welcome message and logout button.
   return (
-    <main>
+    <main className="flex flex-col items-center justify-center h-screen">
       <h1>Welcome, {user.name}!</h1>
       <p>
         <a href="/auth/logout">
