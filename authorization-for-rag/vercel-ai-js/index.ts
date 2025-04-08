@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { generateText, tool } from "ai";
+import { generateText } from "ai";
 import { FGAFilter } from "@auth0/ai";
 import {
   DocumentWithScore,
@@ -11,6 +11,9 @@ import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
 async function main() {
+  console.log(
+    "\n..:: Vercel AI SDK Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)\n\n"
+  );
   // User ID
   const user = "user1";
   // User query
@@ -31,33 +34,42 @@ async function main() {
     }),
   });
 
-  // 4. Generate a response using Vercel AI SDK
-  const result = await generateText({
+  // 3. Search for relevant documents
+  const results = await vectorStore.search(prompt, 20);
+
+  // 4. Filter documents based on user permissions
+  const context = await retriever.filter(results);
+
+  // 5. Generate a response using Vercel AI SDK
+  const { text } = await generateText({
     model: openai("gpt-4o-mini"),
-    prompt,
-    system: `You are a helpful assistant. Use the tool to get information regarding ZEKO and answer the user's question based on that information.`,
-    tools: {
-      getInformation: tool({
-        description: `get information from your knowledge base to answer questions.`,
-        parameters: z.object({
-          question: z.string().describe("the users question"),
-        }),
-        execute: async ({ question }) => {
-          // Search for relevant documents
-          const results = await vectorStore.search(question, 20);
+    prompt: `Answer the following question based only on the provided context:
+             ${context.map((c) => c.document.text).join("\n\n")}
 
-          // Filter documents based on user permissions
-          const context = await retriever.filter(results);
-
-          //   return context.map((c) => c.document.text).join("\n\n");
-          return context;
-        },
-      }),
-    },
+             Question: ${prompt}`,
   });
 
-  // 5. Print the answer
-  console.log(result.text);
+  // 6. Print the answer
+  console.log(text);
+
+  /**
+   * Can also be used as a tool to provide context to the Agent  
+  const getFinancialInfo = tool({
+    description: `get information from your knowledge base to answer questions.`,
+    parameters: z.object({
+      question: z.string().describe("the users question"),
+    }),
+    execute: async ({ question }) => {
+      // Search for relevant documents
+      const results = await vectorStore.search(question, 20);
+
+      // Filter documents based on user permissions
+      const context = await retriever.filter(results);
+
+      return context.map((c) => c.document.text).join("\n\n");
+    },
+  }); 
+  */
 }
 
 main().catch(console.error);
