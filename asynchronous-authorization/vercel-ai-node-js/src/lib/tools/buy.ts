@@ -26,7 +26,7 @@ export const buy = (context: Context) => {
      * In practice, the process that is awaiting the user confirmation
      * could crash or timeout before the user approves the request.
      *
-     * For a more real world scenario refer to `demos/vercel-ai-agent`.
+     * For a more real world scenario refer to `https://github.com/auth0-lab/auth0-ai-js/demos/vercel-ai-agent`.
      */
     onAuthorizationRequest: "block",
     onUnauthorized: async (e: Error) => {
