@@ -6,10 +6,10 @@ Use secure standards to get API tokens for Google, Github and more. Seamlessly i
 
 Explore the following examples demonstrating the integration of **Auth0** with different frameworks for tool calling:
 
-- **Call Your APIs on users' behalf with Next.js (JavaScript):**  
+- **Call Your APIs on users' behalf with Vercel AI & Next.js (JavaScript):**  
    A simple Next.js application that uses Auth0 to authenticate users and call your APIs on their behalf.  
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/call-apis-on-users-behalf/your-api-next-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/call-apis-on-users-behalf/your-api-vercel-ai-next-js)
 
-- **Call Other's APIs on users' behalf with Next.js (JavaScript):**  
+- **Call Other's APIs on users' behalf with Vercel AI & Next.js (JavaScript):**  
    A simple Next.js application that uses Auth0 to authenticate users and call Google Calendar APIs on their behalf.  
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/call-apis-on-users-behalf/others-api-next-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/call-apis-on-users-behalf/others-api-vercel-ai-next-js)

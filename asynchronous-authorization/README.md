@@ -9,3 +9,7 @@ Explore the following examples demonstrating the integration of **Auth0** with d
 - **Vercel AI SDK + Node.js (JavaScript):**  
    A simple Node.js application that demonstrates how to use Vercel AI SDK and Auth0 to get user confirmation for async tasks.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/vercel-ai-node-js)
+
+- **Vercel AI SDK + Next.js (JavaScript):**  
+   A Next.js application that demonstrates how to use Vercel AI SDK and Auth0 to get user confirmation for async tasks.
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/vercel-ai-next-js)
