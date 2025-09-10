@@ -43,35 +43,27 @@ export const buy = (context: Context) => {
   return withAsyncAuthorization(
     tool({
       description: "Use this function to buy stock",
-      parameters: z.object({
+      inputSchema: z.object({
         ticker: z.string(),
         qty: z.number(),
       }),
       execute: async ({ ticker, qty }) => {
-        const headers = {
-          "Content-Type": "application/json",
-        };
-        const body = {
-          ticker: ticker,
-          qty: qty,
-        };
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
         const credentials = getCIBACredentials();
         const accessToken = credentials?.accessToken?.value;
-
-        if (accessToken) {
-          headers["Authorization"] = "Bearer " + accessToken;
-        }
+        if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
 
         console.log("Executing request to buy stock");
 
         const response = await fetch(process.env["STOCK_API_URL"]!, {
           method: "POST",
-          headers: headers,
-          body: JSON.stringify(body),
+          headers,
+          body: JSON.stringify({ ticker, qty }),
         });
 
         return response.statusText;
       },
     })
   );
+
 };
