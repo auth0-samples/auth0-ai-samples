@@ -2,11 +2,10 @@ import { LogIn, UserPlus } from 'lucide-react';
 import { ChatWindow } from '@/components/chat-window';
 import { GuideInfoBox } from '@/components/guide/GuideInfoBox';
 import { Button } from '@/components/ui/button';
-
-import { auth0 } from '@/lib/auth0';
+import {getCurrentSession} from "@/utils/session";
 
 export default async function Home() {
-  const session = await auth0.getSession();
+  const session = await getCurrentSession();
 
   if (!session) {
     return (
