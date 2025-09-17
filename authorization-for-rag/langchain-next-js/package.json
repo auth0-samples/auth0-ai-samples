@@ -25,12 +25,12 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@auth0/ai-langchain": "3",
+    "@auth0/ai-langchain": "^3.5.0",
     "@auth0/nextjs-auth0": "4.4.2",
     "@langchain/community": "0.3.42",
-    "@langchain/core": "0.3",
-    "@langchain/langgraph": "0.3",
-    "@langchain/openai": "0.6",
+    "@langchain/core": "^0.3.77",
+    "@langchain/langgraph": "^0.3.12",
+    "@langchain/openai": "^0.6.13",
     "@radix-ui/react-avatar": "^1.1.7",
     "@radix-ui/react-checkbox": "^1.2.3",
     "@radix-ui/react-dialog": "^1.1.11",

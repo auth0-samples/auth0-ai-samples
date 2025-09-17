@@ -6,7 +6,8 @@ const auth0AI = new Auth0AI();
 // CIBA flow for user confirmation
 export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
   userID: async (_params, config) => {
-    return config?.configurable?._credentials?.user?.sub;
+    // return config?.configurable?._credentials?.user?.sub;
+    return config.configurable?.langgraph_auth_user?.sub;
   },
   bindingMessage: async ({ product, qty }) => `Do you want to buy ${qty} ${product}`,
   scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
