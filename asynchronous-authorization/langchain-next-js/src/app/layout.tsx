@@ -8,7 +8,7 @@ import { ActiveLink } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import UserButton from '@/components/auth0/user-button';
-import { auth0 } from '@/lib/auth0';
+import { getCurrentSession } from '@/utils/session';
 
 const robotoMono = Roboto_Mono({ weight: '400', subsets: ['latin'] });
 const publicSans = Inter({ weight: '400', subsets: ['latin'] });
@@ -17,7 +17,7 @@ const TITLE = 'Auth0 Assistant0: An Auth0 + LangChain + Next.js Template';
 const DESCRIPTION = 'Starter template showing how to use Auth0 in LangChain + Next.js projects.';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth0.getSession();
+  const session = await getCurrentSession();
 
   return (
     <html lang="en" suppressHydrationWarning>
