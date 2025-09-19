@@ -1,0 +1,40 @@
+{
+  "name": "langchain-react-spa-js",
+  "author": {
+    "name": "Auth0 Inc.",
+    "url": "https://auth0.com"
+  },
+  "private": true,
+  "workspaces": [
+    "apps/**"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build:all": "turbo build",
+    "turbo:command": "turbo",
+    "format": "turbo format",
+    "lint:all": "turbo lint",
+    "lint:all:fix": "turbo lint:fix"
+  },
+  "dependencies": {
+    "@auth0/ai": "*",
+    "@auth0/ai-langchain": "*",
+    "@langchain/community": "^0.3.54"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "tsx": "^4.19.1",
+    "typescript": "^5",
+    "eslint": "^9.19.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@eslint/eslintrc": "^3.3.0",
+    "@typescript-eslint/parser": "^8.26.1",
+    "@tsconfig/recommended": "^1.0.8",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-no-instanceof": "^1.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "prettier": "^3.3.3"
+  },
+  "packageManager": "npm@11.2.1"
+}

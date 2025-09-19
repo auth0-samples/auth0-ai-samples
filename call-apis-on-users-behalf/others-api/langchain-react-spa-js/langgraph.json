@@ -1,0 +1,16 @@
+{
+  "node_version": "20",
+  "dependencies": ["."],
+  "graphs": {
+    "memory_agent": "./apps/agents/src/memory-agent/graph.ts:graph"
+  },
+  "auth": {
+    "path": "./apps/agents/src/auth.ts:authHandler"
+  },
+  "http": {
+    "configurable_headers": {
+      "include": ["authorization", "x-api-key"]
+    }
+  },
+  "env": "./apps/agents/.env"
+}

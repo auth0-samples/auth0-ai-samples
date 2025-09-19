@@ -1,0 +1,54 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": [
+        "NODE_ENV",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "TAVILY_API_KEY"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "NODE_ENV",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "TAVILY_API_KEY"
+      ]
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "env": ["NODE_ENV"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^lint:fix"]
+    },
+    "format": {
+      "dependsOn": ["^format"]
+    }
+  },
+  "globalDependencies": [
+    "**/.env",
+    "**/.env.*",
+    "**/.env.local",
+    "**/.env.*.local",
+    ".gitignore",
+    "turbo.json",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "CI",
+    "TURBO_TOKEN",
+    "TURBO_TEAM",
+    "TURBO_REMOTE_ONLY"
+  ]
+}

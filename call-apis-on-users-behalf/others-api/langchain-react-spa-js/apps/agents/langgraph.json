@@ -1,0 +1,11 @@
+{
+  "node_version": "20",
+  "dependencies": ["."],
+  "graphs": {
+    "memory_agent": "./src/memory-agent/graph.ts:graph"
+  },
+  "auth": {
+    "path": "./src/auth.ts:authHandler"
+  },
+  "env": ".env"
+}
