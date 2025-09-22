@@ -45,7 +45,7 @@
     "drizzle-zod": "^0.7.1",
     "googleapis": "^148.0.0",
     "langchain": "0.3",
-    "langgraph-nextjs-api-passthrough": "0.1",
+    "langgraph-nextjs-api-passthrough": "^0.1.4",
     "lucide-react": "^0.475.0",
     "marked": "^15.0.7",
     "nanoid": "^5.1.5",
