@@ -1,20 +1,14 @@
 import { initApiPassthrough } from 'langgraph-nextjs-api-passthrough';
 
 import { getAccessToken } from '@/lib/auth0';
-import { NextRequest } from 'next/server';
 
 export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } = initApiPassthrough({
   apiUrl: process.env.LANGGRAPH_API_URL,
   baseRoute: 'chat/',
-  runtime: 'edge',
-  headers: async (req: NextRequest) => {
-    const headers: Record<string, string> = {};
-    req.headers.forEach((value, key) => {
-      headers[key] = value;
-    });
-
+  headers: async () => {
     const accessToken = await getAccessToken();
-    headers["Authorization"] = `Bearer ${accessToken}`;
-    return headers;
+    return {
+      Authorization: `Bearer ${accessToken}`,
+    };
   },
 });

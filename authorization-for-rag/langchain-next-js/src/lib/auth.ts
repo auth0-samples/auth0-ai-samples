@@ -4,11 +4,10 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 const { Auth, HTTPException } = require("@langchain/langgraph-sdk/auth");
 
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 
-if (!AUTH0_DOMAIN || !AUTH0_AUDIENCE) {
+if (!AUTH0_DOMAIN) {
   throw new Error(
-    "Missing AUTH0_DOMAIN or AUTH0_AUDIENCE environment variables"
+    "Missing AUTH0_DOMAIN environment variables"
   );
 }
 
@@ -60,7 +59,6 @@ auth.authenticate(async (request: Request) => {
         // Verify the JWT using Auth0 JWKS
         const { payload } = await jwtVerify(token, JWKS, {
           issuer: `https://${AUTH0_DOMAIN}/`,
-          audience: AUTH0_AUDIENCE,
         });
 
         console.log("✅ Auth0 JWT payload resolved!", payload);
