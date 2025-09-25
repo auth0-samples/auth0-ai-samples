@@ -1,8 +1,8 @@
 'use client';
 
-import { type Message } from 'ai';
+import { useState, type FormEvent, type ReactNode } from 'react';
+import { type UIMessage } from 'ai';
 import { useChat } from '@ai-sdk/react';
-import type { FormEvent, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 import { ArrowDown, ArrowUpIcon, LoaderCircle } from 'lucide-react';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 
 function ChatMessages(props: {
-  messages: Message[];
+  messages: UIMessage[];
   emptyStateComponent: ReactNode;
   aiEmoji?: string;
   className?: string;
@@ -110,22 +110,26 @@ export function ChatWindow(props: {
   placeholder?: string;
   emoji?: string;
 }) {
-  const chat = useChat({
-    api: props.endpoint,
+  const {
+    messages,
+    sendMessage,
+    status,
+  } = useChat({
     onError: (e: Error) => {
       console.error('Error: ', e);
-      toast.error(`Error while processing your request`, { description: e.message });
+      toast.error('Error while processing your request', { description: e.message });
     },
   });
 
-  function isChatLoading(): boolean {
-    return chat.status === 'streaming';
-  }
+  const [input, setInput] = useState('');
 
-  async function sendMessage(e: FormEvent<HTMLFormElement>) {
+  const isChatLoading = status === 'streaming';
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (isChatLoading()) return;
-    chat.handleSubmit(e);
+    if (!input.trim() || isChatLoading) return;
+    await sendMessage({ text: input });
+    setInput('');
   }
 
   return (
@@ -134,31 +138,25 @@ export function ChatWindow(props: {
         className="absolute inset-0"
         contentClassName="py-8 px-2"
         content={
-          chat.messages.length === 0 ? (
+          messages.length === 0 ? (
             <div>{props.emptyStateComponent}</div>
           ) : (
-            <>
-              <ChatMessages
-                aiEmoji={props.emoji}
-                messages={chat.messages}
-                emptyStateComponent={props.emptyStateComponent}
-              />
-            </>
+            <ChatMessages aiEmoji={props.emoji} messages={messages} emptyStateComponent={props.emptyStateComponent} />
           )
         }
         footer={
           <div className="sticky bottom-8 px-2">
             <ScrollToBottom className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4" />
             <ChatInput
-              value={chat.input}
-              onChange={chat.handleInputChange}
-              onSubmit={sendMessage}
-              loading={isChatLoading()}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onSubmit={onSubmit}
+              loading={isChatLoading}
               placeholder={props.placeholder ?? 'What can I help you with?'}
-            ></ChatInput>
+            />
           </div>
         }
-      ></StickyToBottomContent>
+      />
     </StickToBottom>
   );
 }
