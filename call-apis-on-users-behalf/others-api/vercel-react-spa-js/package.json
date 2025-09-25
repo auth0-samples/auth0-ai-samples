@@ -1,0 +1,50 @@
+{
+  "name": "@auth0/auth0-ai-js-examples-react-hono-ai-sdk",
+  "version": "0.4.0",
+  "private": true,
+  "description": "A monorepo template built with npm, Hono, Vite, and React",
+  "author": {
+    "name": "Auth0 Inc.",
+    "url": "https://auth0.com"
+  },
+  "license": "Apache-2.0",
+  "packageManager": "npm@9.8.0",
+  "workspaces": [
+    "./server",
+    "./client",
+    "./shared"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:client": "turbo dev --filter=client",
+    "dev:server": "turbo dev --filter=server",
+    "build:all": "turbo build",
+    "build:client": "turbo build --filter=client",
+    "build:server": "turbo build --filter=server",
+    "lint:all": "turbo lint",
+    "lint:client": "turbo lint --filter=client",
+    "lint:server": "turbo lint --filter=server",
+    "type-check": "turbo type-check",
+    "test:all": "turbo test"
+  },
+  "keywords": [
+    "npm",
+    "hono",
+    "react",
+    "vite",
+    "monorepo",
+    "turbo"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.15.31",
+    "turbo": "^2.5.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@auth0/ai": "*",
+    "@auth0/ai-vercel": "*",
+    "hono": "^4.8.5"
+  }
+}
