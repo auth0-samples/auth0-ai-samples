@@ -2,9 +2,8 @@ import { createReactAgent, ToolNode } from '@langchain/langgraph/prebuilt';
 import { ChatOpenAI } from '@langchain/openai';
 import { InMemoryStore, MemorySaver } from '@langchain/langgraph';
 import { Calculator } from '@langchain/community/tools/calculator';
-import { GmailSearch } from '@langchain/community/tools/gmail';
 
-import { gmailCommunityTool } from './tools/gmail-search';
+import { gmailSearchTool } from './tools/gmail-search';
 
 const date = new Date().toISOString();
 
@@ -15,7 +14,7 @@ const llm = new ChatOpenAI({
   temperature: 0,
 });
 
-const tools = [new Calculator(), gmailCommunityTool];
+const tools = [new Calculator(), gmailSearchTool];
 
 const checkpointer = new MemorySaver();
 const store = new InMemoryStore();

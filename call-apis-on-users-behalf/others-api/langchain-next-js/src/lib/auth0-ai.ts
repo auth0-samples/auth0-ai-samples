@@ -20,7 +20,7 @@ const withAccessTokenForConnection = (connection: string, scopes: string[]) =>
   });
 
 // Connection for Google services
-export const withGmailCommunity = withAccessTokenForConnection(
+export const withGmailSearch = withAccessTokenForConnection(
   'google-oauth2',
   ['https://www.googleapis.com/auth/gmail.readonly'],
 );
