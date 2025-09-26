@@ -1,6 +1,5 @@
 from auth0_ai.authorizers.types import Auth0ClientParams
 from auth0_ai_langchain.auth0_ai import Auth0AI
-from langchain_core.runnables import ensure_config
 
 from app.core.config import settings
 
@@ -14,7 +13,7 @@ auth0_ai = Auth0AI(
     )
 )
 
-with_calendar_access = auth0_ai.with_federated_connection(
+with_calendar_access = auth0_ai.with_token_vault(
     connection="google-oauth2",
     scopes=["https://www.googleapis.com/auth/calendar.events"],
 )
