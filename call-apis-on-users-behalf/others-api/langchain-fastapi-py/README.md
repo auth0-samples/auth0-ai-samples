@@ -49,7 +49,7 @@ Now you're ready to run the development server:
 ```bash
 source .venv/bin/activate
 uv pip install auth0_fastapi # install the auth0 fastapi package
-fastapi dev app/main.py --port 3000
+fastapi dev app/main.py
 ```
 
 ### Start the LangGraph server
