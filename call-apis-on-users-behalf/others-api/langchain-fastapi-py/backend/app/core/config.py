@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     FRONTEND_HOST: str = "http://localhost:5173"
     BACKEND_CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = [
-        "http://localhost:3000"
+        "http://localhost:8000"
     ]
 
     @computed_field  # type: ignore[prop-decorator]
