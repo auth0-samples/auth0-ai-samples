@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from dotenv import load_dotenv
-from langchain_auth0_ai import FGARetriever
+from auth0_ai_langchain import FGARetriever
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
