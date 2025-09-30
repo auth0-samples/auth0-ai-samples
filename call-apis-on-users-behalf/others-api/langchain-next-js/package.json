@@ -46,6 +46,7 @@
     "drizzle-orm": "^0.43.1",
     "drizzle-zod": "^0.7.1",
     "googleapis": "^150.0.1",
+    "jose": "^6.1.0",
     "langchain": "^0.3.12",
     "langgraph-nextjs-api-passthrough": "^0.1.4",
     "lucide-react": "^0.475.0",
