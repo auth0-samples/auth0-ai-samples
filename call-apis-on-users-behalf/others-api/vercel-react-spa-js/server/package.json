@@ -1,0 +1,29 @@
+{
+  "name": "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-server",
+  "private": true,
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.0",
+    "@auth0/ai": "*",
+    "@auth0/ai-vercel": "*",
+    "@hono/node-server": "^1.13.7",
+    "ai": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "googleapis": "^153.0.0",
+    "hono": "^4.7.11",
+    "jose": "^5.2.0",
+    "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-shared": "*",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.31",
+    "tsx": "^4.7.1",
+    "typescript": "^5.7.3"
+  }
+}
