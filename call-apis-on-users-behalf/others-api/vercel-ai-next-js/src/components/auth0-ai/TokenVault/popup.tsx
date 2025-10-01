@@ -4,14 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import { WaitingMessage } from "../util/loader";
 import { PromptUserContainer } from "../util/prompt-user-container";
-import type { FederatedConnectionAuthProps } from "./FederatedConnectionAuthProps";
+import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
 
-export function EnsureAPIAccessPopup({
+export function TokenVaultConsentPopup({
   interrupt: { connection, requiredScopes, resume },
   connectWidget: { icon, title, description, action, containerClassName },
   auth: { authorizePath = "/auth/login", returnTo = "/close" } = {},
   onFinish,
-}: FederatedConnectionAuthProps) {
+}: TokenVaultAuthProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loginPopup, setLoginPopup] = useState<Window | null>(null);
 
@@ -63,7 +63,7 @@ export function EnsureAPIAccessPopup({
       setLoginPopup(popup);
       setIsLoading(true);
     }
-  }, [connection, requiredScopes, returnTo, authorizePath]);
+  }, [connection, requiredScopes]);
 
   if (isLoading) {
     return <WaitingMessage />;

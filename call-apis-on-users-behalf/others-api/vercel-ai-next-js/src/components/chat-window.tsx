@@ -8,7 +8,7 @@ import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 import { ArrowDown, ArrowUpIcon, LoaderCircle } from 'lucide-react';
 
 import { useInterruptions } from '@auth0/ai-vercel/react';
-import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnections/FederatedConnectionInterruptHandler';
+import { TokenVaultInterruptHandler } from '@/components/auth0-ai/TokenVault/TokenVaultInterruptHandler';
 
 import { ChatMessageBubble } from '@/components/chat-message-bubble';
 import { Button } from '@/components/ui/button';
@@ -150,7 +150,7 @@ export function ChatWindow(props: {
                 emptyStateComponent={props.emptyStateComponent}
               />
               <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-                <FederatedConnectionInterruptHandler interrupt={chat.toolInterrupt} />
+                <TokenVaultInterruptHandler interrupt={chat.toolInterrupt} />
               </div>
             </>
           )

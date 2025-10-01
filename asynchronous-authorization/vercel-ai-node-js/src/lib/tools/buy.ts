@@ -3,7 +3,7 @@ import "dotenv/config";
 import { tool } from "ai";
 import { z } from "zod";
 
-import { Auth0AI, getCIBACredentials } from "@auth0/ai-vercel";
+import { Auth0AI, getAsyncAuthorizationCredentials } from "@auth0/ai-vercel";
 import { AccessDeniedInterrupt } from "@auth0/ai/interrupts";
 
 export type Context = {
@@ -13,7 +13,7 @@ export type Context = {
 const auth0AI = new Auth0AI();
 
 export const buy = (context: Context) => {
-  const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
+  const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
     userID: context.userId,
     bindingMessage: async ({ ticker, qty }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
@@ -23,7 +23,7 @@ export const buy = (context: Context) => {
      * When this flag is set to `block`, the execution of the tool awaits
      * until the user approves or rejects the request.
      *
-     * Given the asynchronous nature of the CIBA flow, this mode
+     * Given the asynchronous nature of the Async Authorization flow, this mode
      * is only useful during development.
      *
      * In practice, the process that is awaiting the user confirmation
@@ -55,7 +55,7 @@ export const buy = (context: Context) => {
           ticker: ticker,
           qty: qty,
         };
-        const credentials = getCIBACredentials();
+        const credentials = getAsyncAuthorizationCredentials();
         const accessToken = credentials?.accessToken?.value;
 
         if (accessToken) {

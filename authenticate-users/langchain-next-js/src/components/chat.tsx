@@ -1,8 +1,8 @@
 'use client';
 
 import { useStream } from "@langchain/langgraph-sdk/react";
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
-import { EnsureAPIAccessPopup } from "@/components/auth0-ai/FederatedConnections/popup";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultConsentPopup } from "@/components/auth0-ai/TokenVault/popup";
 import { useQueryState } from "nuqs";
 import { FormEventHandler, useEffect, useRef, useState } from "react";
 
@@ -63,9 +63,9 @@ export default function Chat() {
         </div>
       ))}
 
-      {thread.interrupt && FederatedConnectionInterrupt.isInterrupt(thread.interrupt.value) ? (
+      {thread.interrupt && TokenVaultInterrupt.isInterrupt(thread.interrupt.value) ? (
         <div key={thread.interrupt.ns?.join("")}>
-          <EnsureAPIAccessPopup
+          <TokenVaultConsentPopup
             interrupt={thread.interrupt.value}
             onFinish={() => thread.submit(null)}
             connectWidget={{

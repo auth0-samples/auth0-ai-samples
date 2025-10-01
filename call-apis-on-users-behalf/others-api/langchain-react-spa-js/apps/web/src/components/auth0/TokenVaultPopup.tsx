@@ -3,23 +3,23 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAuth0Client } from "@/lib/auth0";
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 /**
- * Component for handling federated connection authorization in LangGraph SDK.
- * This handles Auth0 federated connection interrupts by prompting the user
+ * Component for handling Token Vault authorization in LangGraph SDK.
+ * This handles Auth0 Token Vault interrupts by prompting the user
  * to authorize additional scopes via popup authentication.
  */
 
-interface FederatedConnectionPopupProps {
-  interrupt: FederatedConnectionInterrupt;
+interface TokenVaultPopupProps {
+  interrupt: TokenVaultInterrupt;
   onResume?: () => void;
 }
 
-export function FederatedConnectionPopup({
+export function TokenVaultPopup({
   interrupt,
   onResume,
-}: FederatedConnectionPopupProps) {
+}: TokenVaultPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { connection, requiredScopes, message } = interrupt;
@@ -40,7 +40,7 @@ export function FederatedConnectionPopup({
       // Use getTokenWithPopup for step-up authorization to request additional scopes
       await auth0Client.getTokenWithPopup({
         authorizationParams: {
-          prompt: "consent", // Required for federated connection scopes
+          prompt: "consent", // Required for token vault scopes
           connection: connection, // e.g., "google-oauth2"
           connection_scope: validScopes.join(" "), // Connection-specific scopes
           access_type: "offline",

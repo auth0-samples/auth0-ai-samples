@@ -16,7 +16,7 @@ const auth0AI = new Auth0AI({
 });
 
 const withAccessTokenForConnection = (connection: string, scopes: string[]) =>
-  auth0AI.withTokenForConnection({
+  auth0AI.withTokenVault({
     connection,
     scopes,
     accessToken: async (_, config) => {

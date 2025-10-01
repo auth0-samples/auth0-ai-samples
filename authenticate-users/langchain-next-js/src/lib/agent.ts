@@ -29,7 +29,7 @@ const stateGraph = new StateGraph(MessagesAnnotation)
     "tools",
     new ToolNode(
       [
-        // A tool with federated connection access
+        // A tool with token vault access
         checkUsersCalendar,
         // ... other tools
       ],

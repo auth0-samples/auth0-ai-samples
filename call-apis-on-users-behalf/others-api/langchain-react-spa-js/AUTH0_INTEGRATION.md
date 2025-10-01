@@ -399,9 +399,9 @@ export default function ChatInterface() {
 
 The create-agent-chat-app template includes sophisticated interrupt handling for step-up authorization scenarios, particularly when accessing third-party APIs through Auth0's Token Vault. This enables agents to request additional permissions dynamically during conversations.
 
-##### Federated Connection Interrupts
+##### Token Vault Interrupts
 
-When an agent tool requires access to a third-party service (like Google Calendar) that the user hasn't previously authorized, LangGraph can raise a `FederatedConnectionInterrupt`. The frontend handles these interrupts by displaying an authorization popup.
+When an agent tool requires access to a third-party service (like Google Calendar) that the user hasn't previously authorized, LangGraph can raise a `TokenVaultInterrupt`. The frontend handles these interrupts by displaying an authorization popup.
 
 ##### Implementation
 
@@ -427,8 +427,8 @@ Create `apps/web/src/components/auth0/Auth0InterruptHandler.tsx`:
 
 ```typescript
 import { Auth0Interrupt } from "@auth0/ai/interrupts";
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
-import { FederatedConnectionPopup } from "./FederatedConnectionPopup";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultPopup } from "./TokenVaultPopup";
 
 interface Auth0InterruptHandlerProps {
   interrupt: Auth0Interrupt;
@@ -439,11 +439,11 @@ export function Auth0InterruptHandler({
   interrupt,
   onResume,
 }: Auth0InterruptHandlerProps) {
-  // Handle FederatedConnectionInterrupt
-  if (FederatedConnectionInterrupt.isInterrupt(interrupt)) {
+  // Handle TokenVaultInterrupt
+  if (TokenVaultInterrupt.isInterrupt(interrupt)) {
     return (
-      <FederatedConnectionPopup
-        interrupt={interrupt as FederatedConnectionInterrupt}
+      <TokenVaultPopup
+        interrupt={interrupt as TokenVaultInterrupt}
         onResume={onResume}
       />
     );
@@ -453,25 +453,25 @@ export function Auth0InterruptHandler({
 }
 ```
 
-###### 3. Federated Connection Popup
+###### 3. Token Vault Popup
 
-The `FederatedConnectionPopup` component handles the OAuth flow for third-party connections:
+The `TokenVaultPopup` component handles the OAuth flow for third-party connections:
 
 ```typescript
-// apps/web/src/components/auth0/FederatedConnectionPopup.tsx
+// apps/web/src/components/auth0/TokenVaultPopup.tsx
 import { useState } from "react";
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 import { useAuth0 } from "@/hooks/useAuth0";
 
-interface FederatedConnectionPopupProps {
-  interrupt: FederatedConnectionInterrupt;
+interface TokenVaultPopupProps {
+  interrupt: TokenVaultInterrupt;
   onResume: () => void;
 }
 
-export function FederatedConnectionPopup({
+export function TokenVaultPopup({
   interrupt,
   onResume,
-}: FederatedConnectionPopupProps) {
+}: TokenVaultPopupProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const { getToken } = useAuth0();
 
@@ -542,8 +542,8 @@ export function FederatedConnectionPopup({
 
 ##### How It Works
 
-1. **Agent Tool Execution**: When a tool like `checkUsersCalendar` needs additional permissions, it throws a `FederatedConnectionError`
-2. **LangGraph Interrupt**: LangGraph converts this into a `FederatedConnectionInterrupt` and pauses execution
+1. **Agent Tool Execution**: When a tool like `checkUsersCalendar` needs additional permissions, it throws a `TokenVaultError`
+2. **LangGraph Interrupt**: LangGraph converts this into a `TokenVaultInterrupt` and pauses execution
 3. **Frontend Detection**: The React app detects the interrupt and renders the `Auth0InterruptHandler`
 4. **User Authorization**: User clicks to authorize the connection in a popup window
 5. **Resume Execution**: After authorization, the conversation resumes with the new permissions
@@ -649,7 +649,7 @@ const auth0AI = new Auth0AI({
   },
 });
 
-export const withGoogleCalendar = auth0AI.withTokenForConnection({
+export const withGoogleCalendar = auth0AI.withTokenVault({
   connection: "google-oauth2",
   scopes: ["https://www.googleapis.com/auth/calendar.freebusy"],
   accessToken: async (_, config) => {
@@ -666,8 +666,8 @@ import { addHours, formatISO } from "date-fns";
 import { GaxiosError } from "gaxios";
 import { google } from "googleapis";
 
-import { getAccessTokenForConnection } from "@auth0/ai-langchain";
-import { FederatedConnectionError } from "@auth0/ai/interrupts";
+import { getAccessTokenFromTokenVault } from "@auth0/ai-langchain";
+import { TokenVaultError } from "@auth0/ai/interrupts";
 import { tool } from "@langchain/core/tools";
 
 import { withGoogleCalendar } from "../../auth0-ai";
@@ -676,7 +676,7 @@ export const checkUsersCalendar = withGoogleCalendar(
   tool(
     async ({ date }) => {
       try {
-        const accessToken = getAccessTokenForConnection();
+        const accessToken = getAccessTokenFromTokenVault();
 
         const calendar = google.calendar("v3");
         const auth = new google.auth.OAuth2();
@@ -700,8 +700,8 @@ export const checkUsersCalendar = withGoogleCalendar(
         };
       } catch (err) {
         if (err instanceof GaxiosError && err.status === 401) {
-          throw new FederatedConnectionError(
-            `Authorization required to access the Federated Connection`
+          throw new TokenVaultError(
+            `Authorization required to access the Token Vault`
           );
         }
         throw err;

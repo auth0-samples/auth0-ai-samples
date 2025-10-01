@@ -13,7 +13,7 @@ export const withAccessTokenForConnection = (
   connection: string,
   scopes: string[]
 ) =>
-  auth0AI.withTokenForConnection({
+  auth0AI.withTokenVault({
     connection,
     scopes,
     accessToken: async (_, config) => {
