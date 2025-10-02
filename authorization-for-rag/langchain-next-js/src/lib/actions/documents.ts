@@ -16,7 +16,7 @@ import { auth0 } from '@/lib/auth0';
 export const createDocument = async (input: NewDocumentParams, text: string) => {
   const session = await auth0.getSession();
   const user = session?.user;
-  if (!user || !user.email || !user.sub) throw new Error('User not authenticated');
+  if (!user || !user.email) throw new Error('User not authenticated');
 
   const { content, fileName, fileType, sharedWith } = insertDocumentSchema.parse(input);
 

@@ -6,7 +6,7 @@ import { getVectorStore } from '@/lib/rag/embedding';
 
 export const getContextDocumentsTool = tool(
   async ({ question }, config) => {
-    const user = config.configurable?.langgraph_auth_user;
+    const user = config.configurable?._credentials?.user;
 
     if (!user) {
       return 'There is no user logged in.';
