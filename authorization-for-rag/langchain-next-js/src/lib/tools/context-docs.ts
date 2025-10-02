@@ -6,7 +6,7 @@ import { getVectorStore } from '@/lib/rag/embedding';
 
 export const getContextDocumentsTool = tool(
   async ({ question }, config) => {
-    const user = config.configurable?.langgraph_auth_user;
+    const user = config.configurable?._credentials?.user;
 
     if (!user) {
       return 'There is no user logged in.';
@@ -21,9 +21,9 @@ export const getContextDocumentsTool = tool(
     const retriever = FGARetriever.create({
       retriever: vectorStore.asRetriever(),
       buildQuery: (doc) => ({
-        user: `user:${user?.sub}`,
+        user: `user:${user?.email}`,
         object: `doc:${doc.metadata.documentId}`,
-        relation: 'owner',
+        relation: 'can_view',
       }),
     });
 
