@@ -1,16 +1,18 @@
-import { type Tool } from 'ai';
+import { tool } from 'ai';
 import { z } from 'zod';
 import { getCIBACredentials } from '@auth0/ai-vercel';
+import { withAsyncAuthorization } from '../auth0-ai';
 
-const baseShopOnlineTool: Tool = {
+export const shopOnlineTool = withAsyncAuthorization(
+tool({
   description: 'Tool to buy products online',
-  parameters: z.object({
+  inputSchema: z.object({
     product: z.string(),
     qty: z.number().int().positive(),
     priceLimit: z.number().positive().optional(),
   }),
-  async execute(args) {
-    const { product, qty, priceLimit } = args as { product: string; qty: number; priceLimit?: number };
+  execute: async (args) => {
+    const { product, qty, priceLimit } = args;
     const apiUrl = process.env.SHOP_API_URL;
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
@@ -23,6 +25,5 @@ const baseShopOnlineTool: Tool = {
     if (!res.ok) throw new Error(`SHOP_API error ${res.status}: ${await res.text().catch(() => res.statusText)}`);
     return await res.text();
   },
-};
+}));
 
-export const shopOnlineTool = baseShopOnlineTool;
