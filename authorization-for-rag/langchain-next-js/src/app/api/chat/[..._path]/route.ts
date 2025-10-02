@@ -1,6 +1,6 @@
 import { initApiPassthrough } from 'langgraph-nextjs-api-passthrough';
 
-import { getUser } from '@/lib/auth0';
+import { getAccessToken, getUser } from '@/lib/auth0';
 
 export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } = initApiPassthrough({
   apiUrl: process.env.LANGGRAPH_API_URL,
@@ -20,5 +20,11 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } = initApiPassth
     }
 
     return body;
+  },
+  headers: async () => {
+    const accessToken = await getAccessToken();
+    return {
+      Authorization: `Bearer ${accessToken}`,
+    };
   },
 });

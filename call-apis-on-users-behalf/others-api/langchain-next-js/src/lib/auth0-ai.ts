@@ -1,12 +1,26 @@
-import { Auth0AI, getAccessTokenFromTokenVault } from '@auth0/ai-langchain';
+import { Auth0AI } from '@auth0/ai-langchain';
+import { SUBJECT_TOKEN_TYPES } from "@auth0/ai";
 
-// Get the access token for a connection via Auth0
-export const getAccessToken = async () => getAccessTokenFromTokenVault();
+const auth0AI = new Auth0AI({
+  auth0: {
+    domain: process.env.AUTH0_DOMAIN!,
+    clientId: process.env.AUTH0_CUSTOM_API_CLIENT_ID!,
+    clientSecret: process.env.AUTH0_CUSTOM_API_CLIENT_SECRET!,
+  },
+});
 
-const auth0AI = new Auth0AI();
+const withAccessTokenForConnection = (connection: string, scopes: string[]) =>
+  auth0AI.withTokenVault({
+    connection,
+    scopes,
+    accessToken: async (_, config) => {
+      return config.configurable?.langgraph_auth_user?.getRawAccessToken();
+    },
+    subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
+  });
 
 // Connection for Google services
-export const withGoogleConnection = auth0AI.withTokenVault({
-  connection: 'google-oauth2',
-  scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-});
+export const withGmailSearch = withAccessTokenForConnection(
+  'google-oauth2',
+  ['https://www.googleapis.com/auth/gmail.readonly'],
+);
