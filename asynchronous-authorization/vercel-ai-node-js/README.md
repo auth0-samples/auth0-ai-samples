@@ -43,7 +43,7 @@ OPENAI_API_KEY="openai-api-key"
 1. Install dependencies.
 
    ```sh
-   npm install
+   bun install
    ```
 
 2. Running the example
