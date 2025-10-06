@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300
+    }
+  },
+  "rewrites": [
+    { "source": "/mcp", "destination": "/api" },
+    { "source": "/mcp/(.*)", "destination": "/api" },
+    { "source": "/.well-known/oauth-protected-resource", "destination": "/api" },
+    { "source": "/health", "destination": "/api" }
+  ]
+}

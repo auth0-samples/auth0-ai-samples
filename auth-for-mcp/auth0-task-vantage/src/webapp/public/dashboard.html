@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Vantage | Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root{
+            --brand-a:#ff8a56; --brand-b:#ff6b9d; --brand-grad:linear-gradient(135deg,var(--brand-a) 0%,var(--brand-a) 70%,var(--brand-b) 100%);
+            --ink:#333; --muted:#666; --muter:#888;
+            --bg:#fff; --panel:#fff; --panel-border:#e1e5e9;
+            --g50:#f8f9fa; --g100:#f3f4f6; --g200:#e9ecef; --g250:#e5e7eb; --g300:#e1e5e9; --g350:#d1d5db;
+            --ok:#28a745; --warn:#fd7e14; --danger:#dc3545; --done:#d63384;
+            --shadow-weak:0 2px 4px rgba(0,0,0,.04); --shadow-strong:0 8px 24px rgba(0,0,0,.1)
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;color:var(--ink)}
+        .header{background:var(--panel);border-bottom:1px solid var(--panel-border);padding:16px 24px;box-shadow:var(--shadow-weak)}
+        .header-content{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+        .header-left{display:flex;align-items:center;gap:16px}
+        .logo{width:48px;height:48px;border-radius:12px;flex:0 0 48px}
+        .service-title-dash{display:grid;grid-template-columns:auto auto;grid-template-rows:1fr auto;grid-template-areas:"title web" "subtitle web";column-gap:8px;row-gap:2px;height:48px;align-items:center}
+        .service-title-dash .task-vantage{grid-area:title;color:var(--ink);font-size:24px;font-weight:700;align-self:end}
+        .service-title-dash .web{grid-area:web;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:55px;font-weight:700;line-height:1;height:100%;display:flex;align-items:center}
+        .brand-subtitle{grid-area:subtitle;font-size:12px;color:var(--muted);align-self:start}
+
+        .user-info{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+        .user-details{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+        .logout-link{font-size:12px;color:#999;text-decoration:none;transition:color .2s}
+        .logout-link:hover{color:var(--brand-b);text-decoration:underline}
+        .user-type-badge{background:var(--brand-grad);color:#fff;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600}
+        .user-type-badge.b2b{background:linear-gradient(135deg,var(--ok) 0%,#20c997 100%)}
+        .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;overflow:hidden}
+
+        .main-content{padding:24px;max-width:1400px;margin:0 auto}
+        .toolbar{display:flex;gap:16px;margin-bottom:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+        .toolbar-left{display:flex;gap:16px;align-items:center}
+
+        .btn{padding:10px 20px;border-radius:8px;font-weight:500;text-decoration:none;transition:all .2s;font-size:14px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+        .btn-primary{background:var(--brand-grad);color:#fff}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,138,86,.3)}
+        .btn-secondary{background:var(--panel);color:var(--ink);border:1px solid var(--panel-border)}
+        .btn-secondary:hover{border-color:var(--brand-b);color:var(--brand-b)}
+        .btn-icon{color:#fff;margin-right:8px}
+
+        .search-box{padding:8px 16px;border:1px solid var(--panel-border);border-radius:8px;font-size:14px;width:300px;background:var(--panel);color:var(--ink)}
+        .search-box:focus{outline:none;border-color:var(--brand-b)}
+
+        .projects-section{margin-bottom:32px}
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .section-title{font-size:20px;font-weight:600;color:var(--ink)}
+        .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+        .project-card{background:var(--panel);border-radius:12px;padding:20px 20px 40px;border:1px solid var(--panel-border);cursor:pointer;position:relative}
+        .project-card:hover{box-shadow:var(--shadow-strong)}
+        .project-card.selected{border-color:var(--brand-b);box-shadow:0 0 0 2px rgba(255,107,157,.1)}
+        .project-name{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:8px}
+        .project-description{font-size:14px;color:var(--muted);line-height:1.4;margin-bottom:12px}
+        .project-stats{display:flex;gap:16px;font-size:12px;color:var(--muter)}
+        .card-actions{position:absolute;bottom:8px;right:8px;display:flex;gap:8px}
+
+        .icon-only{background:transparent;color:#999;border:1px solid transparent;border-radius:6px;padding:4px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center}
+        .icon-only svg{width:16px;height:16px}
+        .icon-only:hover{color:var(--danger);border-color:var(--danger);background:rgba(220,53,69,.05)}
+
+        .workflow-section{background:var(--panel);border-radius:12px;padding:24px;border:1px solid var(--panel-border)}
+        .workflow-title{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:16px}
+        .workflow-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 20px}
+        .workflow-board{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;min-height:400px}
+        .workflow-column{background:var(--g50);border-radius:8px;padding:16px;border:1px solid var(--g200)}
+        .workflow-column.drop-hover{ outline:2px dashed var(--g350); outline-offset:4px; background:#fafafa }
+        .column-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--g200)}
+        .column-title{font-size:14px;font-weight:600;color:#495057;text-transform:uppercase;letter-spacing:.5px}
+        .column-count{background:#6c757d;color:#fff;border-radius:12px;padding:2px 8px;font-size:12px;font-weight:500}
+        .todo .column-header{border-bottom-color:var(--brand-a)} .todo .column-count{background:var(--brand-a)}
+        .in_progress .column-header{border-bottom-color:var(--brand-b)} .in_progress .column-count{background:var(--brand-b)}
+        .done .column-header{border-bottom-color:var(--done)} .done .column-count{background:var(--done)}
+
+        .task-list{display:flex;flex-direction:column;gap:12px;min-height:200px}
+        /* removed list-level drop highlight */
+        /* .task-list.drop-hover{outline:2px dashed var(--g350);outline-offset:4px;background:#fafafa} */
+
+        .task-card{background:var(--panel);border-radius:8px;padding:16px 16px 40px;border:1px solid var(--g200);cursor:grab;position:relative;user-select:none;-webkit-user-drag:element;transition:border .2s ease}
+        .task-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+        .task-card.dragging{opacity:.5}
+        .task-card.highlighted{border:2px solid var(--brand-b)}
+        .task-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+        .task-description{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.4}
+        .task-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muter)}
+        .task-assignee{display:flex;align-items:center;gap:6px}
+        .task-avatar{width:20px;height:20px;border-radius:50%;background:var(--brand-grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:10px;overflow:hidden}
+        .task-due{color:var(--g350)!important;font-size:10px;display:inline-flex;align-items:center;gap:4px;}
+        .task-due svg{width:12px;height:12px;stroke-width:1.5;}
+        .task-tags{display:flex;gap:4px;flex-wrap:wrap;list-style:none;margin: 8px 0 0;padding:0}
+        .tag{background:var(--g200);color:#495057;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500}
+
+        .empty-state{text-align:center;color:#6c757d;font-size:14px;padding:40px 20px}
+        .loading{text-align:center;padding:40px;color:#6c757d}
+
+        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000}
+        .modal.show{display:flex;align-items:center;justify-content:center}
+        .modal-content{background:var(--panel);border-radius:12px;padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;border:1px solid var(--panel-border)}
+        .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+        .modal-title{font-size:18px;font-weight:600;color:var(--ink)}
+        .close-btn{display:inline-flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;border-radius:8px;padding:6px;cursor:pointer;color:#6c757d}
+        .close-btn svg{width:16px;height:16px}
+        .close-btn:hover{border-color:var(--panel-border);background:var(--panel)}
+
+        .form-group{margin-bottom:16px}
+        .form-label{display:block;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:6px}
+        .form-input,.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--panel-border);border-radius:6px;font-size:14px;background:var(--panel);color:var(--ink)}
+        .form-input:focus,.form-textarea:focus{outline:none;border-color:var(--brand-b)}
+        .form-textarea{resize:vertical;min-height:80px}
+
+        .dropdown{position:relative;display:inline-block}
+        .btn-refresh{padding:6px 8px;font-size:12px;min-height:auto}
+        .refresh-status-text{font-size:10px;color:#6b7280;margin-left:4px}
+        .dropdown-content{display:none;position:absolute;background:var(--panel);min-width:220px;box-shadow:0 2px 8px rgba(0,0,0,.1);border-radius:6px;border:1px solid var(--panel-border);z-index:1000;right:0;top:100%;margin-top:4px}
+        .dropdown-content.show{display:block}
+        .dropdown-item{padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;color:#374151;border-bottom:1px solid var(--g100)}
+        .dropdown-item:last-child{border-bottom:none}
+        .dropdown-item:hover{background:#f8fafc}
+        .dropdown-divider{height:1px;background:var(--g250);margin:4px 0}
+        .dropdown-label{padding:8px 12px;font-size:12px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.5px}
+        .interval-selector{padding:6px 12px}
+        .interval-selector select{width:100%;padding:4px 8px;border:none;font-size:12px;background:var(--panel);color:var(--ink)}
+
+        .admin-clear-btn{position:fixed;bottom:20px;right:20px;background:transparent;border:1px solid transparent;border-radius:50%;padding:10px;line-height:0;color:var(--danger);opacity:.15;box-shadow:none;transition:opacity .2s, box-shadow .2s, transform .1s;z-index:1000}
+        .admin-clear-btn svg{width:18px;height:18px}
+        .admin-clear-btn:hover{opacity:1;background:var(--panel);box-shadow:0 6px 16px rgba(220,53,69,.25);transform:translateY(-1px)}
+
+        .toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:1100;}
+        .toast{background:var(--panel);border:2px solid var(--panel-border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:13px;min-width:220px;}
+        .toast.success{border-color:var(--ok);}
+        .toast.warning{border-color:var(--warn);}
+        .toast.error,.toast.danger{border-color:var(--danger);}
+        .toast.info{border-color:var(--muted);}
+        .toast .msg{flex:1;color:#374151;}
+        .toast .feather{width:16px;height:16px;stroke-width:2.6;flex:0 0 auto;}
+        .toast.success .feather{color:var(--ok);}
+        .toast.warning .feather{color:var(--warn);}
+        .toast.error .feather,.toast.danger .feather{color:var(--danger);}
+        .toast.info .feather{color:var(--muted);}
+        .toast .btn-close{background:transparent;border:none;border-radius:6px;padding:2px;cursor:pointer;color:#6b7280;display:flex;align-items:center;justify-content:center;transition:box-shadow .2s,transform .1s,color .2s;}
+        .toast .btn-close svg{width:14px;height:14px;stroke-width:2;}
+        .toast .btn-close:hover{color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.15);transform:translateY(-1px);}
+
+        .switch{position:relative;display:inline-block;width:36px;height:20px;vertical-align:middle}
+        .switch input{opacity:0;width:0;height:0}
+        .slider{position:absolute;cursor:pointer;inset:0;background:#d1d5db;border-radius:999px;transition:background .2s}
+        .slider:before{content:"";position:absolute;height:14px;width:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+        .switch input:checked + .slider{background:var(--brand-b)}
+        .switch input:checked + .slider:before{transform:translateX(16px)}
+
+        [v-cloak]{display:none!important}
+        @media (max-width:768px){
+            .main-content{padding:16px}
+            .header{padding:16px}
+            .toolbar{flex-direction:column;align-items:stretch;gap:12px}
+            .search-box{width:100%}
+            .workflow-board{grid-template-columns:1fr;gap:16px}
+            .projects-grid{grid-template-columns:1fr}
+            .logo{width:40px;height:40px}
+            .service-title-dash{height:40px}
+            .service-title-dash .task-vantage{font-size:20px}
+            .service-title-dash .web{font-size:32px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- Project Card Template -->
+<template id="project-card-template">
+    <article class="project-card" :class="{ selected }" @click="onSelect(item.id)">
+        <div class="project-name">{{ item.name }}</div>
+        <div class="project-description">{{ item.description || 'No description' }}</div>
+        <div class="project-stats">
+            <span>Created: {{ new Date(item.createdAt).toLocaleDateString() }}</span>
+        </div>
+        <div class="card-actions">
+            <button class="icon-only" @click.stop="onDelete(item)">
+                <i data-feather="trash-2" aria-hidden="true"></i>
+            </button>
+        </div>
+    </article>
+</template>
+
+<!-- Task Card Template -->
+<template id="task-card-template">
+    <article class="task-card"
+             :data-task-id="String(item.id)"
+             :class="{ 'dragging': dragging, 'highlighted': highlighted }"
+             draggable="true"
+             @dragstart="onDragStart($event, item.id)"
+             @dragend="onDragEnd">
+        <div class="task-title">{{ item.title }}</div>
+        <div class="task-description">{{ item.description || '' }}</div>
+        <div class="task-meta">
+            <div class="task-assignee">
+                <div class="task-avatar">
+                    <img v-if="user?.sub === item.ownerId && user?.picture" :src="user.picture" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />
+                    <span v-else>{{ avatarInitial(item.ownerId) }}</span>
+                </div>
+                <span>{{ ownerName(item.ownerId) }}</span>
+            </div>
+            <time class="task-due" v-if="item.dueAt" :datetime="item.dueAt">
+                <i data-feather="calendar"></i>
+                {{ new Date(item.dueAt).toLocaleDateString() }}
+            </time>
+        </div>
+        <ul class="task-tags" v-if="Array.isArray(item.tags) && item.tags.length">
+            <li class="tag" v-for="tag in item.tags" :key="tag">{{ tag }}</li>
+        </ul>
+        <div class="card-actions">
+            <button class="icon-only" @click.stop="onDelete(item)">
+                <i data-feather="trash-2"></i>
+            </button>
+        </div>
+    </article>
+</template>
+
+<div id="app"
+     v-scope="Dashboard()"
+     v-cloak
+     @vue:mounted="mounted(); $nextTick(() => feather.replace())"
+     @vue:unmounted="unmounted">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <img src="/logo.png" alt="Task Vantage Logo" class="logo" />
+                <div class="service-title-dash">
+                    <span class="task-vantage">Task Vantage</span>
+                    <span class="web">Web</span>
+                    <div class="brand-subtitle">Management Dashboard</div>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img v-if="user?.picture" :src="user.picture" alt="User Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />
+                    <span v-else>{{ (user?.name || user?.email || 'U').charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="user-details">
+                    <span>{{ userName }}</span>
+                    <span :class="['user-type-badge', user?.isB2BCustomer ? 'b2b' : '']" v-show="user?.userType">{{ user?.userType }}</span>
+                    <a href="/app/logout" class="logout-link">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" @click="openProjectModal">
+                    <i data-feather="plus" class="btn-icon"></i> New Project
+                </button>
+                <button class="btn btn-primary" id="newTaskBtn" v-show="selectedProject" @click="openTaskModal">
+                    <i data-feather="check-square" class="btn-icon"></i> New Task
+                </button>
+
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-refresh" @click="toggleRefreshDropdown">
+                        <i data-feather="refresh-cw" class="refresh-icon"></i>
+                        <span class="refresh-status-text">{{ refreshLabel }}</span>
+                        <i data-feather="chevron-down" style="width:10px;height:10px;margin-left:4px"></i>
+                    </button>
+                    <div class="dropdown-content" :class="{ show: refreshOpen }">
+                        <div class="dropdown-item" @click="manualRefresh">
+                            <i data-feather="refresh-cw"></i><span>Refresh Now</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+
+                        <div class="dropdown-item" @click.stop>
+                            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                                <span>Auto Refresh</span>
+                                <span class="switch">
+                                  <input type="checkbox" v-model="autoEnabled" @change="onAutoChange" />
+                                  <span class="slider"></span>
+                                </span>
+                                <span class="refresh-status-text">{{ autoEnabled ? 'Enabled' : 'Disabled' }}</span>
+                            </label>
+                        </div>
+
+                        <div class="dropdown-label">Refresh Interval</div>
+                        <div class="interval-selector">
+                            <select v-model.number="intervalMs" @change="onIntervalChange">
+                                <option :value="1000">1 second</option>
+                                <option :value="5000">5 seconds</option>
+                                <option :value="10000">10 seconds</option>
+                                <option :value="30000">30 seconds</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input type="text" class="search-box" placeholder="Search projects and tasks..." v-model.trim="query" />
+        </div>
+
+        <div class="projects-section">
+            <div class="section-header">
+                <h2 class="section-title">Projects</h2>
+            </div>
+
+            <div class="projects-grid" v-effect="projects && feather.replace()">
+                <div class="loading" v-if="projects === null">Loading projects...</div>
+                <template v-else-if="!filteredProjects.length">
+                    <div class="empty-state">No projects yet. Create your first project!</div>
+                </template>
+
+                <div v-for="p in filteredProjects"
+                     :key="p.id"
+                     v-scope="ProjectCard({
+               item: p,
+               selected: selectedProject && String(selectedProject.id)===String(p.id),
+               onSelect: selectProject,
+               onDelete: confirmDeleteProject
+             })"></div>
+            </div>
+        </div>
+
+        <div class="workflow-section">
+            <div class="workflow-title">
+                {{ selectedProject ? ('Tasks for: ' + selectedProject.name) : 'Task Workflow' }}
+            </div>
+            <div class="workflow-empty" v-if="!selectedProject">
+                Select a project to view tasks
+            </div>
+            <div class="workflow-board" v-show="!!selectedProject" v-effect="tasks && $nextTick(() => feather.replace())">
+                <section
+                        class="workflow-column"
+                        v-for="col in columns"
+                        :key="col.id"
+                        :class="[col.id, { 'drop-hover': dropTarget === col.id }]"
+                        @dragover.prevent="onDragOver(col.id)"
+                        @dragenter.prevent="onDragEnter(col.id)"
+                        @dragleave="onDragLeave($event)"
+                        @drop.prevent="onDrop(col.id, $event)"
+                >
+                    <div class="column-header">
+                        <span class="column-title">{{ col.title }}</span>
+                        <span class="column-count">{{ bucketedTasks[col.id].length }}</span>
+                    </div>
+                    <div class="task-list" :data-bucket="col.id">
+                        <template v-if="!bucketedTasks[col.id].length"><div class="empty-state">No tasks</div></template>
+
+                        <div v-for="t in bucketedTasks[col.id]"
+                             :key="t.id"
+                             v-scope="TaskCard({
+                   item: t,
+                   user,
+                   avatarInitial,
+                   ownerName,
+                   dragging: draggedId === String(t.id),
+                   highlighted: false,
+                   onDragStart,
+                   onDragEnd,
+                   onDelete: confirmDeleteTask
+                 })"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <button class="admin-clear-btn" @click="confirmClearAll" title="Clear all data">
+        <i data-feather="trash-2"></i>
+    </button>
+
+    <!-- Project Modal -->
+    <div class="modal" :class="{ show: projectOpen }" @click.self="closeProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Project</h3>
+                <button class="close-btn" @click="closeProjectModal"><i data-feather="x"></i></button>
+            </div>
+            <form @submit.prevent="submitProject">
+                <div class="form-group">
+                    <label class="form-label" for="projectName">Project Name</label>
+                    <input id="projectName" class="form-input" type="text" v-model.trim="projectForm.name" v-effect="if (projectOpen) $el.focus()" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="projectDescription">Description</label>
+                    <textarea id="projectDescription" class="form-textarea" v-model.trim="projectForm.description"></textarea>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button type="button" class="btn btn-secondary" @click="closeProjectModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" :class="{ show: taskOpen }" @click.self="closeTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Task</h3>
+                <button class="close-btn" @click="closeTaskModal"><i data-feather="x"></i></button>
+            </div>
+            <form @submit.prevent="submitTask">
+                <div class="form-group">
+                    <label class="form-label" for="taskTitle">Task Title</label>
+                    <input id="taskTitle" class="form-input" type="text" v-model.trim="taskForm.title" v-effect="if (taskOpen) $el.focus()" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskDescription">Description</label>
+                    <textarea id="taskDescription" class="form-textarea" v-model.trim="taskForm.description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskAssignee">Assign To</label>
+                    <input id="taskAssignee" class="form-input" type="text" v-model.trim="taskForm.ownerId" placeholder="User ID or email" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskDueDate">Due Date</label>
+                    <input id="taskDueDate" class="form-input" type="datetime-local" v-model="taskForm.dueAt" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="taskTags">Tags (comma separated)</label>
+                    <input id="taskTags" class="form-input" type="text" v-model.trim="taskForm.tagsRaw" placeholder="urgent, feature, bug" />
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button type="button" class="btn btn-secondary" @click="closeTaskModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" :disabled="!selectedProject">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" :class="{ show: confirmOpen }" @click.self="closeConfirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">{{ confirmTitle }}</h3>
+                <button class="close-btn" @click="closeConfirm"><i data-feather="x"></i></button>
+            </div>
+            <p style="margin-bottom:16px">{{ confirmMessage }}</p>
+            <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn btn-secondary" @click="closeConfirm">Cancel</button>
+                <button class="btn btn-primary" @click="confirmProceed">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toasts -->
+    <div class="toasts" v-effect="toasts.length && feather.replace()">
+        <div class="toast" :class="t.kind" v-for="t in toasts" :key="t.id">
+            <i :data-feather="t.kind==='error'||t.kind==='danger' ? 'alert-triangle' : t.kind==='warning' ? 'alert-circle' : t.kind==='success' ? 'check-circle' : 'info'"></i>
+            <div class="msg">{{ t.text }}</div>
+            <button class="btn-close" @click="dismissToast(t.id)">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+  import { createApp } from 'https://unpkg.com/petite-vue?module';
+
+  // tiny in-file utils to DRY things up
+  const U = {
+    dom: {
+      onEsc(cb){ const h = (e)=>{ if (e.key === 'Escape') cb(e); }; document.addEventListener('keydown', h); return ()=>document.removeEventListener('keydown', h); },
+      onOutsideClick(root, cb){ const h = (e)=>{ if (root && !root.contains(e.target)) cb(e); }; document.addEventListener('click', h); return ()=>document.removeEventListener('click', h); },
+      onVis(onHide, onShow){ const h = ()=> document.hidden ? onHide() : onShow(); document.addEventListener('visibilitychange', h); return ()=>document.removeEventListener('visibilitychange', h); },
+      onBeforeUnload(cb){ const h = ()=>cb(); window.addEventListener('beforeunload', h); return ()=>window.removeEventListener('beforeunload', h); },
+    },
+    time: { fmt(d){ try { return new Date(d).toLocaleDateString(); } catch { return ''; } } },
+    store: {
+      getJSON(k, fb){ try { return JSON.parse(localStorage.getItem(k)||''); } catch { return fb; } },
+      setJSON(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+    },
+    text: {
+      norm(s=''){ return String(s).toLowerCase(); },
+      includes(h='', q=''){ const H = U.text.norm(h); const Q = U.text.norm(q); return !Q || H.includes(Q); },
+      ownerLabel(ownerId, user){
+        if (!ownerId) return 'Unknown';
+        if (user?.sub === ownerId) return user?.name || (user?.email||'').split('@')[0] || 'You';
+        if (ownerId.includes('|')){ const p = ownerId.split('|')[1]||''; return p.includes('@') ? p.split('@')[0] : p; }
+        return ownerId.includes('@') ? ownerId.split('@')[0] : ownerId;
+      },
+      avatarInitial(ownerId){
+        const s = ownerId || '?';
+        const c = s.includes('|') ? (s.split('|')[1]||'?').charAt(0) : s.charAt(0);
+        return (c || '?').toUpperCase();
+      },
+      parseTags(raw){ return String(raw||'').split(',').map(t=>t.trim()).filter(Boolean); },
+    },
+    search: {
+      projects(list=[], q=''){
+        if (!q) return list;
+        return list.filter(p => U.text.includes(p.name, q) || U.text.includes(p.description||'', q));
+      },
+      taskMatches(t, q=''){
+        if (!q) return true;
+        const hay = `${t.title||''}\n${t.description||''}\n${t.ownerId||''}\n${Array.isArray(t.tags)?t.tags.join(' '):''}`;
+        return U.text.includes(hay, q);
+      },
+    },
+    dnd: {
+      set(e, id){ try { e.dataTransfer.setData('text/plain', String(id)); e.dataTransfer.effectAllowed='move'; e.dataTransfer.dropEffect='move'; } catch {} },
+      get(e, fb){ try { return e.dataTransfer.getData('text/plain') || fb; } catch { return fb; } },
+    },
+    tasks: {
+      bucket(items=[], pid, q=''){
+        const out = { todo:[], in_progress:[], done:[] };
+        for (const t of items){
+          if (String(t.projectId) !== String(pid)) continue;
+          if (!U.search.taskMatches(t, q)) continue;
+          if (out[t.status]) out[t.status].push(t);
+        }
+        return out;
+      }
+    },
+    api(base='/app/api'){
+      const json = (r)=>r.json();
+      const err = async (r, fallback) => { let msg = fallback; try { const j = await r.json(); if (j?.error) msg = j.error; } catch {} const e = new Error(msg); e.status=r.status; throw e; };
+      const req = async (path, init = {}, expectJson = true) => {
+        const r = await fetch(`${base}${path}`, {
+          ...init,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...(init.headers || {})
+          }
+        });
+
+        if (r.status === 401) {
+          window.location.replace('/app');
+          return new Promise(() => {}); // prevent further handling
+        }
+
+        if (!r.ok) return err(r, `Request failed: ${init.method || 'GET'} ${path}`);
+        return expectJson ? r.json() : null;
+      };
+      return {
+        me: () => req(`/me`),
+        projects: { list: () => req('/projects'), create: (b)=>req('/projects',{method:'POST',body:JSON.stringify(b)}), remove:(id)=>req(`/projects/${encodeURIComponent(id)}`,{method:'DELETE'}, false) },
+        tasks: { list:(pid)=>req(`/tasks?projectId=${encodeURIComponent(pid)}`), create:(b)=>req('/tasks',{method:'POST',body:JSON.stringify(b)}), updateStatus:(id,s)=>req(`/tasks/${encodeURIComponent(id)}/status`,{method:'PATCH',body:JSON.stringify({status:s})},false), remove:(id)=>req(`/tasks/${encodeURIComponent(id)}`,{method:'DELETE'},false) },
+        admin: { clearAll: ()=>req('/admin/clear',{method:'POST'},false) }
+      };
+    },
+    timer(tick, enabled, interval){
+      let h=null;
+      const start=()=>{ stop(); if (enabled()) h=setInterval(()=>tick(), interval()); };
+      const stop =()=>{ if (h){ clearInterval(h); h=null; } };
+      const restart=()=> enabled() ? start() : stop();
+      return { start, stop, restart };
+    }
+  };
+
+  function ProjectCard(props){ return { $template:'#project-card-template', ...props }; }
+  function TaskCard(props){ return { $template:'#task-card-template', ...props }; }
+
+  function Dashboard(){
+    const api = U.api();
+
+    return {
+      // user
+      user: null,
+      get userName(){ return this.user?.name || this.user?.email || 'User'; },
+
+      // data
+      projects: null,
+      tasks: [],
+      selectedProject: null,
+      tasksLoading: false,
+      query: '',
+
+      // dnd
+      draggedId: null,
+      dropTarget: null,
+      highlightedTask: null,
+      isDragging: false,
+
+      // refresh
+      autoEnabled: true,
+      intervalMs: 10000,
+      refreshOpen: false,
+      timer: null,
+
+      // toasts
+      toasts: [],
+      nextToastId: 1,
+
+      // modals
+      projectOpen: false,
+      taskOpen: false,
+      confirmOpen: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmProceed: () => {},
+
+      // forms
+      projectForm: { name:'', description:'' },
+      taskForm: { title:'', description:'', ownerId:'', dueAt:'', tagsRaw:'' },
+
+      // columns
+      columns: [
+        { id:'todo', title:'To Do' },
+        { id:'in_progress', title:'In Progress' },
+        { id:'done', title:'Done' },
+      ],
+
+      // derived
+      get filteredProjects(){ return U.search.projects(Array.isArray(this.projects)?this.projects:[], this.query); },
+      get bucketedTasks(){ return this.selectedProject ? U.tasks.bucket(this.tasks, this.selectedProject.id, this.query) : { todo:[], in_progress:[], done:[] }; },
+      get refreshLabel(){
+        if (!this.autoEnabled) return 'Manual';
+        if (this.isDragging) return 'Paused';
+        return `Auto: ${this.intervalMs >= 1000 ? `${this.intervalMs/1000}s` : `${this.intervalMs}ms`}`;
+      },
+
+      // lifecycle
+      async mounted(){
+        this.restoreRefresh();
+        await this.fetchUser();
+        await this.fetchProjects();
+
+        this.timer = U.timer(()=>this.refreshNow(), ()=>this.autoEnabled && !this.isDragging, ()=>this.intervalMs);
+        this.timer.start();
+
+        this._offVis = U.dom.onVis(()=>this.timer.stop(), ()=>this.timer.start());
+        this._offBeforeUnload = U.dom.onBeforeUnload(()=>this.timer.stop());
+
+        const dropRoot = () => document.querySelector('.dropdown');
+        this._offOutside = U.dom.onOutsideClick(document.body, (e)=>{
+          const el = dropRoot();
+          if (this.refreshOpen && el && !el.contains(e.target)) this.refreshOpen = false;
+        });
+        this._offEsc = U.dom.onEsc(()=>{ this.refreshOpen = false; });
+      },
+      unmounted(){
+        this.timer?.stop();
+        this._offVis?.(); this._offBeforeUnload?.(); this._offOutside?.(); this._offEsc?.();
+      },
+
+      // helpers wired to templates
+      avatarInitial: U.text.avatarInitial,
+      ownerName(ownerId){ return U.text.ownerLabel(ownerId, this.user); },
+      toast(msg, kind=''){ const id=this.nextToastId++; this.toasts.push({ id, text:msg, kind }); setTimeout(()=>this.dismissToast(id), 3500); },
+      dismissToast(id){ this.toasts = this.toasts.filter(t=>t.id!==id); },
+
+      // API
+      async fetchUser(){
+        try { const data = await api.me(); this.user = data?.user ?? null; }
+        catch(e){ console.error(e); this.toast(`Failed to load user: ${e.message}`, 'error'); }
+      },
+      async fetchProjects(){
+        try{
+          const list = await api.projects.list();
+          this.projects = Array.isArray(list) ? list : [];
+          if (this.selectedProject){
+            const same = this.projects.find(p => String(p.id)===String(this.selectedProject.id));
+            if (same) this.selectedProject = same;
+          }
+        }catch(e){
+          if (this.projects === null) this.projects = [];
+          this.toast(`Failed to load projects: ${e.message}`, 'error');
+        }
+      },
+      async fetchTasks(projectId){
+        this.tasksLoading = true;
+        try{
+          const data = await api.tasks.list(projectId);
+          this.tasks = Array.isArray(data.items) ? data.items.slice() : [];
+        }catch(e){ this.toast(`Failed to load tasks: ${e.message}`, 'error'); }
+        finally{ this.tasksLoading = false; }
+      },
+
+      // selection
+      async selectProject(id){
+        if (String(this.selectedProject?.id) === String(id)) return;
+        const p = (this.projects||[]).find(x => String(x.id) === String(id));
+        if (!p) return;
+        this.selectedProject = p;
+        this.tasksLoading = true;
+        await this.fetchTasks(p.id);
+      },
+
+      // confirm modal helpers
+      openConfirm(title, msg, proceed){
+        this.confirmTitle = title;
+        this.confirmMessage = msg;
+        this.confirmProceed = async () => { await proceed(); this.closeConfirm(); };
+        this.confirmOpen = true;
+      },
+      closeConfirm(){ this.confirmOpen=false; this.confirmTitle=''; this.confirmMessage=''; this.confirmProceed=()=>{}; },
+
+      // destructive actions
+      confirmDeleteProject(p){
+        this.openConfirm('Delete Project', `Delete project "${p.name}" and all its tasks? This cannot be undone.`, async () => {
+          try{
+            await api.projects.remove(p.id);
+            if (this.selectedProject && String(this.selectedProject.id)===String(p.id)) { this.selectedProject=null; this.tasks=[]; }
+            await this.fetchProjects();
+            this.toast(`Project "${p.name}" deleted`,'success');
+          }catch(e){ this.toast(`Failed to delete project: ${e.message}`, 'error'); }
+        });
+      },
+      confirmDeleteTask(t){
+        this.openConfirm('Delete Task', `Delete task "${t.title}"? This cannot be undone.`, async () => {
+          try{
+            await api.tasks.remove(t.id);
+            if (this.selectedProject) await this.fetchTasks(this.selectedProject.id);
+            this.toast(`Task "${t.title}" deleted`,'success');
+          }catch(e){ this.toast(`Failed to delete task: ${e.message}`, 'error'); }
+        });
+      },
+      confirmClearAll(){
+        this.openConfirm('Clear All Data', 'This will delete ALL projects and tasks. Are you sure?', async () => {
+          try{
+            await api.admin.clearAll();
+            this.projects=[]; this.tasks=[]; this.selectedProject=null;
+            this.toast('All data cleared','success');
+          }catch(e){ this.toast(`Failed to clear data: ${e.message}`, 'error'); }
+        });
+      },
+
+      // create project/task
+      openProjectModal(){ this.projectOpen = true; },
+      closeProjectModal(){ this.projectOpen = false; this.projectForm = { name:'', description:'' }; },
+      openTaskModal(){
+        if (!this.selectedProject){ this.toast('Please select a project first','warning'); return; }
+        this.taskOpen = true;
+      },
+      closeTaskModal(){ this.taskOpen = false; this.taskForm = { title:'', description:'', ownerId:'', dueAt:'', tagsRaw:'' }; },
+
+      async submitProject(){
+        try{
+          await api.projects.create({ name:this.projectForm.name, description:this.projectForm.description });
+          this.closeProjectModal();
+          this.toast('Project created','success');
+          await this.fetchProjects();
+        }catch(e){ this.toast(`Failed to create project: ${e.message}`, 'error'); }
+      },
+      async submitTask(){
+        if (!this.selectedProject){ this.toast('Please select a project first','warning'); return; }
+        try{
+          const tags = U.text.parseTags(this.taskForm.tagsRaw);
+          await api.tasks.create({
+            projectId: this.selectedProject.id,
+            title: this.taskForm.title,
+            description: this.taskForm.description,
+            ownerId: this.taskForm.ownerId || this.user?.sub || 'unknown',
+            dueAt: this.taskForm.dueAt || null,
+            tags
+          });
+          this.closeTaskModal();
+          this.toast('Task created','success');
+          await this.fetchTasks(this.selectedProject.id);
+        }catch(e){ this.toast(`Failed to create task: ${e.message}`, 'error'); }
+      },
+
+      // drag and drop
+      onDragStart(e, id){ this.draggedId = String(id); U.dnd.set(e, id); this.isDragging = true; this.timer?.stop(); },
+      onDragEnd(){ this.isDragging = false; this.draggedId = null; if (this.autoEnabled) this.timer?.start(); },
+      onDragOver(bucket){ this.dropTarget = bucket; },
+      onDragEnter(bucket){ this.dropTarget = bucket; },
+      onDragLeave(e){
+        // Clear highlight when leaving a column (ignore internal child transitions)
+        const col = e.currentTarget?.closest?.('.workflow-column') || e.currentTarget;
+        if (!col.contains(e.relatedTarget)) this.dropTarget = null;
+      },
+      async onDrop(bucket, e){
+        this.dropTarget = null;
+        const id = U.dnd.get(e, this.draggedId);
+        if (bucket && id) await this.updateTaskStatus(String(id), bucket);
+      },
+      async updateTaskStatus(taskId, status){
+        try{
+          await api.tasks.updateStatus(taskId, status);
+          // removed post-drop task highlight
+          if (this.selectedProject) await this.fetchTasks(this.selectedProject.id);
+        }catch(e){
+          this.toast(`Failed to update task: ${e.message}`, 'error');
+          if (this.selectedProject) await this.fetchTasks(this.selectedProject.id);
+        }
+      },
+
+      // refresh controls
+      toggleRefreshDropdown(){ this.refreshOpen = !this.refreshOpen; },
+      manualRefresh(){ this.refreshOpen = false; this.refreshNow(); },
+      onIntervalChange(){ this.persistRefresh(); this.timer?.restart(); },
+      onAutoChange(){ this.persistRefresh(); this.timer?.restart(); },
+      async refreshNow(){
+        const reqs = [this.fetchProjects()];
+        if (this.selectedProject) reqs.push(this.fetchTasks(this.selectedProject.id));
+        await Promise.allSettled(reqs);
+      },
+      restoreRefresh(){
+        const s = U.store.getJSON('refreshSettings', null);
+        this.autoEnabled = s?.enabled !== false;
+        this.intervalMs = s?.intervalMs || 10000;
+      },
+      persistRefresh(){ U.store.setJSON('refreshSettings', { enabled: this.autoEnabled, intervalMs: this.intervalMs }); },
+    };
+  }
+
+  createApp({ Dashboard, ProjectCard, TaskCard }).mount('#app');
+</script>
+</body>
+</html>
