@@ -268,8 +268,8 @@ The agent service deploys to Vercel as serverless functions:
 ### Environment Variables (Production)
 ```bash
 # Update base URLs for production
-AGENT_BASE_URL=https://task-vantage-agent.vercel.app
-MCP_BASE_URL=https://task-vantage-mcp.vercel.app
+AGENT_BASE_URL=https://agent.taskvantage.example.com
+MCP_BASE_URL=https://mcp.taskvantage.example.com
 
 # Keep other variables the same
 OPENAI_API_KEY=sk-your-production-key

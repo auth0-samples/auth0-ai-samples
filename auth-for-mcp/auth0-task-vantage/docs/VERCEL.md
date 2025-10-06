@@ -13,11 +13,11 @@ This project supports deploying all 4 Task Vantage services to Vercel as separat
 
 ## Architecture
 
-Each service is deployed as a Vercel serverless function with its own domain:
-- API: `task-vantage-api.vercel.app`
-- MCP: `task-vantage-mcp.vercel.app`
-- Agent: `task-vantage-agent.vercel.app`
-- Web App: `task-vantage-webapp.vercel.app`
+Each service is deployed as a serverless function with its own domain:
+- API: `api.taskvantage.example.com`
+- MCP: `mcp.taskvantage.example.com`
+- Agent: `agent.taskvantage.example.com`
+- Web App: `webapp.taskvantage.example.com`
 
 ## Prerequisites
 
@@ -106,9 +106,9 @@ Each Vercel project needs its environment variables configured in the Vercel das
 API_BASE_URL=http://localhost:8787
 MCP_BASE_URL=http://localhost:8080
 
-# Vercel deployment
-API_BASE_URL=https://task-vantage-api.vercel.app
-MCP_BASE_URL=https://task-vantage-mcp.vercel.app
+# Production deployment
+API_BASE_URL=https://api.taskvantage.example.com
+MCP_BASE_URL=https://mcp.taskvantage.example.com
 ```
 
 ### Auto-Provisioned Variables
@@ -307,7 +307,7 @@ vercel --prod               # Manual deploy from service directory
 # 4. Debug individual services
 npm run deploy:api          # Deploy just API
 npm run logs:api            # View API logs
-vercel logs task-vantage-api.vercel.app --follow  # Live logs
+vercel logs api.taskvantage.example.com --follow  # Live logs
 
 # 5. Environment management
 vercel env add VARIABLE_NAME          # Add variable

@@ -147,9 +147,9 @@ Centralized logging in `src/utils/logger.js`:
   API_BASE_URL=http://localhost:8787
   MCP_BASE_URL=http://localhost:8080
 
-  # Vercel deployment
-  API_BASE_URL=https://task-vantage-api.vercel.app
-  MCP_BASE_URL=https://task-vantage-mcp.vercel.app
+  # Production deployment
+  API_BASE_URL=https://api.taskvantage.example.com
+  MCP_BASE_URL=https://mcp.taskvantage.example.com
   ```
 
 ### Testing Authentication Flows

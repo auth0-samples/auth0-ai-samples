@@ -281,8 +281,8 @@ The webapp service deploys to Vercel as serverless functions:
 ### Environment Variables (Production)
 ```bash
 # Update base URLs for production
-WEBAPP_BASE_URL=https://task-vantage-webapp.vercel.app
-API_BASE_URL=https://task-vantage-api.vercel.app
+WEBAPP_BASE_URL=https://webapp.taskvantage.example.com
+API_BASE_URL=https://api.taskvantage.example.com
 
 # Keep Auth0 and other variables the same
 AUTH0_DOMAIN=your-domain.auth0.com
@@ -292,9 +292,9 @@ WEBAPP_AUTH0_CLIENT_ID=your-webapp-client-id
 
 ### Auth0 Production Configuration
 Update Auth0 application settings:
-- **Allowed Callback URLs**: `https://task-vantage-webapp.vercel.app/callback`
-- **Allowed Logout URLs**: `https://task-vantage-webapp.vercel.app`
-- **Allowed Web Origins**: `https://task-vantage-webapp.vercel.app`
+- **Allowed Callback URLs**: `https://webapp.taskvantage.example.com/callback`
+- **Allowed Logout URLs**: `https://webapp.taskvantage.example.com`
+- **Allowed Web Origins**: `https://webapp.taskvantage.example.com`
 
 ### Deployment
 ```bash
