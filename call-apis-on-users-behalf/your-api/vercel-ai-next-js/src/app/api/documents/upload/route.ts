@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pdf from 'pdf-parse';
+import { pdf } from 'pdf-parse';
 
 import { createDocument } from '@/lib/actions/documents';
 

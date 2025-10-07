@@ -1,6 +1,6 @@
 import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
-import { TokenVaultPopup } from "./TokenVaultPopup";
+import { TokenVaultConsentPopup } from "./TokenVaultConsentPopup";
 
 /**
  * General Auth0 interrupt handler component.
@@ -21,7 +21,7 @@ export function Auth0InterruptHandler({
   // Handle TokenVaultInterrupt
   if (TokenVaultInterrupt.isInterrupt(interrupt)) {
     return (
-      <TokenVaultPopup
+      <TokenVaultConsentPopup
         interrupt={interrupt as TokenVaultInterrupt}
         onResume={onResume}
       />

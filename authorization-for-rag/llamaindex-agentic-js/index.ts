@@ -5,10 +5,10 @@
  */
 import "dotenv/config";
 
-import { OpenAIAgent, QueryEngineTool, VectorStoreIndex } from "llamaindex";
+import { ReActAgent, QueryEngineTool, Settings, VectorStoreIndex } from "llamaindex";
 import { SimpleDirectoryReader } from "@llamaindex/readers/directory";
 import { FGARetriever } from "@auth0/ai-llamaindex";
-
+import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 /**
 /**
  * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
@@ -23,6 +23,13 @@ import { FGARetriever } from "@auth0/ai-llamaindex";
  *
  * The output of the query depends on the user's permissions to view the documents.
  */
+
+Settings.llm = openai({
+  model: "gpt-4o-mini",
+});
+
+Settings.embedModel = new OpenAIEmbedding({ model: "text-embedding-3-small" });
+
 async function main() {
   console.log(
     "\n..:: LlamaIndex Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)\n\n"
@@ -58,7 +65,7 @@ async function main() {
   ];
 
   // 5. Create an agent using the tools array and OpenAI GPT-4 LLM
-  const agent = new OpenAIAgent({ tools });
+  const agent = new ReActAgent({ tools });
 
   // 6. Query the agent
   let response = await agent.chat({ message: "Show me forecast for ZEKO?" });

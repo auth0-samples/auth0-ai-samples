@@ -2,7 +2,7 @@ import { tool } from 'ai';
 import { endOfDay, formatISO, startOfDay } from 'date-fns';
 import { GaxiosError } from 'gaxios';
 import { google } from 'googleapis';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { TokenVaultError } from '@auth0/ai/interrupts';
 
 import { getAccessToken, withGoogleConnection } from '../auth0-ai';
@@ -10,7 +10,7 @@ import { getAccessToken, withGoogleConnection } from '../auth0-ai';
 export const getCalendarEventsTool = withGoogleConnection(
   tool({
     description: `Get calendar events for a given date from the user's Google Calendar`,
-    parameters: z.object({
+    inputSchema: z.object({
       date: z.coerce.date(),
     }),
     execute: async ({ date }) => {
