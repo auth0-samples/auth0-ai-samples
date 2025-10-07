@@ -6,7 +6,7 @@ import { getUser } from './auth0';
 const auth0AI = new Auth0AI();
 
 // Async Authorization flow for user confirmation
-export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
+export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
   userID: async () => {
     const user = await getUser();
     return user?.sub as string;
@@ -19,7 +19,7 @@ export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
    * When this flag is set to `block`, the execution of the tool awaits
    * until the user approves or rejects the request.
    *
-   * Given the asynchronous nature of the Async Authorization flow, this mode
+   * Given the asynchronous nature of the CIBA flow, this mode
    * is only useful during development.
    *
    * In practice, the process that is awaiting the user confirmation
