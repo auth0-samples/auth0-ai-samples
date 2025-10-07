@@ -55,6 +55,7 @@ async function main() {
     {
       writes: [
         { user: "user:*", relation: "viewer", object: "doc:public-doc" },
+        { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
       ],
     },
     {

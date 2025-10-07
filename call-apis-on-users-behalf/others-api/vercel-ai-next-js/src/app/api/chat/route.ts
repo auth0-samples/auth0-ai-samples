@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { streamText, Message, createDataStreamResponse, DataStreamWriter } from 'ai';
+import { streamText, UIMessage, createUIMessageStream, createUIMessageStreamResponse, convertToModelMessages } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { setAIContext } from '@auth0/ai-vercel';
 import { errorSerializer, withInterruptions } from '@auth0/ai-vercel/interrupts';
@@ -24,36 +24,56 @@ export async function POST(req: NextRequest) {
     getCalendarEventsTool,
   };
 
-  return createDataStreamResponse({
+  const stream = createUIMessageStream({
+    originalMessages: messages,
     execute: withInterruptions(
-      async (dataStream: DataStreamWriter) => {
+      async ({ writer }) => {
         const result = streamText({
-          model: openai('gpt-4o-mini'),
+          model: openai("gpt-4o-mini"),
           system: AGENT_SYSTEM_TEMPLATE,
-          messages,
-          maxSteps: 5,
+          messages: convertToModelMessages(messages),
           tools,
-        });
 
-        result.mergeIntoDataStream(dataStream, {
-          sendReasoning: true,
+          onFinish: (output) => {
+            if (output.finishReason === "tool-calls") {
+              const lastMessage = output.content[output.content.length - 1];
+              if (lastMessage?.type === "tool-error") {
+                const { toolName, toolCallId, error, input } = lastMessage;
+                const serializableError = {
+                  cause: error,
+                  toolCallId: toolCallId,
+                  toolName: toolName,
+                  toolArgs: input,
+                };
+
+                throw serializableError;
+              }
+            }
+          },
         });
+        writer.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+          })
+        );
       },
       {
-        messages,
+        messages: messages,
         tools,
-      },
+      }
     ),
-    onError: errorSerializer((err: any) => {
-      console.log(err);
-      return `An error occurred! ${err.message}`;
+    onError: errorSerializer((err) => {
+      console.error("ai-sdk route: stream error", err);
+      return "Oops, an error occured!";
     }),
   });
+
+  return createUIMessageStreamResponse({ stream });
 }
 
 // Vercel AI tends to get stuck when there are incomplete tool calls in messages
-const sanitizeMessages = (messages: Message[]) => {
+const sanitizeMessages = (messages: UIMessage[]) => {
   return messages.filter(
-    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && message.content === ''),
+    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && (message?.parts?.[0] as unknown as string) === ''),
   );
 };

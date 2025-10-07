@@ -13,11 +13,15 @@
     "start": "npx tsx index.ts",
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
+  "resolutions": {
+    "@auth0/ai": "file:../../packages/auth0-ai-0.0.0.tgz"
+  },
   "dependencies": {
-    "@auth0/ai-llamaindex": "^2.0.0",
-    "@llamaindex/readers": "^3.0.2",
-    "@openfga/sdk": "^0.8.0",
-    "dotenv": "^16.4.7",
-    "llamaindex": "^0.9.16"
+    "@auth0/ai": "file:../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-llamaindex": "file:../../packages/auth0-ai-llamaindex-0.0.0.tgz",
+    "@llamaindex/readers": "^3.1.21",
+    "@openfga/sdk": "^0.9.0",
+    "dotenv": "^17.2.3",
+    "llamaindex": "^0.12.0"
   }
 }

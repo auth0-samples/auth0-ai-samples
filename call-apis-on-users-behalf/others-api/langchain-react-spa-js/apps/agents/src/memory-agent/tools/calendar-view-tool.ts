@@ -1,4 +1,4 @@
-import { getAccessTokenForConnection } from "@auth0/ai-langchain";
+import { getAccessTokenFromTokenVault } from "@auth0/ai-langchain";
 import { GoogleCalendarViewTool } from "@langchain/community/tools/google_calendar";
 import { ChatOpenAI } from "@langchain/openai";
 
@@ -12,7 +12,7 @@ const model = new ChatOpenAI({
 export const calendarCommunityTool = withGoogleCalendarCommunity(
   new GoogleCalendarViewTool({
     credentials: {
-      accessToken: async () => getAccessTokenForConnection(),
+      accessToken: async () => getAccessTokenFromTokenVault(),
       calendarId: "primary",
     },
     model,

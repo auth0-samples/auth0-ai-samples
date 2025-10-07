@@ -1,5 +1,5 @@
 import { tool } from 'ai';
-import { z } from 'zod';
+import { z } from "zod/v3";
 import { FGAFilter } from '@auth0/ai';
 
 import { findRelevantContent } from '@/lib/rag/embedding';
@@ -14,7 +14,7 @@ export type DocumentWithScore = {
 export const getContextDocumentsTool = tool({
   description:
     'Use the tool when user asks for documents or projects or anything that is stored in the knowledge base.',
-  parameters: z.object({
+  inputSchema: z.object({
     question: z.string().describe('the users question'),
   }),
   execute: async ({ question }) => {

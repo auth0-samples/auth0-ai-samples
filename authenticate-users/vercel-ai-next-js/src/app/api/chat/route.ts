@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { streamText, Message, createDataStreamResponse, DataStreamWriter } from 'ai';
+import { streamText, UIMessage, createUIMessageStream, createUIMessageStreamResponse, convertToModelMessages, stepCountIs } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 const date = new Date().toISOString();
@@ -16,30 +16,35 @@ export async function POST(req: NextRequest) {
 
   const tools = {};
 
-  return createDataStreamResponse({
-    execute: async (dataStream: DataStreamWriter) => {
+  const stream = createUIMessageStream({
+    originalMessages: messages,
+    execute: async ({ writer }) => {
       const result = streamText({
         model: openai('gpt-4o-mini'),
         system: AGENT_SYSTEM_TEMPLATE,
-        messages,
-        maxSteps: 5,
+        messages: convertToModelMessages(messages),
+        stopWhen: stepCountIs(5),
         tools,
       });
 
-      result.mergeIntoDataStream(dataStream, {
-        sendReasoning: true,
-      });
+      writer.merge(
+        result.toUIMessageStream({
+          sendReasoning: true,
+        })
+      );
     },
     onError: (err: any) => {
       console.log(err);
       return `An error occurred! ${err.message}`;
     },
   });
+
+  return createUIMessageStreamResponse({ stream });
 }
 
 // Vercel AI tends to get stuck when there are incomplete tool calls in messages
-const sanitizeMessages = (messages: Message[]) => {
+const sanitizeMessages = (messages: UIMessage[]) => {
   return messages.filter(
-    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && message.content === ''),
+    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && (message?.parts?.[0] as unknown as string) === ''),
   );
 };

@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAuth0Client } from "@/lib/auth0";
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 /**
  * Component for handling federated connection authorization in LangGraph SDK.
@@ -11,15 +11,15 @@ import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
  * to authorize additional scopes via popup authentication.
  */
 
-interface FederatedConnectionPopupProps {
-  interrupt: FederatedConnectionInterrupt;
+interface TokenVaultConsentPopupProps {
+  interrupt: TokenVaultInterrupt;
   onResume?: () => void;
 }
 
-export function FederatedConnectionPopup({
+export function TokenVaultConsentPopup({
   interrupt,
   onResume,
-}: FederatedConnectionPopupProps) {
+}: TokenVaultConsentPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { connection, requiredScopes, message } = interrupt;

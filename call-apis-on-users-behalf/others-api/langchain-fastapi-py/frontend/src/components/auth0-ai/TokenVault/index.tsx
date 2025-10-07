@@ -1,15 +1,15 @@
 import { BrowserView, MobileView } from "react-device-detect";
 
-import type { FederatedConnectionAuthProps } from "./FederatedConnectionAuthProps";
-import { EnsureAPIAccessPopup } from "./popup";
+import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
+import { TokenVaultConsentPopup } from "./popup";
 import { EnsureAPIAccessRedirect } from "./redirect";
 
-export function EnsureAPIAccess(props: FederatedConnectionAuthProps) {
+export function TokenVaultConsent(props: TokenVaultAuthProps) {
   const { mode } = props;
 
   switch (mode) {
     case "popup":
-      return <EnsureAPIAccessPopup {...props} />;
+      return <TokenVaultConsentPopup {...props} />;
     case "redirect":
       return <EnsureAPIAccessRedirect {...props} />;
     case "auto":
@@ -17,7 +17,7 @@ export function EnsureAPIAccess(props: FederatedConnectionAuthProps) {
       return (
         <>
           <BrowserView>
-            <EnsureAPIAccessPopup {...props} />
+            <TokenVaultConsentPopup {...props} />
           </BrowserView>
           <MobileView>
             <EnsureAPIAccessRedirect {...props} />
