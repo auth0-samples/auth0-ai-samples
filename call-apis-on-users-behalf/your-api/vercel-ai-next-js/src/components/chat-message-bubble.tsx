@@ -18,7 +18,7 @@ export function ChatMessageBubble(props: { message: UIMessage; aiEmoji?: string 
       )}
 
       <div className="chat-message-bubble whitespace-pre-wrap flex flex-col prose dark:prose-invert max-w-none">
-      <MemoizedMarkdown content={(props.message?.parts[props.message.parts.length - 1] as any)?.text ?? ''} id={props.message.id} />
+        <MemoizedMarkdown content={(props.message?.parts[props.message.parts.length - 1] as any)?.text ?? ''} id={props.message.id} />
       </div>
     </div>
   );

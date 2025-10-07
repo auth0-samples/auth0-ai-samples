@@ -40,7 +40,7 @@ export const getAuth0Client = (): Auth0Client => {
 
 export const login = async (targetUrl?: string) => {
   const client = getAuth0Client();
-debugger
+
   const options = {
     authorizationParams: {
       redirect_uri: window.location.origin,

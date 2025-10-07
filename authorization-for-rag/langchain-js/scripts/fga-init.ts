@@ -54,8 +54,7 @@ async function main() {
   await fgaClient.write(
     {
       writes: [
-        { user: "user:*", relation: "viewer", object: "doc:public-doc" },
-        { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
+        { user: "user:*", relation: "viewer", object: "doc:public-doc" }
       ],
     },
     {

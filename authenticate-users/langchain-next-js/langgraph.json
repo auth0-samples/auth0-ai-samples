@@ -4,8 +4,5 @@
     "agent": "./src/lib/agent.ts:graph"
   },
   "env": ".env.local",
-  "dependencies": ["."],
-  "auth": {
-    "path": "./src/lib/auth.mts:auth"
-  }
+  "dependencies": ["."]
 }
