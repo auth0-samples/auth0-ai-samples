@@ -1,55 +1,37 @@
-import { AIMessage } from "@langchain/core/messages";
-import { RunnableLike } from "@langchain/core/runnables";
-import { END, InMemoryStore, MemorySaver, MessagesAnnotation, START, StateGraph } from "@langchain/langgraph";
-import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from "@langchain/openai";
+import { createReactAgent, ToolNode } from '@langchain/langgraph/prebuilt';
+import { ChatOpenAI } from '@langchain/openai';
+import { InMemoryStore, MemorySaver } from '@langchain/langgraph';
+import { Calculator } from '@langchain/community/tools/calculator';
 
-import { checkUsersCalendar } from "@/lib/tools/checkUsersCalendar";
 
-const model = new ChatOpenAI({ model: "gpt-4o", }).bindTools([
-  checkUsersCalendar,
-]);
+const date = new Date().toISOString();
 
-const callLLM = async (state: typeof MessagesAnnotation.State) => {
-  const response = await model.invoke(state.messages);
-  return { messages: [response] };
-};
+const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Assistant0. You are a helpful assistant that can answer questions and help with tasks. You have access to a set of tools, use the tools as needed to answer the user's question. Render the email body as a markdown block, do not wrap it in code blocks. Today is ${date}.`;
 
-const routeAfterLLM: RunnableLike = function (state) {
-  const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
-  if (!lastMessage.tool_calls?.length) {
-    return END;
-  }
-  return "tools";
-};
+const llm = new ChatOpenAI({
+  model: 'gpt-4o',
+  temperature: 0,
+});
 
-const stateGraph = new StateGraph(MessagesAnnotation)
-  .addNode("callLLM", callLLM)
-  .addNode(
-    "tools",
-    new ToolNode(
-      [
-        // A tool with token vault access
-        checkUsersCalendar,
-        // ... other tools
-      ],
-      {
-        // Error handler should be disabled in order to
-        // trigger interruptions from within tools.
-        handleToolErrors: false,
-      }
-    )
-  )
-  .addEdge(START, "callLLM")
-  .addConditionalEdges("callLLM", routeAfterLLM, [END, "tools"])
-  .addEdge("tools", "callLLM");
+
+const tools = [
+  new Calculator(),
+];
 
 const checkpointer = new MemorySaver();
 const store = new InMemoryStore();
 
-export const graph = stateGraph.compile({
-  checkpointer,
+/**
+ * Use a prebuilt LangGraph agent.
+ */
+export const agent = createReactAgent({
+  llm,
+  tools: new ToolNode(tools, {
+    // Error handler must be disabled in order to trigger interruptions from within tools.
+    handleToolErrors: false,
+  }),
+  // Modify the stock prompt in the prebuilt agent.
+  prompt: AGENT_SYSTEM_TEMPLATE,
   store,
-  interruptBefore: [],
-  interruptAfter: [],
+  checkpointer,
 });
