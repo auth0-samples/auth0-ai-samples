@@ -1,0 +1,8 @@
+# Ignore copied source files and generated files
+src/
+package.json
+package-lock.json
+.vercel/
+node_modules/
+.vercel
+.env*.local
