@@ -61,7 +61,7 @@ export async function getDocumentsForUser(): Promise<Omit<DocumentParams, 'conte
         userEmail: documentsTable.userEmail,
       })
       .from(documentsTable)
-      .where(or(eq(documentsTable.userId, user.sub), arrayContains(documentsTable.sharedWith, [user.sub])))
+      .where(or(eq(documentsTable.userId, user.sub), arrayContains(documentsTable.sharedWith, [user.email])))
       .orderBy(desc(documentsTable.createdAt)); // Show newest first
 
     return userDocuments;
