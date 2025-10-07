@@ -11,26 +11,15 @@ import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
  * to authorize additional scopes via popup authentication.
  */
 
-<<<<<<<< HEAD:call-apis-on-users-behalf/others-api/langchain-react-spa-js/apps/web/src/components/auth0/TokenVaultPopup.tsx
-interface TokenVaultPopupProps {
-========
 interface TokenVaultConsentPopupProps {
->>>>>>>> AIDX-232-rename-ciba-methods:call-apis-on-users-behalf/others-api/langchain-react-spa-js/apps/web/src/components/auth0/TokenVaultConsentPopup.tsx
   interrupt: TokenVaultInterrupt;
   onResume?: () => void;
 }
 
-<<<<<<<< HEAD:call-apis-on-users-behalf/others-api/langchain-react-spa-js/apps/web/src/components/auth0/TokenVaultPopup.tsx
-export function TokenVaultPopup({
-  interrupt,
-  onResume,
-}: TokenVaultPopupProps) {
-========
 export function TokenVaultConsentPopup({
   interrupt,
   onResume,
 }: TokenVaultConsentPopupProps) {
->>>>>>>> AIDX-232-rename-ciba-methods:call-apis-on-users-behalf/others-api/langchain-react-spa-js/apps/web/src/components/auth0/TokenVaultConsentPopup.tsx
   const [isLoading, setIsLoading] = useState(false);
 
   const { connection, requiredScopes, message } = interrupt;
