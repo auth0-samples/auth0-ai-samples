@@ -5,7 +5,7 @@ import { getUser } from './auth0';
 
 const auth0AI = new Auth0AI();
 
-// Async Authorization flow for user confirmation
+// CIBA flow for user confirmation
 export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
   userID: async () => {
     const user = await getUser();

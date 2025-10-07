@@ -30,7 +30,6 @@ export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
    *
    * When this flag is set to `block`, the execution of the tool awaits
    * until the user approves or rejects the request.
-   *
    * Given the asynchronous nature of the CIBA flow, this mode
    * is only useful during development.
    *
