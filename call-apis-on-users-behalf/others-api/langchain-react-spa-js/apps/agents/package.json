@@ -10,12 +10,9 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },
-  "resolutions": {
-    "@auth0/ai": "file:../../../../../packages/auth0-ai-0.0.0.tgz"
-  },
   "dependencies": {
-    "@auth0/ai": "file:../../../../../packages/auth0-ai-0.0.0.tgz",
-    "@auth0/ai-langchain": "file:../../../../../packages/auth0-ai-langchain-0.0.0.tgz",
+    "@auth0/ai": "*",
+    "@auth0/ai-langchain": "*",
     "@langchain/anthropic": "^0.3.30",
     "@langchain/community": "^0.3.57",
     "@langchain/core": "^0.3.78",

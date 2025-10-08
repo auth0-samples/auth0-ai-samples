@@ -16,12 +16,9 @@
     "lint:all": "turbo lint",
     "lint:all:fix": "turbo lint:fix"
   },
-  "resolutions": {
-    "@auth0/ai": "file:../../../packages/auth0-ai-0.0.0.tgz"
-  },
   "dependencies": {
-    "@auth0/ai": "file:../../../packages/auth0-ai-0.0.0.tgz",
-    "@auth0/ai-langchain": "file:../../../packages/auth0-ai-langchain-0.0.0.tgz",
+    "@auth0/ai": "*",
+    "@auth0/ai-langchain": "*",
     "@langchain/community": "^0.3.57"
   },
   "devDependencies": {

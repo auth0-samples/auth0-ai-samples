@@ -11,11 +11,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview"
   },
-  "resolutions": {
-    "@auth0/ai": "file:../../../../../packages/auth0-ai-0.0.0.tgz"
-  },
   "dependencies": {
-    "@auth0/ai": "file:../../../../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai": "*",
     "@auth0/auth0-spa-js": "^2.5.0",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",

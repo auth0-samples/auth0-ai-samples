@@ -14,7 +14,7 @@
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
   "dependencies": {
-    "@auth0/ai-langchain": "file:../../packages/auth0-ai-langchain-0.0.0.tgz",
+    "@auth0/ai-langchain": "^2.0.0",
     "@langchain/openai": "^0.6.14",
     "@openfga/sdk": "^0.9.0",
     "dotenv": "^17.2.3",

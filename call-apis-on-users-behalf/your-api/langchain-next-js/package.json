@@ -25,7 +25,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@auth0/ai-langchain": "file:../../../packages/auth0-ai-langchain-0.0.0.tgz",
+    "@auth0/ai-langchain": "^3.5.0",
     "@auth0/nextjs-auth0": "4.10.0",
     "@langchain/community": "0.3.57",
     "@langchain/core": "^0.3.78",
