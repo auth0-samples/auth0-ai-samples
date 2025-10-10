@@ -29,7 +29,7 @@ export const getContextDocumentsTool = tool({
       buildQuery: (doc: DocumentWithScore) => ({
         user: `user:${user?.email}`,
         object: `doc:${doc.documentId}`,
-        relation: 'can_view',
+        relation: 'viewer',
       }),
     });
 

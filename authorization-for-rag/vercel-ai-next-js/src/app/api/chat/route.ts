@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { streamText, UIMessage, createUIMessageStream, stepCountIs, createUIMessageStreamResponse, convertToModelMessages } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { setAIContext } from '@auth0/ai-vercel';
 
 import { getContextDocumentsTool } from '@/lib/tools/context-docs';
 
@@ -12,9 +13,9 @@ const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Assistant0. Yo
  * This handler initializes and calls an tool calling agent.
  */
 export async function POST(req: NextRequest) {
-  const request = await req.json();
+  const { id, messages }: { id: string; messages: Array<UIMessage> } = await req.json();
+  setAIContext({ threadID: id });
 
-  const messages = sanitizeMessages(request.messages);
 
   const tools = {
     getContextDocumentsTool,
@@ -46,9 +47,3 @@ export async function POST(req: NextRequest) {
   return createUIMessageStreamResponse({ stream });
 }
 
-// Vercel AI tends to get stuck when there are incomplete tool calls in messages
-const sanitizeMessages = (messages: UIMessage[]) => {
-  return messages.filter(
-    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && (message?.parts?.[0] as unknown as string) === ''),
-  );
-};

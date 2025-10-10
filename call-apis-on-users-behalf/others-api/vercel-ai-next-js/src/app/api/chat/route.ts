@@ -14,11 +14,9 @@ const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Assistant0. Yo
  * This handler initializes and calls an tool calling agent.
  */
 export async function POST(req: NextRequest) {
-  const request = await req.json();
+  const { id, messages }: { id: string; messages: Array<UIMessage> } = await req.json();
 
-  const messages = sanitizeMessages(request.messages);
-
-  setAIContext({ threadID: request.id });
+  setAIContext({ threadID: id });
 
   const tools = {
     getCalendarEventsTool,
@@ -70,10 +68,3 @@ export async function POST(req: NextRequest) {
 
   return createUIMessageStreamResponse({ stream });
 }
-
-// Vercel AI tends to get stuck when there are incomplete tool calls in messages
-const sanitizeMessages = (messages: UIMessage[]) => {
-  return messages.filter(
-    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && (message?.parts?.[0] as unknown as string) === ''),
-  );
-};

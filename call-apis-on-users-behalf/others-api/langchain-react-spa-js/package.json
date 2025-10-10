@@ -19,7 +19,7 @@
   "dependencies": {
     "@auth0/ai": "*",
     "@auth0/ai-langchain": "*",
-    "@langchain/community": "^0.3.57"
+    "@langchain/community": "^0.3.53"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
