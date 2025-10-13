@@ -86,7 +86,7 @@ It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-
 This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
 
 ```bash
-$ ANALYZE=true bun run build
+$ ANALYZE=true bun run build # or $ ANALYZE=true npm run build
 ```
 
 ## License
