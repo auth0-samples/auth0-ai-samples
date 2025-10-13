@@ -43,13 +43,25 @@ OPENAI_API_KEY="openai-api-key"
 1. Install dependencies.
 
    ```sh
-   npm install
+   bun install # or npm install
    ```
 
-2. Running the example
+2. Update your user id in the sample [src/index.ts](./src/index.ts) provided.
+  ```typescript
+    const { text } = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: "You are an assistant. Invoke the tool if needed, then respond with a past-tense confirmation.",
+      prompt: userPrompt,
+      // pass an Auth0 user id. For example, 'auth0|100000000000000000000' or 'google-oauth2|100000000000000000000'
+      tools: { buy: buy({ userId: "<authenticated-user-id>" }) },
+      stopWhen: stepCountIs(3), // tool call + result + final assistant message
+    });
+  ```
+
+3. Running the example
 
    ```sh
-   npm start
+   bun start # or npm start
    ```
 
 ## License

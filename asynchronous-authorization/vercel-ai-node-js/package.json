@@ -7,16 +7,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx tsx src/index.ts"
   },
+  "engines": {
+    "node": ">=20 <23"
+  },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "description": "",
   "dependencies": {
-    "@ai-sdk/openai": "^1.3.9",
-    "@auth0/ai-vercel": "^2.0.0",
-    "ai": "^4.3.4",
-    "auth0": "^4.21.0",
-    "dotenv": "^16.4.7",
-    "zod": "^3.24.2"
+    "@ai-sdk/openai": "^2.0.31",
+    "@auth0/ai-vercel": "^3.8.1",
+    "ai": "^5.0.45",
+    "auth0": "^5.0.0",
+    "dotenv": "17.2.2",
+    "zod": "4.1.5"
+  },
+  "devDependencies": {
+    "npm-check-updates": "^18.1.0"
   }
 }
