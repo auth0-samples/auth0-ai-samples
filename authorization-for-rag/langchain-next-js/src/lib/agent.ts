@@ -1,7 +1,7 @@
 import { createReactAgent, ToolNode } from '@langchain/langgraph/prebuilt';
 import { ChatOpenAI } from '@langchain/openai';
 import { InMemoryStore, MemorySaver } from '@langchain/langgraph';
-
+import { Calculator } from '@langchain/community/tools/calculator';
 import { getContextDocumentsTool } from './tools/context-docs';
 
 const date = new Date().toISOString();
@@ -13,7 +13,7 @@ const llm = new ChatOpenAI({
   temperature: 0,
 });
 
-const tools = [getContextDocumentsTool];
+const tools = [new Calculator(), getContextDocumentsTool];
 
 const checkpointer = new MemorySaver();
 const store = new InMemoryStore();
