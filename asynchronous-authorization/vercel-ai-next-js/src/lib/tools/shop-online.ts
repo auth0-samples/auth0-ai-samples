@@ -1,51 +1,39 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-
 import { getCIBACredentials } from '@auth0/ai-vercel';
 import { withAsyncAuthorization } from '../auth0-ai';
 
 export const shopOnlineTool = withAsyncAuthorization(
   tool({
     description: 'Tool to buy products online',
-    parameters: z.object({
+    inputSchema: z.object({
       product: z.string(),
-      qty: z.number(),
-      priceLimit: z.number().optional(),
+      qty: z.number().int().positive(),
+      priceLimit: z.number().positive().optional(),
     }),
-    execute: async ({ product, qty, priceLimit }) => {
-      console.log(`Ordering ${qty} ${product} with price limit ${priceLimit}`);
-
-      const apiUrl = process.env['SHOP_API_URL']!;
-
-      if (!apiUrl) {
-        // No API set, mock a response or return error
-        return `Ordered ${qty} ${product}`;
-      }
-
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: '',
-      };
-      const body = {
-        product,
-        qty,
-        priceLimit,
-      };
+    execute: async (args) => {
+      const { product, qty, priceLimit } = args;
+      const apiUrl = process.env.SHOP_API_URL;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
       const credentials = getCIBACredentials();
-      const accessToken = credentials?.accessToken;
-
-      if (accessToken) {
-        headers['Authorization'] = 'Bearer ' + accessToken;
+      if (credentials?.accessToken) {
+        headers.Authorization = `Bearer ${credentials.accessToken}`;
       }
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(body),
-      });
+      if (!apiUrl) {
+        return `Ordered ${qty} ${product}${priceLimit ? ` (≤ ${priceLimit})` : ''}`;
+      }
 
-      return response.statusText;
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ product, qty, priceLimit }),
+      });
+      if (!res.ok) {
+        throw new Error(`SHOP_API error ${res.status}: ${await res.text().catch(() => res.statusText)}`);
+      }
+      return await res.text();
     },
   }),
 );
