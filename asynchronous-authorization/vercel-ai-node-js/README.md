@@ -15,7 +15,7 @@
   - An API with the following settings:
     - **Name**: `Sample Stock API`
     - **Identifier**: `sample-stock-api`
-    - **Permissions**: `trade:stock`
+    - **Permissions**: `stock:trade`
   - **Push Notifications** using [Auth0 Guardian](https://auth0.com/docs/secure/multi-factor-authentication/auth0-guardian) must be `enabled`
   - A test user enrolled in Guardian MFA.
 

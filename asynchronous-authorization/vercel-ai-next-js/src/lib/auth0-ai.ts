@@ -12,7 +12,7 @@ export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
     return user?.sub as string;
   },
   bindingMessage: async ({ product, qty }) => `Do you want to buy ${qty} ${product}`,
-  scopes: ['openid', 'buy:product'], // add any scopes you want to use with your API
+  scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
   audience: process.env['SHOP_API_AUDIENCE']!,
   /**
    * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
@@ -22,11 +22,11 @@ export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
 
   /**
    * The behavior when the authorization request is made.
-   * 
+   *
    * - `block`: The tool execution is blocked until the user completes the authorization.
    * - `interrupt`: The tool execution is interrupted until the user completes the authorization.
    * - a callback: Same as "block" but give access to the auth request and executing logic.
-   * 
+   *
    * Defaults to `interrupt`.
    *
    * When this flag is set to `block`, the execution of the tool awaits

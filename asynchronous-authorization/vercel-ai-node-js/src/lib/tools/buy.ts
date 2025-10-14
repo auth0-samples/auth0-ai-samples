@@ -3,7 +3,11 @@ import "dotenv/config";
 import { tool } from "ai";
 import { z } from "zod";
 
-import { Auth0AI, getAsyncAuthorizationCredentials, type ToolWrapper } from "@auth0/ai-vercel";
+import {
+  Auth0AI,
+  getAsyncAuthorizationCredentials,
+  ToolWrapper,
+} from "@auth0/ai-vercel";
 import { AccessDeniedInterrupt } from "@auth0/ai/interrupts";
 
 export type Context = {
@@ -17,7 +21,7 @@ export const buy = (context: Context) => {
     userID: context.userId,
     bindingMessage: async ({ ticker, qty }: { ticker: string; qty: number }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
-    scopes: ["openid", "trade:stock"],
+    scopes: ["openid", "stock:trade"],
     audience: process.env["STOCK_API_AUDIENCE"]!,
     /**
      * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
