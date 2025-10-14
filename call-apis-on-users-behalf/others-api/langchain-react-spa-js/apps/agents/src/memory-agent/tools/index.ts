@@ -1,8 +1,8 @@
 import { LangGraphRunnableConfig } from "@langchain/langgraph";
 
-import { calendarCommunityTool } from "./calendar-view-tool";
 import { checkUsersCalendar } from "./check-user-calendar";
 import { createUpsertMemoryTool } from "./upsert-memory";
+import { viewCalendarEvents } from "./view-calendar-events";
 
 /**
  * Initialize tools within a function so that they have access to the current
@@ -11,7 +11,7 @@ import { createUpsertMemoryTool } from "./upsert-memory";
 export function initializeTools(config?: LangGraphRunnableConfig) {
   const upsertMemoryTool = createUpsertMemoryTool(config);
 
-  return [upsertMemoryTool, checkUsersCalendar, calendarCommunityTool];
+  return [upsertMemoryTool, checkUsersCalendar, viewCalendarEvents];
 }
 
-export { checkUsersCalendar, calendarCommunityTool };
+export { checkUsersCalendar, viewCalendarEvents };

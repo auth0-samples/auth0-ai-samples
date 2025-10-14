@@ -14,7 +14,6 @@
     "@auth0/ai": "*",
     "@auth0/ai-langchain": "*",
     "@langchain/anthropic": "^0.3.30",
-    "@langchain/community": "^0.3.55",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",
     "@langchain/langgraph-sdk": "^0.0.109",

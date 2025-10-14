@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "@auth0/ai": "../../../packages/auth0-ai-0.0.0.tgz",
-    "@auth0/ai-langchain": "../../../packages/auth0-ai-langchain-0.0.0.tgz",
-    "@langchain/community": "^0.3.55"
+    "@auth0/ai-langchain": "../../../packages/auth0-ai-langchain-0.0.0.tgz"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
