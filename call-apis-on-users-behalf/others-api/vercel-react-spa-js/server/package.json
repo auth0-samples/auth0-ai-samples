@@ -9,7 +9,7 @@
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.52",
+    "@ai-sdk/openai": "2.0.24",
     "@auth0/ai": "*",
     "@auth0/ai-vercel": "*",
     "@hono/node-server": "^1.13.7",

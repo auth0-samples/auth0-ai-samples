@@ -21,7 +21,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.52",
+    "@ai-sdk/openai": "2.0.24",
     "@ai-sdk/react": "2.0.33",
     "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
     "@auth0/ai-vercel": "../../packages/auth0-ai-vercel-0.0.0.tgz",
