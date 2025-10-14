@@ -3,7 +3,7 @@ import "dotenv/config";
 import { tool } from "ai";
 import { z } from "zod";
 
-import { Auth0AI, getCIBACredentials, type ToolWrapper } from "@auth0/ai-vercel";
+import { Auth0AI, getAsyncAuthorizationCredentials, type ToolWrapper } from "@auth0/ai-vercel";
 import { AccessDeniedInterrupt } from "@auth0/ai/interrupts";
 
 export type Context = {
@@ -13,11 +13,11 @@ export type Context = {
 const auth0AI = new Auth0AI();
 
 export const buy = (context: Context) => {
-  const withAsyncAuthorization: ToolWrapper = auth0AI.withAsyncUserConfirmation({
+  const withAsyncAuthorization: ToolWrapper = auth0AI.withAsyncAuthorization({
     userID: context.userId,
     bindingMessage: async ({ ticker, qty }: { ticker: string; qty: number }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
-    scopes: ["openid", "stock:trade"],
+    scopes: ["openid", "trade:stock"],
     audience: process.env["STOCK_API_AUDIENCE"]!,
     /**
      * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
@@ -69,7 +69,7 @@ export const buy = (context: Context) => {
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
-        const credentials = getCIBACredentials();
+        const credentials = getAsyncAuthorizationCredentials();
         const accessToken = credentials?.accessToken;
         if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
 

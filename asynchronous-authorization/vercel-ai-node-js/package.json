@@ -15,14 +15,20 @@
   "license": "Apache-2.0",
   "description": "",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.31",
-    "@auth0/ai-vercel": "^3.8.1",
-    "ai": "^5.0.45",
+    "@ai-sdk/openai": "^2.0.52",
+    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-vercel": "../../packages/auth0-ai-vercel-0.0.0.tgz",
+    "ai": "5.0.33",
     "auth0": "^5.0.0",
-    "dotenv": "17.2.2",
-    "zod": "4.1.5"
+    "dotenv": "^16.4.7",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/node": "^24.7.2",
     "npm-check-updates": "^18.1.0"
+  },
+  "resolutions": {
+    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-vercel": "../../packages/auth0-ai-vercel-0.0.0.tgz"
   }
 }

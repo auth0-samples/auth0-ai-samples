@@ -13,11 +13,11 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.24",
-    "@auth0/ai": "^2.0.1",
-    "@openfga/sdk": "^0.9.0",
+    "@ai-sdk/openai": "^2.0.52",
+    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
+    "@openfga/sdk": "^0.8.0",
     "ai": "5.0.33",
-    "dotenv": "^17.2.3",
+    "dotenv": "^16.4.7",
     "faiss-node": "0.5.1",
     "zod": "^3.25.76"
   }

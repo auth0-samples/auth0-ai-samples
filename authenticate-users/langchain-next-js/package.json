@@ -25,10 +25,10 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@auth0/ai": "^4.0.0",
-    "@auth0/ai-langchain": "^3.5.0",
+    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-langchain": "../../packages/auth0-ai-langchain-0.0.0.tgz",
     "@auth0/nextjs-auth0": "^4.10.0",
-    "@langchain/community": "^0.3.53",
+    "@langchain/community": "^0.3.55",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",
     "@langchain/openai": "^0.6.14",
@@ -42,7 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.0.1",
+    "dotenv": "^16.4.7",
     "drizzle-orm": "^0.43.1",
     "drizzle-zod": "^0.7.1",
     "googleapis": "^161.0.0",
@@ -86,5 +86,9 @@
     "tailwindcss": "3.4.17",
     "tsx": "^4.20.6",
     "typescript": "5.9.3"
+  },
+  "resolutions": {
+    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-langchain": "../../packages/auth0-ai-langchain-0.0.0.tgz"
   }
 }

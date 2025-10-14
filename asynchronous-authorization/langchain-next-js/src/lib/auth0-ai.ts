@@ -4,12 +4,12 @@ import { AccessDeniedInterrupt } from '@auth0/ai/interrupts';
 const auth0AI = new Auth0AI();
 
 // CIBA flow for user confirmation
-export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
+export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
   userID: async (_params, config) => {
     return config.configurable?.langgraph_auth_user?.sub;
   },
   bindingMessage: async ({ product, qty }) => `Do you want to buy ${qty} ${product}`,
-  scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
+  scopes: ['openid', 'buy:product'], // add any scopes you want to use with your API
   audience: process.env['SHOP_API_AUDIENCE']!,
 
 

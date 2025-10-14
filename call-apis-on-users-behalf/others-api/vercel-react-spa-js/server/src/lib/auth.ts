@@ -23,7 +23,7 @@ export const createGoogleCalendarTool = (c: Context): ToolWrapper => {
     throw new Error("Access token not available in auth context");
   }
 
-  return auth0AI.withTokenForConnection({
+  return auth0AI.withTokenVault({
     accessToken: async () => accessToken,
     subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
     connection: process.env.GOOGLE_CONNECTION_NAME || "google-oauth2",
