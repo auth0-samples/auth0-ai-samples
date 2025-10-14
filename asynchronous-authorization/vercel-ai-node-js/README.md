@@ -43,7 +43,7 @@ OPENAI_API_KEY="openai-api-key"
 1. Install dependencies.
 
    ```sh
-   bun install # or npm install
+   npm install # or bun install
    ```
 
 2. Update your user id in the sample [src/index.ts](./src/index.ts) provided.
@@ -61,7 +61,7 @@ OPENAI_API_KEY="openai-api-key"
 3. Running the example
 
    ```sh
-   bun start # or npm start
+    npm start # or bun start
    ```
 
 ## License
