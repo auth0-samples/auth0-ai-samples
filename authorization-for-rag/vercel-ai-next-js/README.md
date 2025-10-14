@@ -35,6 +35,13 @@ docker compose up -d
 npm run db:migrate # or bun db:migrate
 ```
 
+Now, run the initialization script to set up the OpenFGA store with the necessary authorization model:
+
+```bash
+npm run fga:init # or bun run fga:init
+```
+This script configures the authorization model and sets up initial permissions (all users can view the public document).
+
 Now you're ready to run the development server:
 
 ```bash
