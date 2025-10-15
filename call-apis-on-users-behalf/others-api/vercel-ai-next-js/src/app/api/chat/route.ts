@@ -1,10 +1,16 @@
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  streamText,
+  UIMessage,
+} from 'ai';
 import { NextRequest } from 'next/server';
-import { streamText, UIMessage, createUIMessageStream, createUIMessageStreamResponse, convertToModelMessages } from 'ai';
+
+import { getCalendarEventsTool } from '@/lib/tools/google-calendar';
 import { openai } from '@ai-sdk/openai';
 import { setAIContext } from '@auth0/ai-vercel';
 import { errorSerializer, withInterruptions } from '@auth0/ai-vercel/interrupts';
-
-import { getCalendarEventsTool } from '@/lib/tools/google-calendar';
 
 const date = new Date().toISOString();
 
@@ -22,20 +28,22 @@ export async function POST(req: NextRequest) {
     getCalendarEventsTool,
   };
 
+  const modelMessages = convertToModelMessages(messages);
+
   const stream = createUIMessageStream({
     originalMessages: messages,
     execute: withInterruptions(
       async ({ writer }) => {
         const result = streamText({
-          model: openai("gpt-4o-mini"),
+          model: openai('gpt-4o-mini'),
           system: AGENT_SYSTEM_TEMPLATE,
-          messages: convertToModelMessages(messages),
+          messages: modelMessages,
           tools,
 
           onFinish: (output) => {
-            if (output.finishReason === "tool-calls") {
+            if (output.finishReason === 'tool-calls') {
               const lastMessage = output.content[output.content.length - 1];
-              if (lastMessage?.type === "tool-error") {
+              if (lastMessage?.type === 'tool-error') {
                 const { toolName, toolCallId, error, input } = lastMessage;
                 const serializableError = {
                   cause: error,
@@ -52,17 +60,17 @@ export async function POST(req: NextRequest) {
         writer.merge(
           result.toUIMessageStream({
             sendReasoning: true,
-          })
+          }),
         );
       },
       {
-        messages: messages,
+        messages: modelMessages,
         tools,
-      }
+      },
     ),
     onError: errorSerializer((err) => {
-      console.error("ai-sdk route: stream error", err);
-      return "Oops, an error occured!";
+      console.error('ai-sdk route: stream error', err);
+      return 'Oops, an error occured!';
     }),
   });
 

@@ -6,8 +6,10 @@
 import "dotenv/config";
 
 import { Settings, VectorStoreIndex } from "llamaindex";
+
 import { FGARetriever } from "@auth0/ai-llamaindex";
-import { OpenAIEmbedding, openai } from "@llamaindex/openai";
+import { openai, OpenAIEmbedding } from "@llamaindex/openai";
+
 import { readDocuments } from "./helpers/read-documents";
 
 /**

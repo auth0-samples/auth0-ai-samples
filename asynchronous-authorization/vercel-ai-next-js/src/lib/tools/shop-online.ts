@@ -1,6 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import { getCIBACredentials } from '@auth0/ai-vercel';
+import { getAsyncAuthorizationCredentials } from '@auth0/ai-vercel';
 import { withAsyncAuthorization } from '../auth0-ai';
 
 export const shopOnlineTool = withAsyncAuthorization(
@@ -16,7 +16,7 @@ export const shopOnlineTool = withAsyncAuthorization(
       const apiUrl = process.env.SHOP_API_URL;
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
-      const credentials = getCIBACredentials();
+      const credentials = getAsyncAuthorizationCredentials();
       if (credentials?.accessToken) {
         headers.Authorization = `Bearer ${credentials.accessToken}`;
       }

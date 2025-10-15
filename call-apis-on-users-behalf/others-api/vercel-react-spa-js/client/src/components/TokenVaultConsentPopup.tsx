@@ -11,13 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
  */
 
 import type { Auth0InterruptionUI } from "@auth0/ai-vercel/react";
-interface FederatedConnectionPopupProps {
+interface TokenVaultConsentPopupProps {
   interrupt: Auth0InterruptionUI;
 }
 
-export function FederatedConnectionPopup({
+export function TokenVaultConsentPopup({
   interrupt,
-}: FederatedConnectionPopupProps) {
+}: TokenVaultConsentPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { connection, requiredScopes, resume } = interrupt;

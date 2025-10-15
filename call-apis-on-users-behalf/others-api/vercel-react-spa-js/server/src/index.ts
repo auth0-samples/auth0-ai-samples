@@ -97,6 +97,8 @@ export const app = new Hono()
     // note: you can see more examples of Hono API consumption with AI SDK here:
     // https://ai-sdk.dev/cookbook/api-servers/hono?utm_source=chatgpt.com#hono
 
+    const modelMessages = convertToModelMessages(requestMessages);
+
     const stream = createUIMessageStream({
       originalMessages: requestMessages,
       execute: withInterruptions(
@@ -105,7 +107,7 @@ export const app = new Hono()
             model: openai("gpt-4o-mini"),
             system:
               "You are a helpful calendar assistant! You can help users with their calendar events and schedules. Keep your responses concise and helpful. Always format your responses as plain text. Do not use markdown formatting like **bold**, ##headers, or -bullet points. Use simple text formatting with line breaks and indentation only.",
-            messages: convertToModelMessages(requestMessages),
+            messages: modelMessages,
             tools,
 
             onFinish: (output) => {
@@ -132,7 +134,7 @@ export const app = new Hono()
           );
         },
         {
-          messages: requestMessages,
+          messages: modelMessages,
           tools,
         }
       ),

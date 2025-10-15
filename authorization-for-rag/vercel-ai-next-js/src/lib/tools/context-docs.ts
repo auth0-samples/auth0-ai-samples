@@ -1,8 +1,9 @@
 import { tool } from 'ai';
-import { z } from "zod/v3";
-import { FGAFilter } from '@auth0/ai';
+import { z } from 'zod/v3';
 
 import { findRelevantContent } from '@/lib/rag/embedding';
+import { FGAFilter } from '@auth0/ai';
+
 import { auth0 } from '../auth0';
 
 export type DocumentWithScore = {
@@ -29,13 +30,15 @@ export const getContextDocumentsTool = tool({
       buildQuery: (doc: DocumentWithScore) => ({
         user: `user:${user?.email}`,
         object: `doc:${doc.documentId}`,
-        relation: 'viewer',
+        relation: 'can_view',
       }),
     });
 
     const documents = await findRelevantContent(question, 25);
+
     // filter docs based on FGA authorization
     const context = await retriever.filter(documents);
+
     return context;
   },
 });

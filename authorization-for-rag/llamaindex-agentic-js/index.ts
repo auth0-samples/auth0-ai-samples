@@ -5,10 +5,17 @@
  */
 import "dotenv/config";
 
-import { ReActAgent, QueryEngineTool, Settings, VectorStoreIndex } from "llamaindex";
-import { SimpleDirectoryReader } from "@llamaindex/readers/directory";
+import {
+  QueryEngineTool,
+  ReActAgent,
+  Settings,
+  VectorStoreIndex,
+} from "llamaindex";
+
 import { FGARetriever } from "@auth0/ai-llamaindex";
-import { OpenAIEmbedding, openai } from "@llamaindex/openai";
+import { openai, OpenAIEmbedding } from "@llamaindex/openai";
+import { SimpleDirectoryReader } from "@llamaindex/readers/directory";
+
 /**
 /**
  * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)

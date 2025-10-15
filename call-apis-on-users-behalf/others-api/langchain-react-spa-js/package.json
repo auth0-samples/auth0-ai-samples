@@ -17,9 +17,8 @@
     "lint:all:fix": "turbo lint:fix"
   },
   "dependencies": {
-    "@auth0/ai": "*",
-    "@auth0/ai-langchain": "*",
-    "@langchain/community": "^0.3.53"
+    "@auth0/ai": "../../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-langchain": "../../../packages/auth0-ai-langchain-0.0.0.tgz"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -35,6 +34,10 @@
     "tsx": "^4.20.6",
     "turbo": "latest",
     "typescript": "^5"
+  },
+  "resolutions": {
+    "@auth0/ai": "../../../packages/auth0-ai-0.0.0.tgz",
+    "@auth0/ai-langchain": "../../../packages/auth0-ai-langchain-0.0.0.tgz"
   },
   "packageManager": "npm@11.6.1"
 }
