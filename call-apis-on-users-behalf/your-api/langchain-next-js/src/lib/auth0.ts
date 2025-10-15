@@ -6,6 +6,7 @@ export const auth0 = new Auth0Client({
     // Instead, we need to provide the values explicitly.    
     scope: process.env.AUTH0_SCOPE,
     audience: process.env.AUTH0_AUDIENCE,
+    enableConnectAccountEndpoint: true
   },
 });
 
