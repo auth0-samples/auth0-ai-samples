@@ -24,6 +24,9 @@ export const createGoogleCalendarTool = (c: Context): ToolWrapper => {
   }
 
   return auth0AI.withTokenVault({
+    authorizationParams: {
+      access_type: "offline"
+    },
     accessToken: async () => accessToken,
     subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
     connection: process.env.GOOGLE_CONNECTION_NAME || "google-oauth2",

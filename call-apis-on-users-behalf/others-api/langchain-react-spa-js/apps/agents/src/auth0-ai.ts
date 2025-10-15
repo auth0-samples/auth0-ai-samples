@@ -14,6 +14,9 @@ export const withAccessTokenForConnection = (
   scopes: string[]
 ) =>
   auth0AI.withTokenVault({
+    authorizationParams: {
+      access_type: "offline"
+    },
     connection,
     scopes,
     accessToken: async (_, config) => {

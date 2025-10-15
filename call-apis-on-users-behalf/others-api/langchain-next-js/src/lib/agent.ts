@@ -22,7 +22,7 @@ const store = new InMemoryStore();
 /**
  * Use a prebuilt LangGraph agent.
  */
-export const agent = createReactAgent({
+export const graph = createReactAgent({
   llm,
   tools: new ToolNode(tools, {
     // Error handler must be disabled in order to trigger interruptions from within tools.
