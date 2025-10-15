@@ -15,9 +15,6 @@ dependencies = [
     "langgraph-cli[inmem]>=0.3.6",
     "langgraph-api==0.2.102",
     "langgraph-runtime-inmem==0.6.0",
-    "auth0-ai-langchain",
+    "auth0-ai-langchain>=1.0.0b4",
     "pydantic-settings>=2.10.1",
 ]
-
-[tool.uv.sources]
-auth0-ai-langchain = { path = "../../../../temp-packages/auth0-ai-langchain", editable = true }

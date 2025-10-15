@@ -13,7 +13,7 @@ langchain-community = "0.3.17"
 openfga-sdk = "0.9.5"
 faiss-cpu = "1.10.0"
 langchain-openai = "0.3.5"
-auth0-ai-langchain = { path = "../../temp-packages/auth0-ai-langchain", develop = true }
+auth0-ai-langchain = "1.0.0b4"
 
 [build-system]
 requires = ["poetry-core"]
