@@ -8,13 +8,13 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 python-dotenv = "1.0.1"
-langchain = "0.3.18"
+langchain = "0.3.26"
 langchain-community = "0.3.17"
-langgraph = "0.2.71"
-openfga-sdk = "0.9.1"
+langgraph = "0.5.3"
+openfga-sdk = "0.9.5"
 faiss-cpu = "1.10.0"
 langchain-openai = "0.3.5"
-langchain-auth0-ai = { git = "https://github.com/auth0-lab/auth0-ai-python.git", subdirectory = "packages/langchain-auth0-ai", branch = "main" }
+auth0-ai-langchain = "1.0.0b4"
 
 [build-system]
 requires = ["poetry-core"]
