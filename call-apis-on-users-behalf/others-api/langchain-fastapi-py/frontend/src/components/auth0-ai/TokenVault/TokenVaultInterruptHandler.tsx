@@ -1,9 +1,9 @@
-import { FederatedConnectionInterrupt } from "@auth0/ai/interrupts";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 import type { Interrupt } from "@langchain/langgraph-sdk";
 
-import { EnsureAPIAccess } from "@/components/auth0-ai/FederatedConnections";
+import { TokenVaultConsent } from "@/components/auth0-ai/TokenVault";
 
-interface FederatedConnectionInterruptHandlerProps {
+export interface TokenVaultInterruptHandlerProps {
   interrupt: Interrupt | undefined | null;
   onFinish: () => void;
   auth?: {
@@ -12,21 +12,22 @@ interface FederatedConnectionInterruptHandlerProps {
   };
 }
 
-export function FederatedConnectionInterruptHandler({
+export function TokenVaultInterruptHandler({
   interrupt,
   onFinish,
   auth,
-}: FederatedConnectionInterruptHandlerProps) {
-  if (
-    !interrupt ||
-    !FederatedConnectionInterrupt.isInterrupt(interrupt.value)
-  ) {
+}: TokenVaultInterruptHandlerProps) {
+  if (!interrupt) {
+    return null;
+  }
+
+  if (!TokenVaultInterrupt.isInterrupt(interrupt.value)) {
     return null;
   }
 
   return (
     <div key={interrupt.ns?.join("")} className="whitespace-pre-wrap">
-      <EnsureAPIAccess
+      <TokenVaultConsent
         mode="popup"
         interrupt={interrupt.value}
         onFinish={onFinish}

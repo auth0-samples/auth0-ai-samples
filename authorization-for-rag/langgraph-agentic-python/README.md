@@ -45,7 +45,7 @@ This example demonstrates how to combine [LangChain](https://python.langchain.co
    ```sh
    $ python -m venv venv
    $ source venv/bin/activate
-   $ pip install -r requirements.txt
+   $ PIP_CONFIG_FILE=pip.conf pip install -r requirements.txt
    ```
 
 2. Initialize the FGA model and tuples
