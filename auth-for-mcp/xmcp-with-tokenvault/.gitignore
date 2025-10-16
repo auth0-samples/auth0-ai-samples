@@ -1,0 +1,3 @@
+# XMCP package-specific ignores
+.xmcp/
+xmcp-env.d.ts
