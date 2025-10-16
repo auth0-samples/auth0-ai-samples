@@ -1,26 +1,28 @@
 import { useCallback, useState } from "react";
 
-import { getAuth0Client } from "../lib/auth0";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAuth0Client } from "@/lib/auth0";
+import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 /**
- * Component for handling connection authorization popups.
- * This component manages the authorization flow for token exchange with Token Vault,
- * allowing the application to exchange access tokens for third-party API tokens.
+ * Component for handling Token Vault authorization in LangGraph SDK.
+ * This handles Auth0 Token Vault interrupts by prompting the user
+ * to authorize additional scopes via popup authentication.
  */
 
-import type { Auth0InterruptionUI } from "@auth0/ai-vercel/react";
-interface FederatedConnectionPopupProps {
-  interrupt: Auth0InterruptionUI;
+interface TokenVaultConsentPopupProps {
+  interrupt: TokenVaultInterrupt;
+  onResume?: () => void;
 }
 
-export function FederatedConnectionPopup({
+export function TokenVaultConsentPopup({
   interrupt,
-}: FederatedConnectionPopupProps) {
+  onResume,
+}: TokenVaultConsentPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { connection, requiredScopes, resume } = interrupt;
+  const { connection, requiredScopes, message } = interrupt;
 
   // Use Auth0 SPA SDK to request additional connection/scopes
   const startFederatedLogin = useCallback(async () => {
@@ -29,18 +31,18 @@ export function FederatedConnectionPopup({
 
       // Filter out empty scopes
       const validScopes = requiredScopes.filter(
-        (scope: string) => scope && scope.trim() !== ""
+        (scope: string) => scope && scope.trim() !== "",
       );
 
-      // Get the Auth0 client and use loginWithPopup for the Google connection
+      // Get the Auth0 client and use getTokenWithPopup for step-up authorization
       const auth0Client = getAuth0Client();
 
       // Use getTokenWithPopup for step-up authorization to request additional scopes
       await auth0Client.getTokenWithPopup({
         authorizationParams: {
-          prompt: "consent", // Required for Google Calendar scopes
+          prompt: "consent", // Required for token vault scopes
           connection: connection, // e.g., "google-oauth2"
-          connection_scope: validScopes.join(" "), // Google-specific scopes
+          connection_scope: validScopes.join(" "), // Connection-specific scopes
           access_type: "offline",
         },
       });
@@ -53,19 +55,19 @@ export function FederatedConnectionPopup({
       setIsLoading(false);
 
       // Resume the interrupted tool after successful authorization
-      if (typeof resume === "function") {
-        resume();
+      if (typeof onResume === "function") {
+        onResume();
       }
     } catch (error) {
       console.error("Federated login failed:", error);
       setIsLoading(false);
 
       // Even if login fails, we should clear the interrupt
-      if (typeof resume === "function") {
-        resume();
+      if (typeof onResume === "function") {
+        onResume();
       }
     }
-  }, [connection, requiredScopes, resume]);
+  }, [connection, requiredScopes, onResume]);
 
   if (isLoading) {
     return (
@@ -91,8 +93,9 @@ export function FederatedConnectionPopup({
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-yellow-700">
-          To access your {connection.replace("-", " ")} data, you need to
-          authorize this application.
+          {message ||
+            `To access your ${connection.replace("-", " ")} data, you need to
+          authorize this application.`}
         </p>
         <p className="text-xs text-yellow-600">
           Required permissions:{" "}

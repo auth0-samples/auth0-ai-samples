@@ -1,11 +1,11 @@
 import { tool } from 'ai';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 import { auth0 } from '../auth0';
 
 export const getUserInfoTool = tool({
   description: 'Get information about the current logged in user.',
-  parameters: z.object({}),
+  inputSchema: z.object({}),
   execute: async () => {
     const session = await auth0.getSession();
     if (!session) {

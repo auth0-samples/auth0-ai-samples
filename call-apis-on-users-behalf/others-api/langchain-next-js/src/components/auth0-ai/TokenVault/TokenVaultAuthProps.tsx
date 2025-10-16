@@ -1,5 +1,5 @@
-'use client';
-import { ReactNode } from 'react';
+"use client";
+import type { ReactNode } from "react";
 
 /**
  * Defines the mode the EnsureAPIAccess component will use to prompt the user to authorize the API access.
@@ -7,9 +7,9 @@ import { ReactNode } from 'react';
  * - `popup` will open a popup window to prompt the user to authorize the API access.
  * - `auto` will automatically choose the best mode based on the user's device and browser.
  */
-export type AuthComponentMode = 'redirect' | 'popup' | 'auto';
+export type AuthComponentMode = "redirect" | "popup" | "auto";
 
-export type FederatedConnectionAuthProps = {
+export type TokenVaultAuthProps = {
   interrupt: {
     connection: string;
     requiredScopes: string[];

@@ -1,20 +1,20 @@
-import { FederatedConnectionInterrupt } from '@auth0/ai/interrupts';
+import { TokenVaultInterrupt } from '@auth0/ai/interrupts';
 import type { Auth0InterruptionUI } from '@auth0/ai-vercel/react';
 
-import { EnsureAPIAccess } from '@/components/auth0-ai/federated-connections/ensure-api-access';
+import { TokenVaultConsent } from '@/components/auth0-ai/token-vault/token-vault-consent';
 
-interface FederatedConnectionInterruptHandlerProps {
+interface TokenVaultInterruptHandlerProps {
   interrupt: Auth0InterruptionUI | null;
 }
 
-export function FederatedConnectionInterruptHandler({ interrupt }: FederatedConnectionInterruptHandlerProps) {
-  if (!FederatedConnectionInterrupt.isInterrupt(interrupt)) {
+export function TokenVaultInterruptHandler({ interrupt }: TokenVaultInterruptHandlerProps) {
+  if (!TokenVaultInterrupt.isInterrupt(interrupt)) {
     return null;
   }
 
   return (
     <div key={interrupt.name} className="whitespace-pre-wrap">
-      <EnsureAPIAccess
+      <TokenVaultConsent
         mode="popup"
         interrupt={interrupt}
         connectWidget={{

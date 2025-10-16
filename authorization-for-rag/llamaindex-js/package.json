@@ -14,10 +14,11 @@
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
   "dependencies": {
-    "@auth0/ai-llamaindex": "^2.0.0",
-    "@llamaindex/readers": "^3.0.2",
+    "@auth0/ai-llamaindex": "^4.0.0",
+    "@llamaindex/openai": "^0.4.20",
+    "@llamaindex/readers": "^3.1.21",
     "@openfga/sdk": "^0.8.0",
     "dotenv": "^16.4.7",
-    "llamaindex": "^0.9.16"
+    "llamaindex": "^0.11.28"
   }
 }

@@ -23,22 +23,29 @@ Next, you'll need to set up environment variables in your repo's `.env.local` fi
 
 - To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app and Machine to Machine App.
   - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), Go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**) and enable the CIBA grant and save.
+  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), Go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**) and enable the Async Authorization grant and save.
   - An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev). Add the FGA store ID, client ID, client secret, and API URL to the `.env.local` file.
 Next, install the required packages using your preferred package manager and initialize the database.
 
 ```bash
-bun install # or npm install
+npm install # or bun install
 # start the postgres database
 docker compose up -d
 # create the database schema
-bun db:migrate # or npm run db:migrate
+npm run db:migrate # or bun db:migrate
 ```
+
+Now, run the initialization script to set up the OpenFGA store with the necessary authorization model:
+
+```bash
+npm run fga:init # or bun run fga:init
+```
+This script configures the authorization model and sets up initial permissions (all users can view the public document).
 
 Now you're ready to run the development server:
 
 ```bash
-bun dev # or npm run dev
+npm run dev # or bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
@@ -75,7 +82,7 @@ It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-
 This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
 
 ```bash
-$ ANALYZE=true bun run build
+$ ANALYZE=true npm run build # or $ ANALYZE=true bun run build
 ```
 
 ## License

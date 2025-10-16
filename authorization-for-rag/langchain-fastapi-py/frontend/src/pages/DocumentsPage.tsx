@@ -1,11 +1,12 @@
 import { format } from "date-fns";
-import { type ReactNode } from "react";
 import { LogIn, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
-import DocumentUploadForm from "@/components/document-upload-form";
+import { ReactNode } from "react";
+
 import DocumentItemActions from "@/components/document-item-actions";
+import DocumentUploadForm from "@/components/document-upload-form";
+import { Button } from "@/components/ui/button";
 import { getDocumentsForUser } from "@/lib/documents";
+import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function DocumentsPage() {
@@ -55,15 +56,15 @@ export default function DocumentsPage() {
 
   function getSharingStatus(sharedWith: string[] | null): ReactNode {
     if (!sharedWith || sharedWith.length === 0) {
-      return <p className="text-sm text-muted-foreground">Not shared</p>;
+      return <span className="text-sm text-muted-foreground">Not shared</span>;
     }
     if (sharedWith.includes(user?.email!)) {
-      return <p className="text-sm text-green-500">Shared with you</p>;
+      return <span className="text-sm text-green-500">Shared with you</span>;
     }
     return (
-      <p className="text-sm text-blue-500">
+      <span className="text-sm text-blue-500">
         Shared with: {sharedWith.join(", ")}
-      </p>
+      </span>
     );
   }
 

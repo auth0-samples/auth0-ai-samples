@@ -2,7 +2,7 @@ import { tool } from "ai";
 import { google } from "googleapis";
 import { z } from "zod/v3";
 
-import { getAccessTokenForConnection } from "@auth0/ai-vercel";
+import { getAccessTokenFromTokenVault } from "@auth0/ai-vercel";
 
 import type { ToolWrapper } from "@auth0/ai-vercel";
 
@@ -38,7 +38,7 @@ export const createListNearbyEventsTool = (
           }
 
           // Get the access token from Token Vault using the enhanced SDK
-          const token = getAccessTokenForConnection();
+          const token = getAccessTokenFromTokenVault();
 
           const calendar = google.calendar("v3");
           const auth = new google.auth.OAuth2();
@@ -71,7 +71,9 @@ export const createListNearbyEventsTool = (
           return {
             calendarId: calendarId,
             events: [],
-            error: `Failed to list events: ${error instanceof Error ? error.message : "Unknown error"}`,
+            error: `Failed to list events: ${
+              error instanceof Error ? error.message : "Unknown error"
+            }`,
           };
         }
       },

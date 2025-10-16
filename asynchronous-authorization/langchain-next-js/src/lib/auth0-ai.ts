@@ -4,7 +4,7 @@ import { AccessDeniedInterrupt } from '@auth0/ai/interrupts';
 const auth0AI = new Auth0AI();
 
 // CIBA flow for user confirmation
-export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
+export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
   userID: async (_params, config) => {
     return config.configurable?.langgraph_auth_user?.sub;
   },
@@ -12,20 +12,19 @@ export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
   scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
   audience: process.env['SHOP_API_AUDIENCE']!,
 
-
   /**
    * Note: setting a requestedExpiry to >= 301 will currently ensure email is used. Otherwise,
    * the default is to use push notification if available.
-  */
+   */
   // requestedExpiry: 301,
 
   /**
    * The behavior when the authorization request is made.
-   * 
+   *
    * - `block`: The tool execution is blocked until the user completes the authorization.
    * - `interrupt`: The tool execution is interrupted until the user completes the authorization.
    * - a callback: Same as "block" but give access to the auth request and executing logic.
-   * 
+   *
    * Defaults to `interrupt`.
    *
    * When this flag is set to `block`, the execution of the tool awaits

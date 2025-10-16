@@ -1,28 +1,28 @@
 'use client';
 
-import { type Message } from 'ai';
+import { DefaultChatTransport, generateId, lastAssistantMessageIsCompleteWithToolCalls, type UIMessage } from 'ai';
 import { useChat } from '@ai-sdk/react';
-import type { FormEvent, ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 import { ArrowDown, ArrowUpIcon, LoaderCircle } from 'lucide-react';
 
 import { useInterruptions } from '@auth0/ai-vercel/react';
-import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnections/FederatedConnectionInterruptHandler';
+import { TokenVaultInterruptHandler } from '@/components/auth0-ai/TokenVault/TokenVaultInterruptHandler';
 
 import { ChatMessageBubble } from '@/components/chat-message-bubble';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 
 function ChatMessages(props: {
-  messages: Message[];
+  messages: UIMessage[];
   emptyStateComponent: ReactNode;
   aiEmoji?: string;
   className?: string;
 }) {
   return (
     <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-      {props.messages.map((m, i) => {
+      {props.messages.map((m) => {
         return <ChatMessageBubble key={m.id} message={m} aiEmoji={props.aiEmoji} />;
       })}
     </div>
@@ -113,25 +113,22 @@ export function ChatWindow(props: {
   placeholder?: string;
   emoji?: string;
 }) {
-  const chat = useInterruptions((handler) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [input, setInput] = useState("");
+  const { messages, sendMessage, toolInterrupt, status } = useInterruptions((handler) =>
     useChat({
-      api: props.endpoint,
+      transport: new DefaultChatTransport({ api: props.endpoint }),
+      experimental_throttle: 100,
+      generateId,
       onError: handler((e: Error) => {
         console.error('Error: ', e);
         toast.error(`Error while processing your request`, { description: e.message });
       }),
-    }),
+      sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    })
   );
 
   function isChatLoading(): boolean {
-    return chat.status === 'streaming';
-  }
-
-  async function sendMessage(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (isChatLoading()) return;
-    chat.handleSubmit(e);
+    return status === 'streaming';
   }
 
   return (
@@ -140,17 +137,17 @@ export function ChatWindow(props: {
         className="absolute inset-0"
         contentClassName="py-8 px-2"
         content={
-          chat.messages.length === 0 ? (
+          messages.length === 0 ? (
             <div>{props.emptyStateComponent}</div>
           ) : (
             <>
               <ChatMessages
                 aiEmoji={props.emoji}
-                messages={chat.messages}
+                messages={messages}
                 emptyStateComponent={props.emptyStateComponent}
               />
               <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-                <FederatedConnectionInterruptHandler interrupt={chat.toolInterrupt} />
+                <TokenVaultInterruptHandler interrupt={toolInterrupt} />
               </div>
             </>
           )
@@ -159,9 +156,13 @@ export function ChatWindow(props: {
           <div className="sticky bottom-8 px-2">
             <ScrollToBottom className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4" />
             <ChatInput
-              value={chat.input}
-              onChange={chat.handleInputChange}
-              onSubmit={sendMessage}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage({ text: input });
+                setInput("");
+              }}
               loading={isChatLoading()}
               placeholder={props.placeholder ?? 'What can I help you with?'}
             ></ChatInput>

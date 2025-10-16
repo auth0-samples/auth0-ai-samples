@@ -10,11 +10,19 @@ const embeddingModel = openai.embedding('text-embedding-3-small');
 
 export const generateEmbeddings = async (value: string): Promise<Array<{ embedding: number[]; content: string }>> => {
   const chunks = chunk(value);
+  
+  // Filter out empty or whitespace-only chunks
+  const validChunks = chunks.filter(chunk => chunk && chunk.trim().length > 0);
+  
+  if (validChunks.length === 0) {
+    throw new Error('No valid chunks found after filtering empty content');
+  }
+  
   const { embeddings } = await embedMany({
     model: embeddingModel,
-    values: chunks,
+    values: validChunks,
   });
-  return embeddings.map((e, i) => ({ content: chunks[i], embedding: e }));
+  return embeddings.map((e, i) => ({ content: validChunks[i], embedding: e }));
 };
 
 export const generateEmbedding = async (value: string): Promise<number[]> => {

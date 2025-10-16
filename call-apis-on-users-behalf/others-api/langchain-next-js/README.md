@@ -29,17 +29,17 @@ To start with the basic examples, you'll just need to add your OpenAI API key an
 Next, install the required packages using your preferred package manager and initialize the database.
 
 ```bash
-bun install # or npm install
+npm install # or bun install
 # Optional - start the postgres database
 docker compose up -d
 # Optional - create the database schema
-bun db:migrate # or npm run db:migrate
+npm run db:migrate # or bun db:migrate
 ```
 
 Now you're ready to run the development server:
 
 ```bash
-bun all:dev # or npm run all:dev
+npm run all:dev # or bun all:dev
 ```
 
 This will start an in-memory LangGraph server on port 54367 and a Next.js server on port 3000. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
@@ -88,7 +88,7 @@ It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-
 This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
 
 ```bash
-$ ANALYZE=true bun run build
+$ ANALYZE=true npm run build # or $ ANALYZE=true bun run build
 ```
 
 ## License

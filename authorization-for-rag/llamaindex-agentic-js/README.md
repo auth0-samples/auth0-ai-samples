@@ -62,10 +62,16 @@ This example demonstrates how to combine [LlamaIndex](https://ts.llamaindex.ai/)
 1. Install dependencies. If you want to run with local dependencies follow root instructions.
 
    ```sh
-   $ npm install
+   npm install
    ```
 
-2. Running the example
+2. Initialize Auth0 FGA with the necessary model and tuples.
+
+   ```sh
+   npm run fga:init
+   ```
+
+3. Running the example
    ```sh
    npm start
    ```

@@ -9,12 +9,12 @@
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^2.0.0",
+    "@ai-sdk/openai": "2.0.24",
     "@auth0/ai": "*",
     "@auth0/ai-vercel": "*",
     "@hono/node-server": "^1.13.7",
-    "ai": "^5.0.0",
-    "dotenv": "^16.4.5",
+    "ai": "5.0.33",
+    "dotenv": "^16.4.7",
     "googleapis": "^153.0.0",
     "hono": "^4.7.11",
     "jose": "^5.2.0",
