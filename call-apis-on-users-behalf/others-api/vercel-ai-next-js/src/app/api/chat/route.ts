@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         );
       },
       {
-        messages: modelMessages,
+        messages: messages,
         tools,
       },
     ),

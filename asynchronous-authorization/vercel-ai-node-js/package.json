@@ -16,8 +16,8 @@
   "description": "",
   "dependencies": {
     "@ai-sdk/openai": "2.0.24",
-    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
-    "@auth0/ai-vercel": "../../packages/auth0-ai-vercel-0.0.0.tgz",
+    "@auth0/ai": "^5.0.0",
+    "@auth0/ai-vercel": "^4.0.0",
     "ai": "5.0.33",
     "auth0": "^5.0.0",
     "dotenv": "^16.4.7",
@@ -26,9 +26,5 @@
   "devDependencies": {
     "@types/node": "^24.7.2",
     "npm-check-updates": "^18.1.0"
-  },
-  "resolutions": {
-    "@auth0/ai": "../../packages/auth0-ai-0.0.0.tgz",
-    "@auth0/ai-vercel": "../../packages/auth0-ai-vercel-0.0.0.tgz"
   }
 }

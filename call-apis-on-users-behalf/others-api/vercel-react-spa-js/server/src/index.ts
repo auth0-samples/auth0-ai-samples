@@ -134,7 +134,7 @@ export const app = new Hono()
           );
         },
         {
-          messages: modelMessages,
+          messages: requestMessages,
           tools,
         }
       ),
