@@ -3,7 +3,7 @@ import { FastMCP } from "fastmcp";
 import { FastMCPAuthSession } from "./types.js";
 import { exchangeCustomToken } from "./auth0.js";
 
-export const MCP_TOOL_SCOPES = ["tool:greet", "tool:whoami", "tool:cte"];
+export const MCP_TOOL_SCOPES = ["tool:greet", "tool:whoami"];
 
 function hasAllScopes(
   requiredScopes: readonly string[]
@@ -31,11 +31,25 @@ async function bearerForUpstream(subjectToken: string) {
 
 export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
   mcpServer.addTool({
+    name: "whoami",
+    description: "Returns information about the authenticated user",
+    annotations: {
+      title: "Who Am I? (FastMCP)",
+      readOnlyHint: true,
+    },
+    canAccess: hasAllScopes(["tool:whoami"]),
+    execute: async (_args, { session: authInfo }) => {
+      const info = { user: authInfo?.extra, scopes: authInfo?.scopes };
+      return JSON.stringify(info, null, 2);
+    },
+  });
+
+  mcpServer.addTool({
     name: "greet",
     description:
-      "Greet a user with personalized authentication information from Auth0.",
+      "Greet a user with personalized authentication information retrieved from an upstream API using Custom Token Exchange.",
     annotations: {
-      title: "Greet User (FastMCP)",
+      title: "Greet User with Custom Token Exchange",
       readOnlyHint: true,
     },
     parameters: z.object({
@@ -51,38 +65,7 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
 
       console.log(`Greet tool invoked for user: ${authInfo?.extra?.sub}`);
 
-      return `
-        Hello, ${userName} (${authInfo?.extra?.sub})!
-
-        FastMCP with Auth0 OAuth integration is working!
-        Authentication and scope checks are working correctly.
-        `.trim();
-    },
-  });
-
-  mcpServer.addTool({
-    name: "whoami",
-    description: "Returns information about the authenticated user",
-    annotations: {
-      title: "Who Am I? (FastMCP)",
-      readOnlyHint: true,
-    },
-    canAccess: hasAllScopes(["tool:whoami"]),
-    execute: async (_args, { session: authInfo }) => {
-      const info = { user: authInfo?.extra, scopes: authInfo?.scopes };
-      return JSON.stringify(info, null, 2);
-    },
-  });
-
-  mcpServer.addTool({
-    name: 'cte',
-    description: 'Custom Token Exchange example tool',
-    annotations: {
-      title: 'Custom Token Exchange (CTE) Example Tool',
-      readOnlyHint: true,
-    },
-    canAccess: hasAllScopes(['tool:cte']),
-    execute: async (_args, { session: authInfo }) => {
+      // Perform Custom Token Exchange and call upstream API
       const sourceToken = authInfo!.token;
       const { token: bearer, scopes } = await bearerForUpstream(sourceToken);
       const headers = { 'content-type': 'application/json', authorization: `Bearer ${bearer}` };
@@ -92,9 +75,13 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
         method: 'GET',
         headers,
       });
-      const result = await res.json();
-      console.log('Upstream API response:', result);
-      return JSON.stringify(result, null, 2);
+      const upstreamResult = await res.json();
+      console.log('Upstream API response:', upstreamResult);
+
+      return `
+        Hello, ${userName} (${authInfo?.extra?.sub})!
+        Upstream API Response: ${JSON.stringify(upstreamResult, null, 2)}
+        `.trim();
     },
-  })
+  });
 }

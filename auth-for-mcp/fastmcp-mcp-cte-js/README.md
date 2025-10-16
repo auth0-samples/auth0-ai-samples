@@ -63,9 +63,8 @@ The MCP (Model Context Protocol) server implements custom token exchange with Au
 - **Transport**: HTTP streaming at `/mcp` endpoint
 - **Authentication**: Auth0 JWT tokens with `AUTH0_AUDIENCE`
 - **Available Tools**:
-  - `greet` - Personalized greeting with authentication info
+  - `greet` - Personalized greeting with Custom Token Exchange demo that calls the upstream API
   - `whoami` - Returns authenticated user details and scopes
-  - `cte` - Custom Token Exchange demo that calls the upstream API
 
 ## Running the Services
 
