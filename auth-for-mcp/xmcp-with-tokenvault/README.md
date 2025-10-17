@@ -216,12 +216,12 @@ You can leave the other configuration as default.
 
 Scopes control what the agent can perform on the user's behalf when accessing your MCP Server. To create scopes inside the API, navigate to the "Scopes" tab and click "Create Scope". Define the following scopes:
 
-* Name: tool:whoami
-* Description: Get user information
-* Name: tool:greet
-* Description: Greet the user
-* Name: tool:calendar_summary
-* Description: Get a summary of the user's calendar
+* **Name:** `tool:whoami`
+* **Description:** "Get user information"
+* **Name:** `tool:greet`
+* **Description:** "Greet the user"
+* **Name:** `tool:calendar_summary`
+* **Description:** "Get a summary of the user's calendar"
 
 Once all of the scopes are created, your API is ready to use.
 
