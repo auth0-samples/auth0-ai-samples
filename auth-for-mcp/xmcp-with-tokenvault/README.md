@@ -1,6 +1,6 @@
 # XMCP MCP Server with Auth0 Token Vault
 
-This sample shows how you can use Auth0's Token Vault to call an External MCP Service or API securely, in this sample we use Google Calendar. 
+This sample shows how you can use [Auth0's Token Vault](https://auth0.com/ai/docs/intro/token-vault) to call an External MCP Service or API securely, in this sample we use Google Calendar. 
 
 ## Overview
 
