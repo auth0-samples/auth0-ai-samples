@@ -83,7 +83,7 @@ Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature 
 This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
 
 - [LangChain's JavaScript framework](https://js.langchain.com/docs/introduction/) and [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) for building agentic workflows.
-- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
+- The [Auth0 AI SDK](https://github.com/auth0/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
 
 It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
 
