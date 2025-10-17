@@ -38,7 +38,7 @@ export default auth0Mcp;
 export function createAuth0Mcp() {
   const verify = createVerifier();
   const requireScopes = createScopeValidator(verify);
-  const authMetadataMiddleware = createProtectedResourceMetadataMiddleware();
+  const protectedResourceMetadataMiddleware = createProtectedResourceMetadataMiddleware();
   const authMiddleware = createAuthMiddleware(verify);
 
   return {
@@ -62,7 +62,7 @@ export function createAuth0Mcp() {
     /**
      * A router that exposes OAuth metadata endpoints needed for MCP clients.
      */
-    authMetadataMiddleware: () => authMetadataMiddleware,
+    protectedResourceMetadataMiddleware: () => protectedResourceMetadataMiddleware,
 
     /**
      * Creates middleware for protecting MCP endpoints.
