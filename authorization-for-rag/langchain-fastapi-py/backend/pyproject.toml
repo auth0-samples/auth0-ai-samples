@@ -23,5 +23,5 @@ dependencies = [
     "psycopg-binary>=3.2.9",
     "langchain-postgres>=0.0.15",
     "greenlet>=3.2.3",
-    "auth0-ai-langchain>=1.0.0b3",
+    "auth0-ai-langchain>=1.0.0b4",
 ]

@@ -258,7 +258,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "auth0-ai-langchain", specifier = ">=1.0.0b3" },
+    { name = "auth0-ai-langchain", specifier = ">=1.0.0b4" },
     { name = "auth0-fastapi", specifier = ">=1.0.0b4" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.14" },
     { name = "google-api-python-client", specifier = ">=2.176.0" },
