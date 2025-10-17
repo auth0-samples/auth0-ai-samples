@@ -1,6 +1,6 @@
 # XMCP MCP Server with Auth0 Token Vault
 
-This sample shows how you can use Auth0's Token Vault to call an External MCP Service or API securely, in this sample we use Google Calendar. 
+This sample shows how you can use [Auth0's Token Vault](https://auth0.com/ai/docs/intro/token-vault) to call an External MCP Service or API securely, in this sample we use Google Calendar. 
 
 ## Overview
 
@@ -23,7 +23,7 @@ By the end you will have an MCP server that can:
 Use this pattern when:
 
 * **Your MCP server needs to access external APIs on behalf of users** – For example, accessing Google Calendar, Gmail, Salesforce, or any OAuth-protected API
-* **Users authenticate through multiple identity providers** – Auth0 handles authorization, and Token Vault provides a unified way to access each user's connected services.
+* **Users authenticate through multiple identity providers** – Auth0 handles authorization, and [Token Vault](https://auth0.com/ai/docs/intro/token-vault) provides a unified way to access each user's connected services.
 * **You're building composite AI agents** – Your MCP server aggregates data from multiple external services (calendar + email + CRM, etc.)
 
 **Key Benefits:**
@@ -216,12 +216,12 @@ You can leave the other configuration as default.
 
 Scopes control what the agent can perform on the user's behalf when accessing your MCP Server. To create scopes inside the API, navigate to the "Scopes" tab and click "Create Scope". Define the following scopes:
 
-* Name: tool:whoami
-* Description: Get user information
-* Name: tool:greet
-* Description: Greet the user
-* Name: tool:calendar_summary
-* Description: Get a summary of the user's calendar
+* **Name:** `tool:whoami`
+* **Description:** "Get user information"
+* **Name:** `tool:greet`
+* **Description:** "Greet the user"
+* **Name:** `tool:calendar_summary`
+* **Description:** "Get a summary of the user's calendar"
 
 Once all of the scopes are created, your API is ready to use.
 
