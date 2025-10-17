@@ -23,7 +23,7 @@ By the end you will have an MCP server that can:
 Use this pattern when:
 
 * **Your MCP server needs to access external APIs on behalf of users** – For example, accessing Google Calendar, Gmail, Salesforce, or any OAuth-protected API
-* **Users authenticate through multiple identity providers** – Auth0 handles authorization, and Token Vault provides a unified way to access each user's connected services.
+* **Users authenticate through multiple identity providers** – Auth0 handles authorization, and [Token Vault](https://auth0.com/ai/docs/intro/token-vault) provides a unified way to access each user's connected services.
 * **You're building composite AI agents** – Your MCP server aggregates data from multiple external services (calendar + email + CRM, etc.)
 
 **Key Benefits:**
