@@ -1,0 +1,23 @@
+{
+  "name": "hono-mcp-js",
+  "version": "0.0.0",
+  "description": "Example implementation of an MCP server using Hono with Auth0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "build": "tsc",
+    "deploy": "wrangler deploy",
+    "delete": "wrangler delete"
+  },
+  "dependencies": {
+    "@auth0/auth0-api-js": "^1.2.1",
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "fetch-to-node": "^2.1.0",
+    "hono": "^4.9.6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "wrangler": "^4.35.0"
+  }
+}

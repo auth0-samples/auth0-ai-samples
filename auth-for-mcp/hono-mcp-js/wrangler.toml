@@ -1,0 +1,19 @@
+name = "auth0-hono-mcp"
+main = "src/index.ts"
+compatibility_date = "2025-07-19"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[dev]
+port = 3001
+
+# Environment variables for local development
+# For production deployments, configure these same variables in the Cloudflare Workers dashboard:
+# Dashboard > Workers & Pages > [Your Worker] > Settings > Environment variables
+[vars]
+AUTH0_DOMAIN = "example-tenant.us.auth0.com" # Use your auth0 domain
+AUTH0_AUDIENCE = "your-api-audience" # Auth0 api identifier
+MCP_SERVER_URL = "https://your-app.workers.dev"
+NODE_ENV = "development"

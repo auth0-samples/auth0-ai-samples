@@ -1,0 +1,20 @@
+{
+  "name": "xmcp-mcp-js",
+  "version": "0.0.0",
+  "description": "Example implementation of an MCP server using XMCP framework with Auth0",
+  "scripts": {
+    "build": "xmcp build",
+    "dev": "xmcp dev",
+    "start": "node dist/http.js"
+  },
+  "dependencies": {
+    "@auth0/auth0-api-js": "^1.2.1",
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "express": "^5.1.0",
+    "xmcp": "^0.1.13",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
