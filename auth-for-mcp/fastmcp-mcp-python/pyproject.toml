@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "fastmcp-mcp-python"
+version = "0.1.0"
+description = "FastMCP MCP server example with Auth0 authentication"
+authors = ["Auth0 <support@auth0.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.1.1"
+mcp = "^1.14.1"
+auth0-api-python = "^1.0.0b5"
+starlette = "^0.48.0"
+uvicorn = "^0.36.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "ruff (>=0.13.1,<0.14.0)"
+]
