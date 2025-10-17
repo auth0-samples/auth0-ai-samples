@@ -12,7 +12,7 @@ import { type Message } from '@langchain/langgraph-sdk';
 import { ChatMessageBubble } from '@/components/chat-message-bubble';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnections/FederatedConnectionInterruptHandler';
+import { TokenVaultInterruptHandler } from '@/components/auth0-ai/TokenVault/TokenVaultInterruptHandler';
 
 function ChatMessages(props: {
   messages: Message[];
@@ -22,7 +22,7 @@ function ChatMessages(props: {
 }) {
   return (
     <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-      {props.messages.map((m, i) => {
+      {props.messages.map((m) => {
         return <ChatMessageBubble key={m.id} message={m} aiEmoji={props.aiEmoji} />;
       })}
     </div>
@@ -162,7 +162,7 @@ export function ChatWindow(props: {
                 emptyStateComponent={props.emptyStateComponent}
               />
               <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-                <FederatedConnectionInterruptHandler interrupt={chat.interrupt} onFinish={() => chat.submit(null)} />
+                <TokenVaultInterruptHandler interrupt={chat.interrupt} onFinish={() => chat.submit(null)} />
               </div>
             </>
           )

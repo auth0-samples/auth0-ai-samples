@@ -56,7 +56,7 @@ async function main() {
    * Can also be used as a tool to provide context to the Agent  
   const getFinancialInfo = tool({
     description: `get information from your knowledge base to answer questions.`,
-    parameters: z.object({
+    inputSchema: z.object({
       question: z.string().describe("the users question"),
     }),
     execute: async ({ question }) => {

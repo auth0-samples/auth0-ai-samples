@@ -1,10 +1,16 @@
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  streamText,
+  UIMessage,
+} from 'ai';
 import { NextRequest } from 'next/server';
-import { streamText, Message, createDataStreamResponse, DataStreamWriter } from 'ai';
+
+import { getCalendarEventsTool } from '@/lib/tools/google-calendar';
 import { openai } from '@ai-sdk/openai';
 import { setAIContext } from '@auth0/ai-vercel';
 import { errorSerializer, withInterruptions } from '@auth0/ai-vercel/interrupts';
-
-import { getCalendarEventsTool } from '@/lib/tools/google-calendar';
 
 const date = new Date().toISOString();
 
@@ -14,46 +20,59 @@ const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Assistant0. Yo
  * This handler initializes and calls an tool calling agent.
  */
 export async function POST(req: NextRequest) {
-  const request = await req.json();
+  const { id, messages }: { id: string; messages: Array<UIMessage> } = await req.json();
 
-  const messages = sanitizeMessages(request.messages);
-
-  setAIContext({ threadID: request.id });
+  setAIContext({ threadID: id });
 
   const tools = {
     getCalendarEventsTool,
   };
 
-  return createDataStreamResponse({
+  const modelMessages = convertToModelMessages(messages);
+
+  const stream = createUIMessageStream({
+    originalMessages: messages,
     execute: withInterruptions(
-      async (dataStream: DataStreamWriter) => {
+      async ({ writer }) => {
         const result = streamText({
           model: openai('gpt-4o-mini'),
           system: AGENT_SYSTEM_TEMPLATE,
-          messages,
-          maxSteps: 5,
+          messages: modelMessages,
           tools,
-        });
 
-        result.mergeIntoDataStream(dataStream, {
-          sendReasoning: true,
+          onFinish: (output) => {
+            if (output.finishReason === 'tool-calls') {
+              const lastMessage = output.content[output.content.length - 1];
+              if (lastMessage?.type === 'tool-error') {
+                const { toolName, toolCallId, error, input } = lastMessage;
+                const serializableError = {
+                  cause: error,
+                  toolCallId: toolCallId,
+                  toolName: toolName,
+                  toolArgs: input,
+                };
+
+                throw serializableError;
+              }
+            }
+          },
         });
+        writer.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+          }),
+        );
       },
       {
-        messages,
+        messages: messages,
         tools,
       },
     ),
-    onError: errorSerializer((err: any) => {
-      console.log(err);
-      return `An error occurred! ${err.message}`;
+    onError: errorSerializer((err) => {
+      console.error('ai-sdk route: stream error', err);
+      return 'Oops, an error occured!';
     }),
   });
-}
 
-// Vercel AI tends to get stuck when there are incomplete tool calls in messages
-const sanitizeMessages = (messages: Message[]) => {
-  return messages.filter(
-    (message) => !(message.role === 'assistant' && message.parts && message.parts.length > 0 && message.content === ''),
-  );
-};
+  return createUIMessageStreamResponse({ stream });
+}

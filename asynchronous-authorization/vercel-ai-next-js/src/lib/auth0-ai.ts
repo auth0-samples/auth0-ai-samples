@@ -6,7 +6,7 @@ import { getUser } from './auth0';
 const auth0AI = new Auth0AI();
 
 // CIBA flow for user confirmation
-export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
+export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
   userID: async () => {
     const user = await getUser();
     return user?.sub as string;
@@ -22,11 +22,11 @@ export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
 
   /**
    * The behavior when the authorization request is made.
-   * 
+   *
    * - `block`: The tool execution is blocked until the user completes the authorization.
    * - `interrupt`: The tool execution is interrupted until the user completes the authorization.
    * - a callback: Same as "block" but give access to the auth request and executing logic.
-   * 
+   *
    * Defaults to `interrupt`.
    *
    * When this flag is set to `block`, the execution of the tool awaits

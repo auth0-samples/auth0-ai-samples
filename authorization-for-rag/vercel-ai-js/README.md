@@ -32,7 +32,7 @@ The application uses:
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   bun install
+   npm install # or bun install
    ```
 3. Copy the `.env.example` file to `.env` and fill in your credentials:
    ```bash
@@ -44,7 +44,7 @@ The application uses:
 Run the initialization script to set up the OpenFGA store with the necessary authorization model:
 
 ```bash
-bun run fga:init
+npm run fga:init # or bun run fga:init
 ```
 
 This script configures the authorization model and sets up initial permissions (all users can view the public document).
@@ -54,7 +54,7 @@ This script configures the authorization model and sets up initial permissions (
 Start the application:
 
 ```bash
-bun run start
+npm start # or bun start
 ```
 
 The application will:

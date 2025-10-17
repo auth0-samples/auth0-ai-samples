@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { text, varchar, timestamp, pgTable, customType } from 'drizzle-orm/pg-core';
+import { varchar, timestamp, pgTable, customType } from 'drizzle-orm/pg-core';
 import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
