@@ -266,50 +266,69 @@ Docs: https://auth0.com/docs/secure/tokens/token-vault/configure-access-token-ex
 
 ## 6. Update Auth0 Tenant to Allow MCP Access
 
-These settings affect the entire tenant and enable third-party MCP clients to authenticate and access your MCP server.
+These settings affect the entire tenant and enable MCP clients to authenticate and access your MCP server. 
 
 ### 6.1 Enable Resource Parameter Compatibility Profile
 
 The Model Context Protocol (MCP) specification uses the standards-compliant `resource` parameter (RFC 8707). Auth0 historically used `audience`. Enabling this compatibility profile allows clients to send `resource` instead of (or alongside) `audience`.
 
-Steps:
+Enable via Dashboard: 
+
 1. Navigate to Settings > Advanced.
 2. Under Settings, enable **Resource Parameter Compatibility Profile**.
 
 ![Enable Resource Parameter in Dashboard](./screenshots/resource-param.png)
 
-If you choose not to enable this, set a default audience (see 6.3) so requests without `audience` still obtain tokens for your MCP API.
-
-CLI:
+<details>
+<summary>Show CLI command</summary>
 ```bash
 auth0 tenant-settings update set flags.enable_resource_server_identifier
 ```
+</details>
+
+
+If you choose not to enable this, set a default audience (see 6.3) so requests without `audience` still obtain tokens for your MCP Server.
+
 
 ### 6.2 Enable Dynamic Client Registration
 
-Dynamic Client Registration (DCR) allows third-party MCP clients (e.g., MCP Inspector) to register automatically. This is required for MCP clients to authenticate with your server.
+Dynamic Client Registration (DCR) allows third-party MCP clients (e.g., MCP Inspector) to register automatically. This is required if you want your MCP Server to be accessible to all MCP clients to authenticate with your server. Instead, if you are targeting a select set of trusted partners, or, if you are building MCP Servers that will only be used by your own Agents. You do not need to enable DCR. 
 
 Dashboard:
 1. Navigate to Settings > Advanced.
 2. Enable **Dynamic Client Registration**.
 
-CLI:
+![Dashboard with DCR Enabled](./screenshots/dynamic-client-registration.png)
+
+<details>
+<summary>Show CLI command</summary>
+
 ```bash
 auth0 tenant-settings update set flags.enable_dynamic_client_registration
 ```
 
-**Security note:** In production, you may restrict or disable DCR to reduce unmoderated application sprawl.
+</details>
+
+
 
 ### 6.3 Set Default Audience (Fallback)
 
 Configure a default audience for clients that send neither `audience` nor `resource`.
 
-**Dashboard:** Settings > API Authorization Settings > Default Audience -> `http://localhost:3001/mcp`.
+Enable via Dashboard:
 
-CLI:
+1. Navigate to Settings
+2. Scroll to "API Authorization Settings"
+3. Under "Default Audience" set `http://localhost:3001/mcp`.
+
+![Set Default Audience](./screenshots/default-audience.png)
+
+<details>
+<summary>Show CLI command</summary>
 ```bash
 auth0 api patch tenants/settings --data '{"default_audience": "http://localhost:3001/mcp"}'
 ```
+</details>
 
 ## 7. Create Environment File
 
@@ -340,7 +359,6 @@ You can start the development server by running:
 ```bash
 npm run dev
 ```
-
 
 The server runs at `http://localhost:3001`.
 
