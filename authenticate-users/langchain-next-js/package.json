@@ -25,7 +25,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@auth0/ai": "^5.0.0",
+    "@auth0/ai": "^5.0.1",
     "@auth0/ai-langchain": "^4.0.0",
     "@auth0/nextjs-auth0": "^4.10.0",
     "@langchain/community": "^0.3.55",

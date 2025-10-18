@@ -17,7 +17,7 @@
     "lint:all:fix": "turbo lint:fix"
   },
   "dependencies": {
-    "@auth0/ai": "^5.0.0",
+    "@auth0/ai": "^5.0.1",
     "@auth0/ai-langchain": "^4.0.0"
   },
   "devDependencies": {
