@@ -16,10 +16,6 @@
     "lint:all": "turbo lint",
     "lint:all:fix": "turbo lint:fix"
   },
-  "dependencies": {
-    "@auth0/ai": "^5.0.0",
-    "@auth0/ai-langchain": "^4.0.0"
-  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tsconfig/recommended": "^1.0.10",
@@ -35,5 +31,9 @@
     "turbo": "latest",
     "typescript": "^5"
   },
-  "packageManager": "npm@11.6.1"
+  "packageManager": "npm@11.6.1",
+  "dependencies": {
+    "@auth0/ai": "^5.0.1",
+    "@auth0/ai-langchain": "^4.0.0"
+  }
 }
