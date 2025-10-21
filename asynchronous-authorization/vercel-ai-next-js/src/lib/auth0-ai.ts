@@ -15,8 +15,7 @@ export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
   scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
   audience: process.env['SHOP_API_AUDIENCE']!,
   /**
-   * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
-   * instead of using the push notification flow.
+   * Controls how long the authorization request is valid.
    */
   // requestedExpiry: 301,
 
@@ -38,7 +37,7 @@ export const withAsyncAuthorization = auth0AI.withAsyncAuthorization({
    * could crash or timeout before the user approves the request.
    */
   onAuthorizationRequest: async (authReq, creds) => {
-    console.log(`An authorization request was sent to your mobile device or your email.`);
+    console.log(`An authorization request was sent to your mobile device.`);
     await creds;
     console.log(`Thanks for approving the order.`);
   },

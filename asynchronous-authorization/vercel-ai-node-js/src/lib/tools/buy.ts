@@ -24,8 +24,7 @@ export const buy = (context: Context) => {
     scopes: ["openid", "stock:trade"],
     audience: process.env["STOCK_API_AUDIENCE"]!,
     /**
-     * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
-     * instead of using the push notification flow.
+     * Controls how long the authorization request is valid.
      */
     // requestedExpiry: 301,
 
@@ -48,7 +47,7 @@ export const buy = (context: Context) => {
      */
     onAuthorizationRequest: async (_authReq, creds) => {
       console.log(
-        `An authorization request was sent to your mobile device or your email.`
+        `An authorization request was sent to your mobile device.`
       );
       await creds;
       console.log(`Thanks for approving the order.`);
