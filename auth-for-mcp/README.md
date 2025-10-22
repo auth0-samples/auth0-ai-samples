@@ -28,6 +28,10 @@ Explore the following examples demonstrating the integration of **Auth0** with M
    A XMPC server example implementation of an MCP server using XMCP framework with Auth0.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/xmcp-mcp-js)
 
+- **XMCP with Token Vault + TypeScript (JavaScript):**
+   An XMCP server demonstrating Auth0 Token Vault integration for securely accessing third-party APIs (like Google Calendar) on behalf of authenticated users.
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/xmcp-mcp-tokenvault-js)
+
 - **NextJS + TypeScript (JavaScript):**
    A NextJS server example implementation of an MCP server using NextJS framework with Auth0.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/nextjs-mcp-js)
