@@ -68,14 +68,14 @@ This step creates the API (also known as a Resource Server) that represents your
 default for your tenant.
 
 1. Create the API: This command registers the API with Auth0, defines its signing algorithm, enables Role-Based Access
-   Control (RBAC), and specifies the available scopes. Replace `http://localhost:3001` and `MCP Tools API`
+   Control (RBAC), and specifies the available scopes. Replace `http://localhost:3001/` and `MCP Tools API`
    with your desired identifier and name. Add your tool-specific scopes to the scopes array.
 
    Note that `rfc9068_profile_authz` is used instead of `rfc9068_profile` as the token dialect to enable RBAC. [Learn more](https://auth0.com/docs/get-started/apis/enable-role-based-access-control-for-apis#token-dialect-options)
 
 ```
 auth0 api post resource-servers --data '{
-  "identifier": "http://localhost:3001",
+  "identifier": "http://localhost:3001/",
   "name": "MCP Tools API",
   "signing_alg": "RS256",
   "token_dialect": "rfc9068_profile_authz",
@@ -89,12 +89,12 @@ auth0 api post resource-servers --data '{
 ```
 
 2. Set the Default Audience: This ensures that users logging in interactively get access tokens that are valid for your
-   newly created MCP Server. Replace `http://localhost:3001` with the same API identifier you used above.
+   newly created MCP Server. Replace `http://localhost:3001/` with the same API identifier you used above.
 
    **Note:** This step is currently required but temporary. Without setting a default audience, the issued access tokens will not be scoped specifically to your MCP resource server. Support for RFC 8707 (Resource Indicators for OAuth 2.0) is coming soon, which will provide proper resource targeting. Once available, these instructions will be updated to explain how to enable support for RFC 8707 instead of the default audience approach.
 
 ```
-auth0 api patch "tenants/settings" --data '{"default_audience": "http://localhost:3001"}'
+auth0 api patch "tenants/settings" --data '{"default_audience": "http://localhost:3001/"}'
 ```
 
 ### Step 5: Configure RBAC Roles and Permissions
@@ -112,14 +112,14 @@ auth0 roles create --name "Tool User" --description "Grants access to basic MCP 
 ```
 
 2. Assign Permissions to Roles: After creating roles, note the ID from the output (e.g. `rol_`) and and assign the API
-   permissions to it. Replace `YOUR_ROLE_ID`, `http://localhost:3001`, and the list of scopes.
+   permissions to it. Replace `YOUR_ROLE_ID`, `http://localhost:3001/`, and the list of scopes.
 
 ```
 # Example for admin role (all scopes)
-auth0 roles permissions add YOUR_ADMIN_ROLE_ID --api-id "http://localhost:3001" --permissions "tool:whoami,tool:greet"
+auth0 roles permissions add YOUR_ADMIN_ROLE_ID --api-id "http://localhost:3001/" --permissions "tool:whoami,tool:greet"
 
 # Example for user role (one scope)
-auth0 roles permissions add YOUR_USER_ROLE_ID --api-id "http://localhost:3001" --permissions "tool:whoami"
+auth0 roles permissions add YOUR_USER_ROLE_ID --api-id "http://localhost:3001/" --permissions "tool:whoami"
 ```
 
 3. Assign Roles to Users: Find users and assign them to the roles.
@@ -143,7 +143,7 @@ Rename `.env.example` to `.env` and configure the domain and audience:
 AUTH0_DOMAIN=example-tenant.us.auth0.com
 
 # Auth0 API Identifier
-AUTH0_AUDIENCE=http://localhost:3001
+AUTH0_AUDIENCE=http://localhost:3001/
 ```
 
 With the configuration in place, the example can be started by running:

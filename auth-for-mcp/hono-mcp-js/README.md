@@ -21,7 +21,7 @@ Update `wrangler.toml` to configure the domain and audience:
 ```toml
 [vars]
 AUTH0_DOMAIN = "example-tenant.us.auth0.com"
-AUTH0_AUDIENCE = "http://localhost:3001"
+AUTH0_AUDIENCE = "http://localhost:3001/"
 MCP_SERVER_URL = "http://localhost:3001"
 ```
 

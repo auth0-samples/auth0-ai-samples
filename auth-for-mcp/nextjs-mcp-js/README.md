@@ -24,7 +24,7 @@ Rename `.env.example` to `.env` and configure the domain and audience:
 AUTH0_DOMAIN=example-tenant.us.auth0.com
 
 # Auth0 API Identifier
-AUTH0_AUDIENCE=http://localhost:3000
+AUTH0_AUDIENCE=http://localhost:3000/
 ```
 
 ## Running the Server
