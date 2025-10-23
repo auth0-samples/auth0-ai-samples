@@ -158,7 +158,7 @@ npx @modelcontextprotocol/inspector
 
 The server will start up and the UI will be accessible at http://localhost:6274.
 
-In the MCP Inspector, select `Streamable HTTP` as the `Transport Type` and enter `http://localhost:3001/mcp` as the URL.
+In the MCP Inspector, select `Streamable HTTP` as the `Transport Type`, enter `http://localhost:3001/mcp` as the URL, and select `Via Proxy` for `Connection Type`.
 
 ### Using cURL
 
