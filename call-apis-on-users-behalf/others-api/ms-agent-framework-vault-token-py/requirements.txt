@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-dotenv
+agent-framework
+auth0-fastapi
+starlette
+itsdangerous
