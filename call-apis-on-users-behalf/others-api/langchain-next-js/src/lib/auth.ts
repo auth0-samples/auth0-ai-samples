@@ -40,7 +40,7 @@ auth.authenticate(async (request: Request) => {
     }
 
     // prefer the xApiKeyHeader first
-    let token = xApiKeyHeader || authHeader;
+    let token = xApiKeyHeader ?? authHeader;
 
     // Remove "Bearer " prefix if present
     if (token && token.startsWith("Bearer ")) {
