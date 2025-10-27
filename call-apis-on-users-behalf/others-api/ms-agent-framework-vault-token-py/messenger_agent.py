@@ -1,15 +1,8 @@
-import os
-from dotenv import load_dotenv
 from agent_framework.openai import OpenAIChatClient
 from send_email import create_email_sender
+from config import Settings
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Get the OpenAI API key from environment variables
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise ValueError("OPENAI_API_KEY environment variable is not set. Please check your .env file.")
+settings = Settings()
 
 system_prompt = """
 You are an email assistant. Your task is to help users compose and send emails based on their
@@ -26,8 +19,8 @@ If there are any errors while sending the email, you should inform the user abou
 """
 
 agent = OpenAIChatClient(
-    model_id=os.environ["OPENAI_CHAT_MODEL_ID"],
-    api_key=os.environ["OPENAI_API_KEY"],
+    model_id=settings.OPENAI_CHAT_MODEL_ID,
+    api_key=settings.OPENAI_API_KEY,
 ).create_agent(
     instructions=system_prompt
 )

@@ -1,13 +1,12 @@
 import base64
 import requests
-import os
-from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from typing_extensions import Annotated
 from agent_framework import ai_function
 from pydantic import Field
+from config import Settings
 
-load_dotenv()
+settings = Settings()
 
 def create_email_sender(gmail_token: str):
     @ai_function(name="send_email", description="Sends an email using Gmail API.")
@@ -17,7 +16,7 @@ def create_email_sender(gmail_token: str):
            type: Annotated[str, Field(description="The type of the issue: 'technical' or 'administrative'.")]
    )-> str: 
         try: 
-            to_email = os.getenv("TECHNICAL_SUPPORT_EMAIL_ADDRESS") if type.lower() == "technical" else os.getenv("ADMINISTRATIVE_SUPPORT_EMAIL_ADDRESS")
+            to_email = settings.TECHNICAL_SUPPORT_EMAIL_ADDRESS if type.lower() == "technical" else settings.ADMINISTRATIVE_SUPPORT_EMAIL_ADDRESS
             message = MIMEText(body) 
             message['to'] = to_email 
             message['subject'] = subject 
