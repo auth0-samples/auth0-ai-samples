@@ -131,33 +131,53 @@ jobs:
           echo "SHOULD_BUILD=false" >> $GITHUB_ENV
         fi
 
-    - name: Download existing release assets (if any)
+        - name: Download existing release assets (if any)
       if: env.SHOULD_BUILD == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         echo "📥 Checking for existing 'latest' release assets..."
         
-        # Check if latest release exists
-        if gh release view latest >/dev/null 2>&1; then
-          echo "✅ Found existing 'latest' release"
-          
-          # Download existing assets to preserve them
-          mkdir -p existing_assets
-          gh release download latest --dir existing_assets 2>/dev/null || echo "No assets to download"
-          
-          # Move existing assets to artifacts directory
-          for existing_zip in existing_assets/*.zip; do
-            if [ -f "$existing_zip" ]; then
-              FILENAME=$(basename "$existing_zip")
-              echo "📦 Preserving existing: $FILENAME"
-              cp "$existing_zip" "artifacts/"
-            fi
-          done
-          
-          rm -rf existing_assets
+        # Get changed files
+        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+        
+        # Determine if we should preserve existing assets
+        PRESERVE_ASSETS=true
+        if echo "$CHANGED_FILES" | grep -q "^\.github/workflows/create-sample-releases\.yml$"; then
+          echo "🔧 Workflow file changed - skipping asset preservation (full rebuild)"
+          PRESERVE_ASSETS=false
+        elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force_rebuild }}" = "true" ]; then
+          echo "🔄 Force rebuild requested - skipping asset preservation (full rebuild)"
+          PRESERVE_ASSETS=false
+        elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "🔄 Manual trigger - skipping asset preservation (full rebuild)"
+          PRESERVE_ASSETS=false
+        fi
+        
+        if [ "$PRESERVE_ASSETS" = "true" ]; then
+          # Check if latest release exists
+          if gh release view latest >/dev/null 2>&1; then
+            echo "✅ Found existing 'latest' release"
+            
+            # Download existing assets to preserve them
+            mkdir -p existing_assets
+            gh release download latest --dir existing_assets 2>/dev/null || echo "No assets to download"
+            
+            # Move existing assets to artifacts directory
+            for existing_zip in existing_assets/*.zip; do
+              if [ -f "$existing_zip" ]; then
+                FILENAME=$(basename "$existing_zip")
+                echo "📦 Preserving existing: $FILENAME"
+                cp "$existing_zip" "artifacts/"
+              fi
+            done
+            
+            rm -rf existing_assets
+          else
+            echo "ℹ️  No existing 'latest' release found"
+          fi
         else
-          echo "ℹ️  No existing 'latest' release found"
+          echo "🧹 Skipping asset preservation - will rebuild all from scratch"
         fi
 
     - name: Build quickstart packages from configs
