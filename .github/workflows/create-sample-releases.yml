@@ -2,7 +2,7 @@ name: Build and Release Sample Artifacts
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/update-script]
     paths:
       - '*/*/release-config.yml'
       - '*/**'
@@ -266,7 +266,8 @@ jobs:
               --exclude=".env" \
               --exclude=".env.local" \
               --exclude=".env.production" \
-              --exclude=".env.development"
+              --exclude=".env.development" \
+              --exclude="release-config.yml"
             
             # Add custom exclusions from config if they exist
             if grep -q "^exclude_patterns:" release-config.yml; then
