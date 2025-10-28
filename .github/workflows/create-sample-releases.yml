@@ -2,7 +2,7 @@ name: Build and Release Sample Artifacts
 
 on:
   push:
-    branches: [main, feat/update-script]
+    branches: [main]
     paths:
       - '*/*/release-config.yml'
       - '*/**'
