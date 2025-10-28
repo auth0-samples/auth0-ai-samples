@@ -131,7 +131,7 @@ jobs:
           echo "SHOULD_BUILD=false" >> $GITHUB_ENV
         fi
 
-        - name: Download existing release assets (if any)
+    - name: Download existing release assets (if any)
       if: env.SHOULD_BUILD == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
