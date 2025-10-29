@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Messenger AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script type="module" src="/static/app.js"></script>
+</head>
+
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand">Messenger AI</span>
+            <span class="text-light">Welcome, <span id="username">User</span></span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="card">
+                <div class="card-body d-flex flex-column" style="height: 70vh;">
+                    <div id="chat-messages" class="flex-grow-1 overflow-auto mb-3">
+                        <div class="alert alert-secondary">
+                            Hello! How can I help you today?
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="message-input" class="form-control" placeholder="Type your message...">
+                        <button class="btn btn-primary" id="send-button">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
