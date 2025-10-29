@@ -1,6 +1,6 @@
 # Messenger AI: An AI Helpdesk Assistant Secured with Auth0
 
-Messenger AI is an AI-based helpdesk assistant that gets support requests and sends emails on behalf of the user to the appropriate support department using Gmail API. To learn more about its implementation, read the blog post [Connect AI Agents With Third-Party APIs Using Microsoft Agent Framework, Python, and Auth0 Token Vault](https://auth0.com/blog/connect-ai-agents-with-ms-agent-framework-python-auth0-token-vault).
+Messenger AI is an AI-based helpdesk assistant that gets support requests and sends emails on behalf of the user to the appropriate support department using Gmail API. To learn more about its implementation, read the blog post [Connect AI Agents With Third-Party APIs Using Microsoft Agent Framework, Python, and Auth0 Token Vault](https://auth0.com/blog/microsoft-agent-framework-python-auth0-token-vault).
 
 ## About the sample project
 
