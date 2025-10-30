@@ -18,23 +18,21 @@ const MCP_AUTH0_SUBJECT_TOKEN_TYPE = process.env.MCP_AUTH0_SUBJECT_TOKEN_TYPE as
 const MCP_AUTH0_EXCHANGE_SCOPE = process.env.MCP_AUTH0_EXCHANGE_SCOPE as string;
 const API_AUTH0_AUDIENCE = process.env.API_AUTH0_AUDIENCE as string;
 
-
+// Resource server's OAuth 2.0 client for token verification and exchange
+// Configured with the MCP resource server's audience
 const apiClient = new ApiClient({
   domain: AUTH0_DOMAIN,
   audience: AUTH0_AUDIENCE,
-});
-
-const exchangeClient = new ApiClient({
-  domain: AUTH0_DOMAIN,
-  audience: API_AUTH0_AUDIENCE,
   clientId: MCP_AUTH0_CLIENT_ID,
   clientSecret: MCP_AUTH0_CLIENT_SECRET,
 });
 
 export async function exchangeCustomToken(subjectToken: string) {
-    return await exchangeClient.getTokenByExchangeProfile(subjectToken, {
+    // Use the resource server's OAuth 2.0 client to exchange tokens
+    // The 'audience' parameter specifies the target audience for the exchanged token
+    return await apiClient.getTokenByExchangeProfile(subjectToken, {
       subjectTokenType: MCP_AUTH0_SUBJECT_TOKEN_TYPE,
-      audience: API_AUTH0_AUDIENCE,
+      audience: API_AUTH0_AUDIENCE, // Target audience for the exchanged token
       ...(MCP_AUTH0_EXCHANGE_SCOPE && { scope: MCP_AUTH0_EXCHANGE_SCOPE }),
     });
 }
