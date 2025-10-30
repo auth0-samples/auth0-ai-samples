@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "fastmcp-mcp-python"
+name = "fastmcp-mcp-customtokenexchange-python"
 version = "0.1.0"
-description = "FastMCP MCP server example with Auth0 authentication"
+description = "FastMCP MCP server example with Auth0 Custom Token Exchange"
 authors = ["Auth0 <support@auth0.com>"]
 readme = "README.md"
 packages = []
@@ -13,6 +13,7 @@ mcp = "^1.14.1"
 auth0-api-python = "^1.0.0b6"
 starlette = "^0.48.0"
 uvicorn = "^0.36.0"
+httpx = "^0.28.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
