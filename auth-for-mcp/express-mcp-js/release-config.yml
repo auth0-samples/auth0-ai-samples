@@ -1,0 +1,3 @@
+category: "auth-for-mcp"
+framework: "express-mcp-js"
+included: true
