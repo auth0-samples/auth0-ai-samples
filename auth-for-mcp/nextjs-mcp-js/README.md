@@ -13,7 +13,7 @@ npm install
 
 ## Auth0 Tenant Setup
 
-For detailed instructions on setting up your Auth0 tenant for MCP server integration, please refer to the [Auth0 Tenant Setup guide](../fastmcp-mcp-js/README.md#auth0-tenant-setup).
+For detailed instructions on setting up your Auth0 tenant for MCP server integration, please refer to the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup).
 
 ## Configuration
 
