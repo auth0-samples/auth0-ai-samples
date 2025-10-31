@@ -16,7 +16,7 @@ Explore the following examples demonstrating the integration of **Auth0** with M
    A FastMCP server demonstrating Auth0 Custom Token Exchange for accessing upstream APIs on behalf of authenticated users.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-customtokenexchange-js)
 
-- **FastMCP with Custom Token Exchange(CTE) + Python:**
+- **FastMCP with Custom Token Exchange (CTE) + Python:**
    A Python implementation of FastMCP server demonstrating Auth0 Custom Token Exchange for accessing upstream APIs on behalf of authenticated users.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-customtokenexchange-python)
 
