@@ -2,21 +2,23 @@ import { InferSchema, type ToolMetadata } from "xmcp";
 
 /**
  * Schema definition for get_datetime tool parameters, following the XMCP tool export convention.
- * This tool takes no parameters, but exporting it for consistency.
+ * This tool takes no parameters.
  */
-export const schema = {} as const;
+export const schema = {
+  // Empty object schema for tools that take no parameters
+} as const;
 
 /**
  * Metadata for the get_datetime tool, following the XMCP tool export convention.
  */
 export const metadata: ToolMetadata = {
   name: "get_datetime",
-  description: "Returns the current UTC datetime in ISO 8601 format",
+  description: "Returns the current UTC date and time",
   annotations: {
-    title: "Get Current DateTime",
+    title: "Get DateTime",
     readOnlyHint: true,
     destructiveHint: false,
-    idempotentHint: false,
+    idempotentHint: true,
   },
 } as const;
 
@@ -32,7 +34,7 @@ export default async (_params: InferSchema<typeof schema>) => {
     content: [
       {
         type: "text",
-        text: `Current UTC DateTime: ${utcDateTime}`,
+        text: utcDateTime,
       },
     ],
   };

@@ -7,6 +7,10 @@ const greetToolInputSchema = {
   name: z.string().optional().describe("The name to greet")
 } as const;
 
+const emptyToolInputSchema = {
+  // Empty object schema for tools that take no parameters
+} as const;
+
 /**
  * MCP tools with scope-based authorization.
  */
@@ -66,7 +70,7 @@ export function registerTools(server: McpServer) {
     {
       title: "Get DateTime",
       description: "Returns the current UTC date and time",
-      inputSchema: {},
+      inputSchema: emptyToolInputSchema,
       annotations: { readOnlyHint: true },
     },
     async () => {
@@ -75,7 +79,7 @@ export function registerTools(server: McpServer) {
         content: [
           {
             type: "text",
-            text: `Current UTC DateTime: ${utcDateTime}`,
+            text: utcDateTime,
           },
         ],
       };

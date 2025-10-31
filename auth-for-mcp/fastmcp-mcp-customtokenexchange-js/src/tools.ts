@@ -40,7 +40,14 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
     canAccess: hasAllScopes(["tool:whoami"]),
     execute: async (_args, { session: authInfo }) => {
       const info = { user: authInfo?.extra, scopes: authInfo?.scopes };
-      return JSON.stringify(info, null, 2);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(info, null, 2),
+          },
+        ],
+      };
     },
   });
 
@@ -78,10 +85,15 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
       const upstreamResult = await res.json();
       console.log('Upstream API response:', upstreamResult);
 
-      return `
-        Hello, ${userName} (${authInfo?.extra?.sub})!
-        Upstream API Response: ${JSON.stringify(upstreamResult, null, 2)}
-        `.trim();
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Hello, ${userName} (${authInfo?.extra?.sub})!
+Upstream API Response: ${JSON.stringify(upstreamResult, null, 2)}.`.trim(),
+          },
+        ],
+      };
     },
   });
 
@@ -95,7 +107,14 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
     },
     execute: async () => {
       const utcDateTime = new Date().toISOString();
-      return `Current UTC DateTime: ${utcDateTime}`;
+      return {
+        content: [
+          {
+            type: "text",
+            text: utcDateTime,
+          },
+        ],
+      };
     },
   });
 }

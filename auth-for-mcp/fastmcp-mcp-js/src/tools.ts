@@ -4,6 +4,8 @@ import { FastMCPAuthSession } from "./types.js";
 
 export const MCP_TOOL_SCOPES = ["tool:greet", "tool:whoami"];
 
+const emptyToolInputSchema = z.object({}).strict();
+
 function hasAllScopes(
   requiredScopes: readonly string[]
 ): (auth: FastMCPAuthSession) => boolean {
@@ -35,12 +37,17 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
 
       console.log(`Greet tool invoked for user: ${authInfo?.extra?.sub}`);
 
-      return `
-        Hello, ${userName} (${authInfo?.extra?.sub})!
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Hello, ${userName} (${authInfo?.extra?.sub})!
 
-        FastMCP with Auth0 OAuth integration is working!
-        Authentication and scope checks are working correctly.
-        `.trim();
+FastMCP with Auth0 OAuth integration is working!
+Authentication and scope checks are working correctly.`.trim(),
+          },
+        ],
+      };
     },
   });
 
@@ -54,7 +61,14 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
     canAccess: hasAllScopes(["tool:whoami"]),
     execute: async (_args, { session: authInfo }) => {
       const info = { user: authInfo?.extra, scopes: authInfo?.scopes };
-      return JSON.stringify(info, null, 2);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(info, null, 2),
+          },
+        ],
+      };
     },
   });
 
@@ -66,10 +80,17 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
       title: "Get DateTime",
       readOnlyHint: true,
     },
-    parameters: z.object({}),
+    parameters: emptyToolInputSchema,
     execute: async () => {
       const utcDateTime = new Date().toISOString();
-      return `Current UTC DateTime: ${utcDateTime}`;
+      return {
+        content: [
+          {
+            type: "text",
+            text: utcDateTime,
+          },
+        ],
+      };
     },
   });
 }
