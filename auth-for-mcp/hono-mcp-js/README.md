@@ -2,6 +2,14 @@
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs) server with Auth0 built for [Cloudflare Workers](https://developers.cloudflare.com/workers/) using [Hono](https://hono.dev/).
 
+## Available Tools
+
+The server exposes the following tools:
+
+- `whoami` - Returns authenticated user information and granted scopes
+- `greet` - Personalized greeting demonstrating authenticated tool access
+- `get_datetime` - Returns the current UTC date and time (no scope required)
+
 ## Install dependencies
 
 Install the dependencies using npm:

@@ -40,6 +40,14 @@ API_AUTH0_AUDIENCE=your-api-audience
 API_BASE_URL=http://localhost:8787
 ```
 
+## Available Tools
+
+The server exposes the following tools:
+
+- `greet` - Personalized greeting with Custom Token Exchange demo that calls the upstream API
+- `whoami` - Returns authenticated user details and scopes
+- `get_datetime` - Returns the current UTC date and time (no scope required)
+
 ## Services
 
 This example consists of two services that work together:
@@ -62,9 +70,6 @@ The MCP (Model Context Protocol) server implements custom token exchange with Au
 - **Port**: 3001 (configurable via `PORT`)
 - **Transport**: HTTP streaming at `/mcp` endpoint
 - **Authentication**: Auth0 JWT tokens with `AUTH0_AUDIENCE`
-- **Available Tools**:
-  - `greet` - Personalized greeting with Custom Token Exchange demo that calls the upstream API
-  - `whoami` - Returns authenticated user details and scopes
 
 ## Running the Services
 

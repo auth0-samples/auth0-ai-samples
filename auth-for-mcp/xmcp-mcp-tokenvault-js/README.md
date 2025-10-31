@@ -57,13 +57,13 @@ Here's how the complete flow works:
 6. Auth0 validates the MCP Server's credentials and the `access_token`, then returns a Google access token.
 7. MCP Server queries the Calendar API with the exchanged token; no Google credentials are stored locally.
 
-## What You Will Build
+## Available Tools
 
 The server exposes the following tools:
 
 * `whoami` – returns authenticated user and granted scopes.
 * `greet` – demonstrates a scoped tool invocation.
-* `get_datetime` – returns the current UTC datetime (public tool, no scope required).
+* `get_datetime` – returns the current UTC datetime (no scope required).
 * `calendar_summary` – fetches today's Google Calendar events via Token Vault token exchange.
 
 ## Prerequisites

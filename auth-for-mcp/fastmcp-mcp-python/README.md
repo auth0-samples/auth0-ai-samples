@@ -2,6 +2,14 @@
 
 This example demonstrates how to create a FastMCP MCP server that uses Auth0 for authentication using the `auth0-api-python` library.
 
+## Available Tools
+
+The server exposes the following tools:
+
+- `whoami` - Returns authenticated user information and granted scopes
+- `greet` - Personalized greeting demonstrating authenticated tool access
+- `get_datetime` - Returns the current UTC date and time (no scope required)
+
 ## Install dependencies
 
 ```

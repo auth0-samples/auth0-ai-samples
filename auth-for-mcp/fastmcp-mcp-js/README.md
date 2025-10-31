@@ -4,6 +4,14 @@ This is a practical example of securing a [Model Context Protocol (MCP)](https:/
 with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript framework. It demonstrates
 real-world OAuth 2.0 and OIDC integration with JWT token verification and scope enforcement.
 
+## Available Tools
+
+The server exposes the following tools:
+
+- `whoami` - Returns authenticated user information and granted scopes
+- `greet` - Personalized greeting demonstrating authenticated tool access
+- `get_datetime` - Returns the current UTC date and time (no scope required)
+
 ## Install dependencies
 
 Install the dependencies using npm:
