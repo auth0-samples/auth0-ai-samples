@@ -77,5 +77,17 @@ def register_tools(auth0_mcp: Auth0Mcp) -> None:
         return f"""Hello, {user_name} ({user_id})!
 Upstream API Response: {json.dumps(upstream_result, indent=2)}"""
 
+    # A MCP Tool without required scopes
+    @mcp.tool(
+        name="get_datetime",
+        title="Get DateTime",
+        description="Returns the current UTC date and time",
+        annotations={"readOnlyHint": True}
+    )
+    async def get_datetime() -> str:
+        """Returns the current UTC date and time"""
+        from datetime import datetime, timezone
+        return datetime.now(timezone.utc).isoformat()
+
     # Register all scopes used by tools for Protected Resource Metadata
     register_required_scopes(auth0_mcp)
