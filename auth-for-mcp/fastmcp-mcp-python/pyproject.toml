@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "FastMCP MCP server example with Auth0 authentication"
 authors = ["Auth0 <support@auth0.com>"]
 readme = "README.md"
-packages = []
+packages = [{include = "*", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
