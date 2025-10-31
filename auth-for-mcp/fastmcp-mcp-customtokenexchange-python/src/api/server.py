@@ -98,7 +98,7 @@ app = Starlette(
         Route("/api/private-scope", private_scope_endpoint, methods=["GET"]),
     ],
     middleware=[
-        (Auth0APIMiddleware,)
+        (Auth0APIMiddleware, [], {})
     ]
 )
 
