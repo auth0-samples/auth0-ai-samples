@@ -380,6 +380,28 @@ In MCP Inspector:
 5. Consent to requested scopes
 6. List Tools
 
+### Using cURL
+
+You can use cURL to verify that the server is running:
+
+```bash
+# Test that the server is running and accessible - check OAuth resource metadata
+curl -v http://localhost:3001/.well-known/oauth-protected-resource
+
+# Test MCP initialization (requires valid Auth0 access token)
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "curl-test", "version": "1.0.0"}}}'
+
+# Test get_datetime tool (no scope required) - outputs ISO string like 2025-10-31T14:12:03.123Z
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
+```
 
 ## 10. Invoke Tools
 
