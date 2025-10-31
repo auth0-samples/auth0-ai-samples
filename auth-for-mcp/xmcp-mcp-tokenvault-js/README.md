@@ -59,10 +59,11 @@ Here's how the complete flow works:
 
 ## What You Will Build
 
-The server exposes three tools:
+The server exposes the following tools:
 
 * `whoami` – returns authenticated user and granted scopes.
 * `greet` – demonstrates a scoped tool invocation.
+* `get_datetime` – returns the current UTC datetime (public tool, no scope required).
 * `calendar_summary` – fetches today's Google Calendar events via Token Vault token exchange.
 
 ## Prerequisites
@@ -385,6 +386,7 @@ In MCP Inspector:
 Select a tool and execute:
 * **`whoami`** – Confirms identity, scopes, and subject.
 * **`greet`** – Demonstrates scoped execution.
+* **`get_datetime`** – Returns current UTC datetime (no scope required).
 * **`calendar_summary`** – Triggers Token Vault exchange, then queries Google Calendar.
 
 

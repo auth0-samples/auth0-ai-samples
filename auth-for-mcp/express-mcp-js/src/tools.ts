@@ -1,5 +1,5 @@
 /**
- * MCP tools with scope-based authorization.
+ * MCP tools with optional scope-based authorization.
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -69,4 +69,27 @@ export const registerTools = (
       };
     })
   );
+
+  // This tool does not require any scopes
+  mcpServer.registerTool(
+    "get_datetime",
+    {
+      title: "Get DateTime",
+      description: "Returns the current UTC date and time",
+      inputSchema: {},
+      annotations: { readOnlyHint: true },
+    },
+    async () => {
+      const utcDateTime = new Date().toISOString();
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Current UTC DateTime: ${utcDateTime}`,
+          },
+        ],
+      };
+    }
+  );
+
 };

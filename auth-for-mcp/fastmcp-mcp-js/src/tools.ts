@@ -57,4 +57,19 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
       return JSON.stringify(info, null, 2);
     },
   });
+
+  // This tool does not require any scopes
+  mcpServer.addTool({
+    name: "get_datetime",
+    description: "Returns the current UTC date and time",
+    annotations: {
+      title: "Get DateTime",
+      readOnlyHint: true,
+    },
+    parameters: z.object({}),
+    execute: async () => {
+      const utcDateTime = new Date().toISOString();
+      return `Current UTC DateTime: ${utcDateTime}`;
+    },
+  });
 }

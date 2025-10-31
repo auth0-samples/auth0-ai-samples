@@ -14,9 +14,11 @@ def register_tools(auth0_mcp: Auth0Mcp) -> None:
 
     # Tool without required scopes
     @mcp.tool()
-    async def echo(text: str) -> str:
-        """Echoes the input text"""
-        return text
+    async def get_datetime() -> str:
+        """Returns the current UTC date and time"""
+        from datetime import datetime, timezone
+        utc_datetime = datetime.now(timezone.utc).isoformat()
+        return f"Current UTC DateTime: {utc_datetime}"
 
     # A MCP tool with required scopes
     @mcp.tool(
