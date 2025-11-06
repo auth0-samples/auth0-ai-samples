@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { WaitingMessage } from "../util/loader";
 import { PromptUserContainer } from "../util/prompt-user-container";
+
 import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
 
 export function TokenVaultConsentPopup({
@@ -64,7 +65,7 @@ export function TokenVaultConsentPopup({
       setLoginPopup(popup);
       setIsLoading(true);
     }
-  }, [connection, requiredScopes, authorizationParams, returnTo, connectPath]);
+  }, [connection, requiredScopes, returnTo, authorizationParams, connectPath]);
 
   if (isLoading) {
     return <WaitingMessage />;
