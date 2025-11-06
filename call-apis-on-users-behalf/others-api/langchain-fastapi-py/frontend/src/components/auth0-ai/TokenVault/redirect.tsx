@@ -1,10 +1,11 @@
 "use client";
 
 import { PromptUserContainer } from "../util/prompt-user-container";
+
 import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
 
 export function TokenVaultConsentRedirect({
-  interrupt: { requiredScopes, connection, authorizationParams },
+  interrupt: { connection, requiredScopes, authorizationParams },
   connectWidget: { icon, title, description, action, containerClassName },
   auth: {
     connectPath = "/auth/connect",

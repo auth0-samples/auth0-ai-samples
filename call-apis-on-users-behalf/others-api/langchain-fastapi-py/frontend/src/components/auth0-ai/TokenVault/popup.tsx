@@ -4,12 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 
 import { WaitingMessage } from "../util/loader";
 import { PromptUserContainer } from "../util/prompt-user-container";
+
 import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
 
 export function TokenVaultConsentPopup({
   interrupt: { connection, requiredScopes, authorizationParams, resume },
   connectWidget: { icon, title, description, action, containerClassName },
-  auth: { connectPath = "/auth/login", returnTo = "/close" } = {},
+  auth: { connectPath = "/auth/connect", returnTo = "/close" } = {},
   onFinish,
 }: TokenVaultAuthProps) {
   const [isLoading, setIsLoading] = useState(false);
