@@ -1,18 +1,18 @@
-import { BrowserView, MobileView } from "react-device-detect";
+import { BrowserView, MobileView } from 'react-device-detect';
 
-import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
-import { TokenVaultConsentPopup } from "./popup";
-import { TokenVaultConsentRedirect } from "./redirect";
+import { TokenVaultConsentPopup } from './popup';
+import { TokenVaultConsentRedirect } from './redirect';
+import type { TokenVaultAuthProps } from './TokenVaultAuthProps';
 
 export function TokenVaultConsent(props: TokenVaultAuthProps) {
   const { mode } = props;
 
   switch (mode) {
-    case "popup":
+    case 'popup':
       return <TokenVaultConsentPopup {...props} />;
-    case "redirect":
+    case 'redirect':
       return <TokenVaultConsentRedirect {...props} />;
-    case "auto":
+    case 'auto':
     default:
       return (
         <>
