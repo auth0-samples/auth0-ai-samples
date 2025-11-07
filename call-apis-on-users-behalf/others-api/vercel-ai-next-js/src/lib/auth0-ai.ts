@@ -8,10 +8,10 @@ const auth0AI = new Auth0AI();
 
 // Connection for Google services
 export const withGoogleConnection = auth0AI.withTokenVault({
-  authorizationParams: {
-    access_type: "offline"
-  },
   connection: 'google-oauth2',
-  scopes: ['https://www.googleapis.com/auth/calendar.events'],
+  scopes: ['openid', 'https://www.googleapis.com/auth/calendar.events'],
+  authorizationParams: {
+    access_type: 'offline',
+  },
   refreshToken: getRefreshToken,
 });
