@@ -1,16 +1,13 @@
-"use client";
+'use client';
 
-import { PromptUserContainer } from "../util/prompt-user-container";
+import { PromptUserContainer } from '../util/prompt-user-container';
 
-import type { TokenVaultAuthProps } from "./TokenVaultAuthProps";
+import type { TokenVaultAuthProps } from './TokenVaultAuthProps';
 
 export function TokenVaultConsentRedirect({
   interrupt: { connection, requiredScopes, authorizationParams },
   connectWidget: { icon, title, description, action, containerClassName },
-  auth: {
-    connectPath = "/auth/connect",
-    returnTo = window.location.pathname,
-  } = {},
+  auth: { connectPath = '/auth/connect', returnTo = window.location.pathname } = {},
 }: TokenVaultAuthProps) {
   return (
     <PromptUserContainer
@@ -19,12 +16,12 @@ export function TokenVaultConsentRedirect({
       icon={icon}
       containerClassName={containerClassName}
       action={{
-        label: action?.label ?? "Connect",
+        label: action?.label ?? 'Connect',
         onClick: () => {
           const search = new URLSearchParams({
             connection,
             returnTo,
-            scope: requiredScopes.join(" "),
+            scope: requiredScopes.join(' '),
             // Add all extra authorization parameters to the search params, they will be collected and submitted via the
             // authorization_params parameter of the connect account flow.
             ...authorizationParams,

@@ -4,6 +4,7 @@ import { Auth0AI } from "@auth0/ai-vercel";
 import type { Context } from "hono";
 
 import type { ToolWrapper } from "@auth0/ai-vercel";
+
 // Create an Auth0AI instance configured with enhanced Custom API client support
 const auth0AI = new Auth0AI({
   auth0: {
@@ -24,15 +25,16 @@ export const createGoogleCalendarTool = (c: Context): ToolWrapper => {
   }
 
   return auth0AI.withTokenVault({
-    authorizationParams: {
-      access_type: "offline"
-    },
     accessToken: async () => accessToken,
     subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
     connection: process.env.GOOGLE_CONNECTION_NAME || "google-oauth2",
     scopes: [
+      "openid",
       "https://www.googleapis.com/auth/calendar.calendarlist.readonly", // Read-only access to calendar list
       "https://www.googleapis.com/auth/calendar.events.readonly", // Read-only access to events
     ],
+    authorizationParams: {
+      access_type: "offline"
+    },
   });
 };
