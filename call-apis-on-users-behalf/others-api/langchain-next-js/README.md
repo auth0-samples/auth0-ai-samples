@@ -15,8 +15,8 @@ With tool-calling capabilities, the possibilities are endless. In this conceptua
 First, clone this repo and download it locally.
 
 ```bash
-git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/authenticate-users/langchain-next-js
+git clone https://github.com/auth0-samples/auth0-ai-samples.git
+cd auth0-ai-samples/call-apis-on-users-behalf/others-api/langchain-next-js
 ```
 
 Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
