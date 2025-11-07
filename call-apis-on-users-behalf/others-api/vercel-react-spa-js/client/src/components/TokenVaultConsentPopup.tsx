@@ -36,7 +36,7 @@ export function TokenVaultConsentPopup({
       const auth0Client = getAuth0Client();
 
       // Use getTokenWithPopup for step-up authorization to request additional scopes
-      await auth0Client.getTokenWithPopup({
+      await auth0Client.getTokenWithPopup({ //FIXME!!!
         authorizationParams: {
           prompt: "consent", // Required for Google Calendar scopes
           connection: connection, // e.g., "google-oauth2"

@@ -25,7 +25,7 @@ export const initAuth0 = async (): Promise<Auth0Client> => {
       redirect_uri: window.location.origin,
       audience: AUTH0_AUDIENCE,
       scope: "openid profile email", // Only basic scopes - additional scopes are handled via interrupts
-    },
+    }, //FIXME!!!
   });
 
   return auth0Client;
