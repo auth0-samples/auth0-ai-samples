@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
  */
 
 import type { Auth0InterruptionUI } from "@auth0/ai-vercel/react";
+
 interface TokenVaultConsentPopupProps {
   interrupt: Auth0InterruptionUI;
 }
@@ -20,35 +21,30 @@ export function TokenVaultConsentPopup({
 }: TokenVaultConsentPopupProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { connection, requiredScopes, resume } = interrupt;
+  const { connection, requiredScopes, authorizationParams, resume } = interrupt;
 
-  // Use Auth0 SPA SDK to request additional connection/scopes
-  const startFederatedLogin = useCallback(async () => {
+  // Use Auth0 SPA SDK to connect a third-party account
+  const startConnectAccountFlow = useCallback(async () => {
     try {
       setIsLoading(true);
 
       // Filter out empty scopes
       const validScopes = requiredScopes.filter(
-        (scope: string) => scope && scope.trim() !== ""
+        (scope: string) => scope && scope.trim() !== "",
       );
 
-      // Get the Auth0 client and use loginWithPopup for the Google connection
       const auth0Client = getAuth0Client();
 
-      // Use getTokenWithPopup for step-up authorization to request additional scopes
-      await auth0Client.getTokenWithPopup({ //FIXME!!!
-        authorizationParams: {
-          prompt: "consent", // Required for Google Calendar scopes
-          connection: connection, // e.g., "google-oauth2"
-          connection_scope: validScopes.join(" "), // Google-specific scopes
-          access_type: "offline",
+      // Use the connect account flow to request authorization+consent for the 3rd party API.
+      // This will redirect the browser away from the SPA, unfortunately losing the current
+      // state of the conversation with the chatbot.
+      await auth0Client.connectAccountWithRedirect({
+        connection,
+        authorization_params: {
+          scope: validScopes.join(" "), // provider-specific scopes
+          ...authorizationParams,
         },
       });
-
-      // IMPORTANT: After getting new scopes via popup, we need to ensure
-      // subsequent API calls use the updated token. The Auth0 client should automatically
-      // use the new token, but we should trigger a refresh to ensure the latest token is cached.
-      await auth0Client.getTokenSilently();
 
       setIsLoading(false);
 
@@ -65,7 +61,7 @@ export function TokenVaultConsentPopup({
         resume();
       }
     }
-  }, [connection, requiredScopes, resume]);
+  }, [connection, requiredScopes, authorizationParams, resume]);
 
   if (isLoading) {
     return (
@@ -92,7 +88,7 @@ export function TokenVaultConsentPopup({
       <CardContent className="space-y-4">
         <p className="text-sm text-yellow-700">
           To access your {connection.replace("-", " ")} data, you need to
-          authorize this application.
+          connect your account and authorize this application.
         </p>
         <p className="text-xs text-yellow-600">
           Required permissions:{" "}
@@ -100,8 +96,8 @@ export function TokenVaultConsentPopup({
             .filter((scope: string) => scope && scope.trim() !== "")
             .join(", ")}
         </p>
-        <Button onClick={startFederatedLogin} className="w-full">
-          Authorize {connection.replace("-", " ")}
+        <Button onClick={startConnectAccountFlow} className="w-full">
+          Connect &amp; Authorize {connection.replace("-", " ")}
         </Button>
       </CardContent>
     </Card>

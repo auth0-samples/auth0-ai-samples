@@ -24,8 +24,14 @@ export const initAuth0 = async (): Promise<Auth0Client> => {
     authorizationParams: {
       redirect_uri: window.location.origin,
       audience: AUTH0_AUDIENCE,
-      scope: "openid profile email", // Only basic scopes - additional scopes are handled via interrupts
-    }, //FIXME!!!
+      scope: "openid profile email offline_access",
+    },
+    // Store tokens in localstorage to allow restoring the user session after following redirects.
+    // Redirects are necessary to connect an account for the user.
+    cacheLocation: 'localstorage',
+    useRefreshTokens: true,
+    useMrrt: true,
+    useDpop: true,
   });
 
   return auth0Client;
@@ -42,9 +48,6 @@ export const login = async (targetUrl?: string) => {
   const client = getAuth0Client();
 
   const options = {
-    authorizationParams: {
-      redirect_uri: window.location.origin,
-    },
     appState: targetUrl ? { targetUrl } : undefined,
   };
 

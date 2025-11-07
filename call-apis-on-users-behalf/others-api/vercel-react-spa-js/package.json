@@ -37,6 +37,7 @@
   ],
   "devDependencies": {
     "@types/node": "^22.15.31",
+    "prettier": "^3.6.2",
     "turbo": "^2.5.5"
   },
   "peerDependencies": {
