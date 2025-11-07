@@ -13,7 +13,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@auth0/ai": "^5.0.1",
+    "@auth0/ai": "^5.1.0",
     "@openfga/sdk": "^0.8.0",
     "dotenv": "^16.4.7",
     "faiss-node": "0.5.0",
