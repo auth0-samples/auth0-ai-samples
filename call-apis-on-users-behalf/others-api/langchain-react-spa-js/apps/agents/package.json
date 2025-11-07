@@ -11,8 +11,8 @@
     "lint:fix": "eslint src --fix"
   },
   "dependencies": {
-    "@auth0/ai": "*",
-    "@auth0/ai-langchain": "*",
+    "@auth0/ai": "^5.1.0",
+    "@auth0/ai-langchain": "^4.1.0",
     "@langchain/anthropic": "^0.3.30",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",

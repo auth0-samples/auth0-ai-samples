@@ -10,15 +10,15 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "2.0.24",
-    "@auth0/ai": "*",
-    "@auth0/ai-vercel": "*",
+    "@auth0/ai": "^5.1.0",
+    "@auth0/ai-vercel": "^4.1.0",
+    "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-shared": "*",
     "@hono/node-server": "^1.13.7",
     "ai": "5.0.33",
     "dotenv": "^16.4.7",
     "googleapis": "^153.0.0",
     "hono": "^4.7.11",
     "jose": "^5.2.0",
-    "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-shared": "*",
     "zod": "^3.25.76"
   },
   "devDependencies": {
