@@ -23,8 +23,9 @@ npm install
 ## Auth0 Tenant Setup
 
 ### Pre-requisites:
+1. **Auth0 CLI**: This guide uses [Auth0 CLI](https://auth0.github.io/auth0-cli/) to configure an Auth0 tenant for secure MCP tool access. If you don't have it, you can follow the [Auth0 CLI installation instructions](https://auth0.github.io/auth0-cli/) to set it up. Alternatively, all the following configuration steps can be done through the [Auth0 Management Dashboard](https://manage.auth0.com/).
 
-This guide uses [Auth0 CLI](https://auth0.github.io/auth0-cli/) to configure an Auth0 tenant for secure MCP tool access. If you don't have it, you can follow the [Auth0 CLI installation instructions](https://auth0.github.io/auth0-cli/) to set it up. Alternatively, all the following configuration steps can be done through the [Auth0 Management Dashboard](https://manage.auth0.com/).
+2. **Enable Resource Parameter Compatibility Profile**: The Model Context Protocol (MCP) specification requires the use of the standards-compliant resource parameter as defined in RFC 8707. To use the `resource` parameter in your access tokens, you need to enable the compatibility profile. Follow the [Enable Resource Parameter Compatibility Profile](https://auth0.com/ai/docs/mcp/guides/resource-param-compatibility-profile) to enable it.
 
 ### Step 1: Authenticate with Auth0 CLI
 
@@ -70,7 +71,7 @@ connections to domain level.
 auth0 api patch connections/YOUR_CONNECTION_ID --data '{"is_domain_connection": true}'
 ```
 
-### Step 4: Configure the API and Default Audience
+### Step 4: Configure the API
 
 This step creates the API (also known as a Resource Server) that represents your protected MCP Server and sets it as the
 default for your tenant.
@@ -93,16 +94,6 @@ auth0 api post resource-servers --data '{
     {"value": "tool:greet", "description": "Access the Greeting tool"}
   ]
 }'
-
-```
-
-2. Set the Default Audience: This ensures that users logging in interactively get access tokens that are valid for your
-   newly created MCP Server. Replace `http://localhost:3001/` with the same API identifier you used above.
-
-   **Note:** This step is currently required but temporary. Without setting a default audience, the issued access tokens will not be scoped specifically to your MCP resource server. Support for RFC 8707 (Resource Indicators for OAuth 2.0) is coming soon, which will provide proper resource targeting. Once available, these instructions will be updated to explain how to enable support for RFC 8707 instead of the default audience approach.
-
-```
-auth0 api patch "tenants/settings" --data '{"default_audience": "http://localhost:3001/"}'
 ```
 
 ### Step 5: Configure RBAC Roles and Permissions
