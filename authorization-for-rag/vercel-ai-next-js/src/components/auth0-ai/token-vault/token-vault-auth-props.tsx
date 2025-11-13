@@ -16,7 +16,7 @@ export type TokenVaultAuthProps = {
     resume?: () => void;
   };
   auth?: {
-    connectPath?: string;
+    authorizePath?: string;
     returnTo?: string;
   };
   onFinish?: () => void;

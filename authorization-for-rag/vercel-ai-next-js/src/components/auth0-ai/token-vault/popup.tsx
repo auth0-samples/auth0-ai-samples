@@ -9,7 +9,7 @@ import { TokenVaultAuthProps } from './token-vault-auth-props';
 export function TokenVaultConsentPopup({
   interrupt: { connection, requiredScopes, resume },
   connectWidget: { icon, title, description, action, containerClassName },
-  auth: { connectPath = '/auth/login', returnTo = '/close' } = {},
+  auth: { authorizePath = '/auth/login', returnTo = '/close' } = {},
   onFinish,
 }: TokenVaultAuthProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +50,7 @@ export function TokenVaultConsentPopup({
       connection_scope: requiredScopes.join(),
     });
 
-    const url = new URL(connectPath, window.location.origin);
+    const url = new URL(authorizePath, window.location.origin);
     url.search = search.toString();
 
     const windowFeatures = 'width=800,height=650,status=no,toolbar=no,menubar=no';
@@ -62,7 +62,7 @@ export function TokenVaultConsentPopup({
       setLoginPopup(popup);
       setIsLoading(true);
     }
-  }, [connection, requiredScopes, returnTo, connectPath]);
+  }, [connection, requiredScopes, returnTo, authorizePath]);
 
   if (isLoading) {
     return <WaitingMessage />;
