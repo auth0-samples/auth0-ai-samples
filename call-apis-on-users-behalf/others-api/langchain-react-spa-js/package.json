@@ -33,7 +33,7 @@
   },
   "packageManager": "npm@11.6.1",
   "dependencies": {
-    "@auth0/ai": "^5.1.0",
+    "@auth0/ai": "^5.1.1",
     "@auth0/ai-langchain": "^4.1.0"
   }
 }
