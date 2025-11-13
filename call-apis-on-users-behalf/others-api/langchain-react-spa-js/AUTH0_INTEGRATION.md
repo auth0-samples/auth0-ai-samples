@@ -469,8 +469,8 @@ import type { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 /**
  * Component for handling connection authorization popups.
- * This component manages the authorization flow for token exchange with Token Vault,
- * allowing the application to exchange access tokens for third-party API tokens.
+ * This component manages the connect account flow for Token Vault, allowing the
+ * user to authorize access to third-party providers.
  */
 
 interface TokenVaultConsentPopupProps {
@@ -504,10 +504,10 @@ export function TokenVaultConsentPopup({
       // state of the conversation with the chatbot.
       await auth0Client.connectAccountWithRedirect({
         connection,
-        authorization_params: {
-          scope: validScopes.join(" "), // provider-specific scopes
-          ...authorizationParams,
-        },
+        scopes: validScopes,
+        ...(authorizationParams
+          ? { authorization_params: authorizationParams }
+          : {}),
       });
 
       setIsLoading(false);

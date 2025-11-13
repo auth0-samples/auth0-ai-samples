@@ -284,7 +284,7 @@ const auth0AI = new Auth0AI({
 
 export const withGoogleCalendar = auth0AI.withTokenVault({
   connection: "google-oauth2",
-  scopes: ["https://www.googleapis.com/auth/calendar.freebusy"],
+  scopes: ["openid", "https://www.googleapis.com/auth/calendar.freebusy"],
   accessToken: async (_, config) => {
     return config.configurable?.langgraph_auth_user?._credentials?.accessToken;
   },

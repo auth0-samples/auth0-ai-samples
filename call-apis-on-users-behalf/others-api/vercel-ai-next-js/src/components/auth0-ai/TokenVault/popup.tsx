@@ -46,11 +46,13 @@ export function TokenVaultConsentPopup({
     const search = new URLSearchParams({
       connection,
       returnTo,
-      scope: requiredScopes.join(' '),
       // Add all extra authorization parameters to the search params, they will be collected and submitted via the
       // authorization_params parameter of the connect account flow.
       ...authorizationParams,
     });
+    for (const requiredScope of requiredScopes) {
+      search.append('scopes', requiredScope);
+    }
 
     const url = new URL(connectPath, window.location.origin);
     url.search = search.toString();

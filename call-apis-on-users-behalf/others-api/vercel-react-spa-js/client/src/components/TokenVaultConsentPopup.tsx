@@ -40,10 +40,10 @@ export function TokenVaultConsentPopup({
       // state of the conversation with the chatbot.
       await auth0Client.connectAccountWithRedirect({
         connection,
-        authorization_params: {
-          scope: validScopes.join(" "), // provider-specific scopes
-          ...authorizationParams,
-        },
+        scopes: validScopes,
+        ...(authorizationParams
+          ? { authorization_params: authorizationParams }
+          : {}),
       });
 
       setIsLoading(false);

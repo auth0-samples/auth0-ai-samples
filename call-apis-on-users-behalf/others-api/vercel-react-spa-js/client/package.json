@@ -15,7 +15,7 @@
     "@auth0/ai-vercel": "^4.1.0",
     "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-server": "*",
     "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-shared": "*",
-    "@auth0/auth0-spa-js": "^2.8.0",
+    "@auth0/auth0-spa-js": "file:../../auth0-auth0-spa-js-2.8.0.tgz",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.10",
     "ai": "5.0.33",

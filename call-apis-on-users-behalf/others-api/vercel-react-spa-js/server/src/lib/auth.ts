@@ -33,8 +33,5 @@ export const createGoogleCalendarTool = (c: Context): ToolWrapper => {
       "https://www.googleapis.com/auth/calendar.calendarlist.readonly", // Read-only access to calendar list
       "https://www.googleapis.com/auth/calendar.events.readonly", // Read-only access to events
     ],
-    authorizationParams: {
-      access_type: "offline"
-    },
   });
 };

@@ -247,9 +247,6 @@ export const withGoogleCalendar = auth0AI.withTokenVault({
   accessToken: async () => global.authContext?.accessToken, // Access token for Token Vault token exchange
   connection: "google-oauth2",
   scopes: ["openid", "https://www.googleapis.com/auth/calendar"],
-  authorizationParams: {
-    access_type: "offline",
-  },
 });
 ```
 

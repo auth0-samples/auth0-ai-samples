@@ -20,9 +20,6 @@ export const withAccessTokenForConnection = (
       return config.configurable?.langgraph_auth_user?.getRawAccessToken();
     },
     subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
-    authorizationParams: {
-      access_type: "offline",
-    },
   });
 
 export const withGoogleCalendar = withAccessTokenForConnection(

@@ -1,5 +1,5 @@
-"use client";
-import type { ReactNode } from "react";
+'use client';
+import type { ReactNode } from 'react';
 
 /**
  * Defines the mode the TokenVaultConsent component will use to prompt the user to connect a third-party account and
@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
  * - `popup` will open a popup window to prompt the user to authorize the API access.
  * - `auto` will automatically choose the best mode based on the user's device and browser.
  */
-export type AuthComponentMode = "redirect" | "popup" | "auto";
+export type AuthComponentMode = 'redirect' | 'popup' | 'auto';
 
 export type TokenVaultAuthProps = {
   interrupt: {

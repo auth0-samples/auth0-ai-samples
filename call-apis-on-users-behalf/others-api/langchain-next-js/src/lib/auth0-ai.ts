@@ -13,9 +13,6 @@ const withAccessTokenForConnection = (connection: string, scopes: string[]) =>
   auth0AI.withTokenVault({
     connection,
     scopes,
-    authorizationParams: {
-      access_type: "offline"
-    },
     accessToken: async (_, config) => {
       return config.configurable?.langgraph_auth_user?.getRawAccessToken();
     },
