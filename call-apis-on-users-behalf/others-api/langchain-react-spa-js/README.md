@@ -105,7 +105,7 @@ Auth0's Token Vault enables the LangGraph API to exchange a SPA's access token f
      - **Allowed Callback URLs**: `http://localhost:5173`
      - **Allowed Logout URLs**: `http://localhost:5173`
      - **Allowed Web Origins**: `http://localhost:5173`
-     - Enable "Allow Refresh Token Rotation"
+     - Enable "Allow Refresh Token Rotation" (needed to use multi-resource refresh tokens)
      - Enable "Refresh Token" in Grant Types under Advanced Settings
 
 2. **Create an Auth0 API** (representing your LangGraph API):
