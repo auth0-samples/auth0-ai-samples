@@ -57,12 +57,13 @@ Here's how the complete flow works:
 6. Auth0 validates the MCP Server's credentials and the `access_token`, then returns a Google access token.
 7. MCP Server queries the Calendar API with the exchanged token; no Google credentials are stored locally.
 
-## What You Will Build
+## Available Tools
 
-The server exposes three tools:
+The server exposes the following tools:
 
 * `whoami` – returns authenticated user and granted scopes.
 * `greet` – demonstrates a scoped tool invocation.
+* `get_datetime` – returns the current UTC datetime (no scope required).
 * `calendar_summary` – fetches today's Google Calendar events via Token Vault token exchange.
 
 ## Prerequisites
@@ -379,12 +380,35 @@ In MCP Inspector:
 5. Consent to requested scopes
 6. List Tools
 
+### Using cURL
+
+You can use cURL to verify that the server is running:
+
+```bash
+# Test that the server is running and accessible - check OAuth resource metadata
+curl -v http://localhost:3001/.well-known/oauth-protected-resource
+
+# Test MCP initialization (requires valid Auth0 access token)
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "curl-test", "version": "1.0.0"}}}'
+
+# Test get_datetime tool (no scope required) - outputs ISO string like 2025-10-31T14:12:03.123Z
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
+```
 
 ## 10. Invoke Tools
 
 Select a tool and execute:
 * **`whoami`** – Confirms identity, scopes, and subject.
 * **`greet`** – Demonstrates scoped execution.
+* **`get_datetime`** – Returns current UTC datetime (no scope required).
 * **`calendar_summary`** – Triggers Token Vault exchange, then queries Google Calendar.
 
 

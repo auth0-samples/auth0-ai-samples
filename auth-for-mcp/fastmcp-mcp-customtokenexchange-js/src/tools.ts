@@ -40,7 +40,14 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
     canAccess: hasAllScopes(["tool:whoami"]),
     execute: async (_args, { session: authInfo }) => {
       const info = { user: authInfo?.extra, scopes: authInfo?.scopes };
-      return JSON.stringify(info, null, 2);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(info, null, 2),
+          },
+        ],
+      };
     },
   });
 
@@ -78,10 +85,36 @@ export function registerTools(mcpServer: FastMCP<FastMCPAuthSession>) {
       const upstreamResult = await res.json();
       console.log('Upstream API response:', upstreamResult);
 
-      return `
-        Hello, ${userName} (${authInfo?.extra?.sub})!
-        Upstream API Response: ${JSON.stringify(upstreamResult, null, 2)}
-        `.trim();
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Hello, ${userName} (${authInfo?.extra?.sub})!
+Upstream API Response: ${JSON.stringify(upstreamResult, null, 2)}.`.trim(),
+          },
+        ],
+      };
+    },
+  });
+
+  // This tool does not require any scopes
+  mcpServer.addTool({
+    name: "get_datetime",
+    description: "Returns the current UTC date and time",
+    annotations: {
+      title: "Get DateTime",
+      readOnlyHint: true,
+    },
+    execute: async () => {
+      const utcDateTime = new Date().toISOString();
+      return {
+        content: [
+          {
+            type: "text",
+            text: utcDateTime,
+          },
+        ],
+      };
     },
   });
 }

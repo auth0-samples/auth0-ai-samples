@@ -2,6 +2,14 @@
 
 This example demonstrates how to create a FastMCP MCP server that uses Auth0 for authentication using the `auth0-api-python` library.
 
+## Available Tools
+
+The server exposes the following tools:
+
+- `whoami` - Returns authenticated user information and granted scopes
+- `greet` - Personalized greeting demonstrating authenticated tool access
+- `get_datetime` - Returns the current UTC date and time (no scope required)
+
 ## Install dependencies
 
 ```
@@ -54,8 +62,16 @@ curl -v http://localhost:3001/.well-known/oauth-protected-resource
 # Test MCP initialization (requires valid Auth0 access token)
 curl -X POST http://localhost:3001/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "curl-test", "version": "1.0.0"}}}'
+
+# Test get_datetime tool (no scope required) - outputs ISO string like 2025-10-31T14:12:03.123Z
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
 ```
 
 **Note:** Use the MCP Inspector or other MCP-compatible clients for comprehensive testing.

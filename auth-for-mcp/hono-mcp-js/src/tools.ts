@@ -15,6 +15,10 @@ const greetToolInputSchema = {
     .describe("The name to greet (defaults to 'World')"),
 } as const;
 
+const emptyToolInputSchema = {
+  // Empty object schema for tools that take no parameters
+} as const;
+
 export const registerTools = (
   mcpServer: McpServer,
   requireScopes: ReturnType<typeof createAuth0Mcp>["requireScopes"],
@@ -71,5 +75,27 @@ export const registerTools = (
           ],
         };
       })(args, { ...extra, authInfo }),
+  );
+
+  // This tool does not require any scopes
+  mcpServer.registerTool(
+    "get_datetime",
+    {
+      title: "Get DateTime",
+      description: "Returns the current UTC date and time",
+      inputSchema: emptyToolInputSchema,
+      annotations: { readOnlyHint: true },
+    },
+    async () => {
+      const utcDateTime = new Date().toISOString();
+      return {
+        content: [
+          {
+            type: "text",
+            text: utcDateTime,
+          },
+        ],
+      };
+    }
   );
 };

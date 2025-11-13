@@ -7,7 +7,9 @@ import { createGoogleAuthClient } from "../google-auth";
  * Schema definition for whoami tool parameters, following the XMCP tool export convention.
  * This tool takes no parameters, but exporting it for consistency.
  */
-export const schema = {} as const;
+export const schema = {
+  // Empty object schema for tools that take no parameters
+} as const;
 
 /**
  * Metadata for the whoami tool, following the XMCP tool export convention.
