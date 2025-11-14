@@ -12,7 +12,7 @@ import { type Message } from '@langchain/langgraph-sdk';
 import { ChatMessageBubble } from '@/components/chat-message-bubble';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { TokenVaultInterruptHandler } from '@/components/auth0-ai/TokenVault/TokenVaultInterruptHandler';
+import { TokenVaultInterruptHandler } from '@/components/TokenVaultInterruptHandler';
 
 function ChatMessages(props: {
   messages: Message[];

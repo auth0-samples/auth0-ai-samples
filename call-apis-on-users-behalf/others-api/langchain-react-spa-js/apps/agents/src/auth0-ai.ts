@@ -25,6 +25,7 @@ export const withAccessTokenForConnection = (
 export const withGoogleCalendar = withAccessTokenForConnection(
   "google-oauth2",
   [
+    "openid",
     "https://www.googleapis.com/auth/calendar.freebusy",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",

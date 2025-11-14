@@ -95,6 +95,7 @@ The `@auth0/auth0-spa-js` package provides:
 - JWT token management in memory and local storage
 - Silent token renewal
 - Universal Login integration
+- Support for the Connect Account flow
 
 #### Auth0 Client Configuration
 
@@ -401,7 +402,7 @@ The create-agent-chat-app template includes sophisticated interrupt handling for
 
 ##### Token Vault Interrupts
 
-When an agent tool requires access to a third-party service (like Google Calendar) that the user hasn't previously authorized, LangGraph can raise a `TokenVaultInterrupt`. The frontend handles these interrupts by displaying an authorization popup.
+When an agent tool requires access to a third-party service (like Google Calendar) that the user hasn't previously authorized, LangGraph can raise a `TokenVaultInterrupt`. The frontend handles these interrupts by starting a connect account flow in a popup, which will allow the end-user to authorize access to their third-party account.
 
 ##### Implementation
 
@@ -428,7 +429,7 @@ Create `apps/web/src/components/auth0/Auth0InterruptHandler.tsx`:
 ```typescript
 import { Auth0Interrupt } from "@auth0/ai/interrupts";
 import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
-import { TokenVaultPopup } from "./TokenVaultPopup";
+import { TokenVaultConsentPopup } from "./TokenVaultConsentPopup";
 
 interface Auth0InterruptHandlerProps {
   interrupt: Auth0Interrupt;
@@ -442,7 +443,7 @@ export function Auth0InterruptHandler({
   // Handle TokenVaultInterrupt
   if (TokenVaultInterrupt.isInterrupt(interrupt)) {
     return (
-      <TokenVaultPopup
+      <TokenVaultConsentPopup
         interrupt={interrupt as TokenVaultInterrupt}
         onResume={onResume}
       />
@@ -453,89 +454,118 @@ export function Auth0InterruptHandler({
 }
 ```
 
-###### 3. Token Vault Popup
+###### 3. Token Vault Consent Popup
 
-The `TokenVaultPopup` component handles the OAuth flow for third-party connections:
+The `TokenVaultConsentPopup` component handles the Connect Account flow for third-party connections:
 
 ```typescript
-// apps/web/src/components/auth0/TokenVaultPopup.tsx
-import { useState } from "react";
-import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
-import { useAuth0 } from "@/hooks/useAuth0";
+// apps/web/src/components/auth0/TokenVaultConsentPopup.tsx
+import { useCallback, useState } from "react";
 
-interface TokenVaultPopupProps {
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAuth0Client } from "@/lib/auth0";
+import type { TokenVaultInterrupt } from "@auth0/ai/interrupts";
+
+/**
+ * Component for handling connection authorization popups.
+ * This component manages the connect account flow for Token Vault, allowing the
+ * user to authorize access to third-party providers.
+ */
+
+interface TokenVaultConsentPopupProps {
   interrupt: TokenVaultInterrupt;
-  onResume: () => void;
+  onResume?: () => void;
 }
 
-export function TokenVaultPopup({
+export function TokenVaultConsentPopup({
   interrupt,
   onResume,
-}: TokenVaultPopupProps) {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const { getToken } = useAuth0();
+}: TokenVaultConsentPopupProps) {
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleConnect = async () => {
+  const { connection, requiredScopes, message, authorizationParams } =
+    interrupt;
+
+  // Use Auth0 SPA SDK to connect a third-party account
+  const startConnectAccountFlow = useCallback(async () => {
     try {
-      setIsConnecting(true);
-      
-      // Get the current access token
-      const accessToken = await getToken();
-      
-      // Construct Auth0 authorization URL with additional scopes
-      const authUrl = new URL(`https://${process.env.VITE_AUTH0_DOMAIN}/authorize`);
-      authUrl.searchParams.set('client_id', process.env.VITE_AUTH0_CLIENT_ID!);
-      authUrl.searchParams.set('response_type', 'code');
-      authUrl.searchParams.set('redirect_uri', window.location.origin);
-      authUrl.searchParams.set('scope', interrupt.scopes.join(' '));
-      authUrl.searchParams.set('connection', interrupt.connection);
-      authUrl.searchParams.set('state', 'step-up-auth');
-      
-      // Open popup window for authorization
-      const popup = window.open(
-        authUrl.toString(),
-        'auth-popup',
-        'width=500,height=600,scrollbars=yes'
+      setIsLoading(true);
+
+      // Filter out empty scopes
+      const validScopes = requiredScopes.filter(
+        (scope: string) => scope && scope.trim() !== "",
       );
 
-      // Listen for popup completion
-      const checkClosed = setInterval(() => {
-        if (popup?.closed) {
-          clearInterval(checkClosed);
-          setIsConnecting(false);
-          // Resume the conversation after authorization
-          onResume();
-        }
-      }, 1000);
-      
+      const auth0Client = getAuth0Client();
+
+      // Use the connect account flow to request authorization+consent for the 3rd party API.
+      // This will redirect the browser away from the SPA, unfortunately losing the current
+      // state of the conversation with the chatbot.
+      await auth0Client.connectAccountWithRedirect({
+        connection,
+        scopes: validScopes,
+        ...(authorizationParams
+          ? { authorization_params: authorizationParams }
+          : {}),
+      });
+
+      setIsLoading(false);
+
+      // Resume the interrupted tool after successful authorization
+      if (typeof onResume === "function") {
+        onResume();
+      }
     } catch (error) {
-      console.error('Connection error:', error);
-      setIsConnecting(false);
+      console.error("Federated login failed:", error);
+      setIsLoading(false);
+
+      // Even if login fails, we should clear the interrupt
+      if (typeof onResume === "function") {
+        onResume();
+      }
     }
-  };
+  }, [connection, requiredScopes, authorizationParams, onResume]);
+
+  if (isLoading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="flex items-center justify-center p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">
+              Connecting to {connection.replace("-", " ")}...
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="border rounded-lg p-4 bg-blue-50">
-      <h3 className="font-semibold mb-2">Additional Permission Required</h3>
-      <p className="text-sm text-gray-600 mb-4">
-        To continue, this agent needs access to your {interrupt.connection} account.
-      </p>
-      <div className="flex gap-2">
-        <button
-          onClick={handleConnect}
-          disabled={isConnecting}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isConnecting ? 'Connecting...' : `Connect ${interrupt.connection}`}
-        </button>
-        <button
-          onClick={onResume}
-          className="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50"
-        >
-          Skip
-        </button>
-      </div>
-    </div>
+    <Card className="w-full border-yellow-200 bg-yellow-50">
+      <CardHeader>
+        <CardTitle className="text-lg text-yellow-800">
+          Authorization Required
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-yellow-700">
+          {message ||
+            `To access your ${connection.replace("-", " ")} data, you need to
+          authorize this application.`}
+        </p>
+        <p className="text-xs text-yellow-600">
+          Required permissions:{" "}
+          {requiredScopes
+            .filter((scope: string) => scope && scope.trim() !== "")
+            .join(", ")}
+        </p>
+        <Button onClick={startConnectAccountFlow} className="w-full">
+          Connect &amp; Authorize {connection.replace("-", " ")}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 ```
@@ -545,7 +575,7 @@ export function TokenVaultPopup({
 1. **Agent Tool Execution**: When a tool like `checkUsersCalendar` needs additional permissions, it throws a `TokenVaultError`
 2. **LangGraph Interrupt**: LangGraph converts this into a `TokenVaultInterrupt` and pauses execution
 3. **Frontend Detection**: The React app detects the interrupt and renders the `Auth0InterruptHandler`
-4. **User Authorization**: User clicks to authorize the connection in a popup window
+4. **User Authorization**: User clicks to connect and authorize the connection in a popup window
 5. **Resume Execution**: After authorization, the conversation resumes with the new permissions
 
 ##### Benefits of Step Up Authorization

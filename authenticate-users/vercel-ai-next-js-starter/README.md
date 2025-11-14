@@ -21,7 +21,7 @@ cd auth0-ai-samples/authenticate-users/vercel-ai-next-js-starter
 
 Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
 
-You can setup a new Auth0 tenant with Token Vault enabled following the instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
+You can setup a new Auth0 tenant with Token Vault enabled following the instructions [here](https://auth0.com/ai/docs/get-started/user-authentication).
 
 To start with the basic examples, you'll just need to add your OpenAI API key and Auth0 credentials.
 
@@ -67,7 +67,7 @@ Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature 
 
 - [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
 - [Build an AI Assistant with LangGraph, Vercel, and Next.js: Use Gmail as a Tool Securely](https://auth0.com/blog/genai-tool-calling-build-agent-that-calls-gmail-securely-with-langgraph-vercelai-nextjs/)
-- [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
+- [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
 
 ## About the template
 

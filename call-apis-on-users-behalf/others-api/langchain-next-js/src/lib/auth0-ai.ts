@@ -1,5 +1,5 @@
+import { SUBJECT_TOKEN_TYPES } from '@auth0/ai';
 import { Auth0AI } from '@auth0/ai-langchain';
-import { SUBJECT_TOKEN_TYPES } from "@auth0/ai";
 
 const auth0AI = new Auth0AI({
   auth0: {
@@ -19,8 +19,7 @@ const withAccessTokenForConnection = (connection: string, scopes: string[]) =>
     subjectTokenType: SUBJECT_TOKEN_TYPES.SUBJECT_TYPE_ACCESS_TOKEN,
   });
 
-// Connection for Google services
 export const withGmailSearch = withAccessTokenForConnection(
   'google-oauth2',
-  ['https://www.googleapis.com/auth/gmail.readonly'],
+  ['openid', 'https://www.googleapis.com/auth/gmail.readonly'],
 );
