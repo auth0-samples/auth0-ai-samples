@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@auth0/ai": "^5.1.1",
-    "@auth0/auth0-spa-js": "file:../../../auth0-auth0-spa-js-2.8.0.tgz",
+    "@auth0/auth0-spa-js": "^2.9.0",
     "@langchain/core": "^0.3.78",
     "@langchain/langgraph": "^0.4.9",
     "@langchain/langgraph-api": "^0.0.69",
