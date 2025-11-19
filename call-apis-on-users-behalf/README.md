@@ -1,4 +1,4 @@
-# [Call APIs on users' behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
+# [Call APIs on users' behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
 
 Use secure standards to get API tokens for Google, Github and more. Seamlessly integrate your app with other products.
 

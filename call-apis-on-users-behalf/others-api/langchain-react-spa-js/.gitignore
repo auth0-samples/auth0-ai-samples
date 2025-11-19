@@ -45,6 +45,3 @@ credentials.json
 
 # LangGraph API
 .langgraph_api
-
-# npm
-package-lock.json

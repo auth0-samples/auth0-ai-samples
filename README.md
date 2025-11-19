@@ -6,10 +6,10 @@ You can find a [hosted demo here](https://demo.auth0.ai/).
 
 Samples are organized as below:
 
-- [**authenticate-users**](https://auth0.com/ai/docs/user-authentication): Easily implement login experiences, tailor made for AI agents. Whether for chatbots or background agents.
-- [**call-apis-on-users-behalf**](https://auth0.com/ai/docs/call-others-apis-on-users-behalf): Use secure standards to get API tokens for Google, Github and more. Seamlessly integrate your app with other products.
-- [**authorization-for-rag**](https://auth0.com/ai/docs/authorization-for-rag): Only retrieve documents users have access to. Avoid leaking data to a user that should not have access to it.
-- [**asynchronous-authorization**](https://auth0.com/ai/docs/async-authorization): Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
+- [**authenticate-users**](https://auth0.com/ai/docs/get-started/user-authentication): Easily implement login experiences, tailor made for AI agents. Whether for chatbots or background agents.
+- [**call-apis-on-users-behalf**](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf): Use secure standards to get API tokens for Google, Github and more. Seamlessly integrate your app with other products.
+- [**authorization-for-rag**](https://auth0.com/ai/docs/get-started/authorization-for-rag): Only retrieve documents users have access to. Avoid leaking data to a user that should not have access to it.
+- [**asynchronous-authorization**](https://auth0.com/ai/docs/get-started/asynchronous-authorization): Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
 - [**auth-for-mcp**](./auth-for-mcp): Secure your MCP clients, servers, and gateways with robust user authentication, secure API access, spec-compliant client registration methods, and seamless token exchange.
 
 [**Sign up for Auth0 AI**](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)

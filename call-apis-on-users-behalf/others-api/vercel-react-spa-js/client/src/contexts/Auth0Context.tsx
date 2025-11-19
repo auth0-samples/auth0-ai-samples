@@ -31,19 +31,19 @@ export const Auth0Provider: React.FC<Auth0ProviderProps> = ({ children }) => {
     const initializeAuth0 = async () => {
       try {
         setIsLoading(true);
-        await initAuth0();
+        const client = await initAuth0();
 
-        // Check if user is returning from login redirect
+        // Check if user is returning from login redirect or connect flow
         if (
-          window.location.search.includes("code=") &&
+          (window.location.search.includes("code=") ||
+            window.location.search.includes("connect_code=")) &&
           window.location.search.includes("state=")
         ) {
-          const client = await initAuth0();
           await client.handleRedirectCallback();
           window.history.replaceState(
             {},
             document.title,
-            window.location.pathname
+            window.location.pathname,
           );
         }
 

@@ -16,8 +16,8 @@
   "description": "",
   "dependencies": {
     "@ai-sdk/openai": "2.0.24",
-    "@auth0/ai": "^5.0.1",
-    "@auth0/ai-vercel": "^4.0.1",
+    "@auth0/ai": "^5.1.1",
+    "@auth0/ai-vercel": "^4.1.0",
     "ai": "5.0.33",
     "auth0": "^5.0.0",
     "dotenv": "^16.4.7",
