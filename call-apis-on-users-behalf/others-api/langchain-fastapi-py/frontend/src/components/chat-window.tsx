@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -11,7 +11,8 @@ import { ChatMessageBubble } from "@/components/chat-message-bubble";
 import { Button } from "@/components/ui/button";
 import { TokenVaultInterruptHandler } from "@/components/TokenVaultInterruptHandler.tsx";
 import { cn } from "@/lib/utils";
-import { getLoginUrl } from "@/lib/use-auth";
+import { getConnectUrl } from "@/lib/use-auth";
+import { useLocation } from "react-router-dom";
 
 function ChatMessages(props: {
   messages: Message[];
@@ -21,7 +22,7 @@ function ChatMessages(props: {
 }) {
   return (
     <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-      {props.messages.map((m, i) => {
+      {props.messages.map((m) => {
         return (
           <ChatMessageBubble key={m.id} message={m} aiEmoji={props.aiEmoji} />
         );
@@ -126,7 +127,7 @@ export function ChatWindow(props: {
   const [threadId, setThreadId] = useQueryState("threadId");
   const [input, setInput] = useState("");
 
-  const fetchWithCredentials = (url, options = {}) => {
+  const fetchWithCredentials = (url: string, options: RequestInit = {}) => {
     return fetch(url, {
       ...options,
       credentials: "include",
@@ -134,17 +135,17 @@ export function ChatWindow(props: {
   };
 
   const chat = useStream({
-    apiUrl: `${import.meta.env.VITE_API_HOST}${props.endpoint}`,
+    apiUrl: `${window.location.origin}${props.endpoint}`,
     assistantId: "agent",
     threadId,
     callerOptions: {
       fetch: fetchWithCredentials,
     },
     onThreadId: setThreadId,
-    onError: (e: any) => {
+    onError: (e) => {
       console.error("Error: ", e);
       toast.error(`Error while processing your request`, {
-        description: e.message,
+        description: (e as Error).message,
       });
     },
   });
@@ -189,7 +190,7 @@ export function ChatWindow(props: {
                 {!!chat.interrupt?.value && (
                   <TokenVaultInterruptHandler
                     auth={{
-                      authorizePath: getLoginUrl(),
+                      connectPath: getConnectUrl(),
                       returnTo: new URL(
                         "/close",
                         window.location.origin

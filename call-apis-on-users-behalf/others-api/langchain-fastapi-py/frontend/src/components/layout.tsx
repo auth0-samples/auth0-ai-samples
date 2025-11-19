@@ -1,12 +1,9 @@
-import { Routes, Route } from "react-router";
+import { Outlet } from "react-router-dom";
 import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuth, { getLogoutUrl } from "@/lib/use-auth";
 import UserButton from "@/components/auth0/user-button";
 import { ActiveLink } from "@/components/navbar";
-
-import ChatPage from "@/pages/ChatPage";
-import ClosePage from "@/pages/ClosePage";
 
 export default function Layout() {
   const { user } = useAuth();
@@ -31,8 +28,8 @@ export default function Layout() {
           </a>
           <span className="text-white text-2xl">Assistant0</span>
           <nav className="flex gap-1 flex-col md:flex-row">
-            <ActiveLink href="/">Chat</ActiveLink>
-            <ActiveLink href="/documents">Documents</ActiveLink>
+            { user ? <ActiveLink href="/">New chat</ActiveLink> : <></>}
+
           </nav>
         </div>
         <div className="flex justify-center">
@@ -54,10 +51,7 @@ export default function Layout() {
       </div>
       <div className="gradient-up bg-gradient-to-b from-white/10 to-white/0 relative grid border-input border-b-0">
         <div className="absolute inset-0">
-          <Routes>
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/close" element={<ClosePage />} />
-          </Routes>
+          <Outlet />
         </div>
       </div>
     </div>

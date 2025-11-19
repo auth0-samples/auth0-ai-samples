@@ -5,7 +5,7 @@ export default function useAuth() {
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
-      return (await apiClient.get("/api/auth/profile")).data?.user;
+      return (await apiClient.get("/api/user/profile")).data?.user;
     },
   });
 
@@ -15,18 +15,24 @@ export default function useAuth() {
   };
 }
 
+export function getConnectUrl() {
+  return `/api/auth/connect?returnTo=${
+    window.location
+  }`;
+}
+
 export function getLoginUrl() {
-  return `${import.meta.env.VITE_API_HOST}/api/auth/login?returnTo=${
+  return `/api/auth/login?returnTo=${
     window.location
   }`;
 }
 
 export function getSignupUrl() {
-  return `${import.meta.env.VITE_API_HOST}/api/auth/login?screen_hint=signup`;
+  return `/api/auth/login?screen_hint=signup`;
 }
 
 export function getLogoutUrl() {
-  return `${import.meta.env.VITE_API_HOST}/api/auth/logout?returnTo=${
+  return `/api/auth/logout?returnTo=${
     window.location
   }`;
 }
