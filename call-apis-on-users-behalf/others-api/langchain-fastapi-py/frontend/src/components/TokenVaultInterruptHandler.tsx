@@ -2,14 +2,12 @@ import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 import type { Interrupt } from "@langchain/langgraph-sdk";
 
 import { TokenVaultConsent } from "@/components/auth0-ai/TokenVault";
+import type { TokenVaultAuthProps } from "./auth0-ai/TokenVault/TokenVaultAuthProps";
 
 export interface TokenVaultInterruptHandlerProps {
   interrupt: Interrupt | undefined | null;
   onFinish: () => void;
-  auth?: {
-    authorizePath?: string;
-    returnTo?: string;
-  };
+  auth?: TokenVaultAuthProps['auth'];
 }
 
 export function TokenVaultInterruptHandler({
