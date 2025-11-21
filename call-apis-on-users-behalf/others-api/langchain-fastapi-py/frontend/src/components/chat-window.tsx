@@ -206,6 +206,12 @@ export function ChatWindow(props: {
                               required_scopes: [string];
                             }
                           ).required_scopes || [],
+                        authorizationParams:
+                          (
+                            chat.interrupt.value as {
+                              authorization_params: Record<string, string>;
+                            }
+                          ).authorization_params || {},
                       },
                     }}
                     onFinish={() => chat.submit(null)}
