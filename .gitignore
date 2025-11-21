@@ -81,3 +81,6 @@ pip-delete-this-directory.txt
 .venv
 venv/
 env/
+
+# Auth0 application configuration file created during quickstart setup
+auth0-app-details.json
