@@ -16,4 +16,5 @@ auth0_ai = Auth0AI(
 with_calendar_access = auth0_ai.with_token_vault(
     connection="google-oauth2",
     scopes=["openid", "https://www.googleapis.com/auth/calendar.events"],
+    # Optional: authorization_params={"login_hint": "user@example.com", "ui_locales": "en"}
 )
