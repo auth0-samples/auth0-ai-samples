@@ -1,0 +1,28 @@
+model
+  schema 1.1
+
+    type user
+
+    # User groups
+    type group
+        relations
+            define member : [user]
+
+    # Roles can be linked to users or members of a user group
+    type role
+        relations
+            define assignee : [user, group#member]
+
+    type tool
+        relations
+            # Tools can be configured with public access, assigned to a user or a role, or assigned to a user/role for a specific period of time.
+
+            define can_use : [user:*, user, role#assignee,  user with temporal_access, role#assignee with temporal_access]
+
+            # This permission is just for the 'get_documents' tool. Users in given roles can view private documents.
+            # If you have many of these, you might want to create a type for the specific tool.
+            define can_view_private_documents : [role#assignee]
+
+    condition temporal_access(grant_time: timestamp, grant_duration: duration, current_time: timestamp) {
+        current_time < grant_time + grant_duration
+    }
