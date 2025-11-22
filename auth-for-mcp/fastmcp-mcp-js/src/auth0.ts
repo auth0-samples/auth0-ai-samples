@@ -6,6 +6,7 @@ import {
 } from "@modelcontextprotocol/sdk/server/auth/errors.js";
 import { getOAuthProtectedResourceMetadataUrl } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import { FastMCPAuthSession } from "./types.js";
+import { FGA_AUTHORIZATION_ENABLED, getTools } from "./openfga.js";
 
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL ?? `http://localhost:${PORT}`;
@@ -24,6 +25,7 @@ function isNonEmptyString(value: unknown): value is string {
 export const authenticate = async (
   request: IncomingMessage
 ): Promise<FastMCPAuthSession> => {
+  
   try {
     const accessToken = getToken(request.headers);
     const decoded = await apiClient.verifyAccessToken({
@@ -49,6 +51,21 @@ export const authenticate = async (
       );
     }
 
+    // Load available tools based on FGA authorization settings
+    // Note that the authenticate method is called twwice per request, so the FGA Call will happen
+    // twice per request, which is not ideal for performance. Caching could be implemented if needed.
+    
+    let availableTools: string[];
+    if (FGA_AUTHORIZATION_ENABLED) {
+      // Load tools from OpenFGA based on user's permissions
+      availableTools = await getTools(decoded.sub);
+      console.log(`[Auth] Loaded ${availableTools.length} tools from OpenFGA for user ${decoded.sub}`);
+    } else {
+      // Use hardcoded list of all available tools
+      availableTools = ["greet", "whoami", "get_datetime", "get_documents"];
+      console.log(`[Auth] Using hardcoded tool list (FGA disabled)`);
+    }
+
     const token = {
       token: accessToken,
       clientId,
@@ -57,6 +74,7 @@ export const authenticate = async (
           ? decoded.scope.split(" ").filter(Boolean)
           : [],
       ...(decoded.exp && { expiresAt: decoded.exp }),
+      availableTools,
       extra: {
         sub: decoded.sub,
         ...(isNonEmptyString(decoded.client_id) && {

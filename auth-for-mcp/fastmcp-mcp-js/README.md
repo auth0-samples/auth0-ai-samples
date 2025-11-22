@@ -96,9 +96,11 @@ auth0 api post resource-servers --data '{
 }'
 ```
 
-### Step 5: Configure RBAC Roles and Permissions
+### Step 5: Authorization with Auht0 RBAC 
 
-Now, set up roles and assign permissions to them. This allows you to control which users can access which tools.
+Now, set up roles and assign permissions to them. This allows you to control which users can access which tools. 
+
+You can alternatively skip this step and use Auth0 FGA to manage permissions, as described in the following section.
 
 1. Create Roles: For each role you need (e.g., "Tool Administrator", "Tool User"), run the create command.
 
@@ -133,6 +135,128 @@ auth0 users roles assign "auth0|USER_ID_HERE" --roles "YOUR_ROLE_ID_HERE"
 
 **Note:** Further customization not supported out of the box by RBAC can be done via a custom Post-Login action trigger.
 
+### Step 6: Configure Authorization with Auth0 FGA (Alternative to RBAC)
+
+Auth0 FGA provides fine-grained authorization using [Relationship-Based Access Control (ReBAC)](https://docs.fga.dev/concepts#what-is-relationship-based-access-control-rebac). It's built on [OpenFGA](https://openfga.dev), a CNCF incubation project, and offers more flexible authorization patterns than traditional RBAC.
+
+**Choose between Step 5 (RBAC) or Step 6 (FGA)** - you don't need both. FGA is recommended for complex authorization scenarios like:
+
+- Time-based access grants
+- Group-based permissions
+- Resource-specific access rules
+
+#### Prerequisites
+
+1. **Create an Auth0 FGA Account**: Sign up for free at [fga.dev](https://fga.dev)
+2. **Generate API Credentials**: Follow [this guide](https://docs.fga.dev/intro/settings) to create credentials with full permissions
+3. **Install the FGA CLI**:
+   ```bash
+   # macOS
+   brew install openfga/tap/fga
+   
+   # Other platforms - download from:
+   # https://github.com/openfga/cli/releases
+   ```
+
+#### CLI Configuration
+
+After creating your FGA credentials, export the following (provided during credential creation):
+
+   ```bash
+   export FGA_API_URL='https://api.us1.fga.dev'
+   export FGA_STORE_ID='<your-store-id>'
+   export FGA_API_TOKEN_ISSUER='auth.fga.dev'
+   export FGA_API_AUDIENCE='https://api.us1.fga.dev/'
+   export FGA_CLIENT_ID='<your-client-id>'
+   export FGA_CLIENT_SECRET='<your-client-secret>'
+   ```
+
+#### Authorization Model
+
+This example uses an authorization model defined in [`fga/model.fga`](./fga/model.fga) that supports:
+
+- **Public Tools**: Accessible to all authenticated users (e.g., `get_datetime`)
+- **Role-Based Access**: Tools assigned to specific roles
+- **Group Membership**: Users inherit permissions through group membership
+- **Temporal Access**: Time-limited tool access with automatic expiration
+- **Resource-Specific Permissions**: Fine-grained access (e.g., viewing private documents)
+
+#### Initial Setup
+
+1. **Deploy the Authorization Model**:
+   ```bash
+   fga model write --model ./fga/model.fga
+   ```
+
+2. **Import Initial Data**: The [`fga/tuples.yaml`](./fga/tuples.yaml) file defines:
+   - Two roles: `admin` and `content_manager`
+   - Two groups: `marketing` (content_manager role) and `managers` (admin role)
+   - Tool permissions:
+     - Everyone: `get_datetime`
+     - Admin & Content Manager: `greet`, `whoami`, `get_documents`
+     - Admin only: Can view private documents
+
+   Import the tuples:
+   ```bash
+   fga tuples write --file ./fga/tuples.yaml
+
+
+#### Managing User Access
+
+Use the provided scripts to manage user permissions dynamically:
+
+##### Add User to Group
+Grants all permissions associated with the group:
+
+```bash
+# Add user to managers group (admin role - full access including private documents)
+./fga/add-user-to-group.sh user@example.com managers
+
+# Add user to marketing group (content_manager role - no private document access)
+./fga/add-user-to-group.sh user@example.com marketing
+```
+
+##### Remove User from Group
+Revokes group-based permissions:
+
+```bash
+./fga/remove-user-from-group.sh user@example.com managers
+```
+
+##### Grant Temporary Access
+Provides time-limited access to specific tools:
+
+```bash
+# Grant 20-second access to the greet tool
+./fga/add-temporal-access.sh user@example.com greet 20s
+
+# Grant 1-hour access
+./fga/add-temporal-access.sh user@example.com greet 1h
+```
+
+Temporal access automatically expires.
+
+#### Testing Access Changes
+
+After modifying permissions, test with different users to verify:
+
+1. **Managers Group** (admin role):
+   - Should see: `get_datetime`, `greet`, `whoami`, `get_documents`
+   - Can view: All documents (public + private)
+
+2. **Marketing Group** (content_manager role):
+   - Should see: `get_datetime`, `greet`, `whoami`, `get_documents`
+   - Can view: Public documents only
+
+3. **User with Temporal Access**:
+   - Should see: `get_datetime` + temporarily granted tool
+   - Access expires after specified duration
+
+4. **User with No Assignments**:
+   - Should see: `get_datetime` only
+
+You can also manage tuples directly in the [Auth0 FGA Dashboard](https://dashboard.fga.dev) for.
+
 ## Configuration
 
 Rename `.env.example` to `.env` and configure the domain and audience:
@@ -143,6 +267,19 @@ AUTH0_DOMAIN=example-tenant.us.auth0.com
 
 # Auth0 API Identifier
 AUTH0_AUDIENCE=http://localhost:3001/
+```
+
+To enable FGA add:
+
+```
+FGA_AUTHORIZATION_ENABLED=true
+
+FGA_API_URL='https://api.us1.fga.dev'
+FGA_STORE_ID=<store_id>
+FGA_API_TOKEN_ISSUER='auth.fga.dev'
+FGA_API_AUDIENCE='https://api.us1.fga.dev/'
+FGA_CLIENT_ID='<client_secremt>'
+FGA_CLIENT_SECRET='<client_secremt>'
 ```
 
 With the configuration in place, the example can be started by running:
