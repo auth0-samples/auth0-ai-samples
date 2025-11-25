@@ -16,7 +16,7 @@ First, clone this repo and download it locally.
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-ai-samples.git
-cd auth0-ai-samples/authenticate-users/langchain-fastapi-py-starter
+cd auth0-ai-samples/call-apis-on-users-behalf/others-api/langchain-fastapi-py
 ```
 
 The project is divided into two parts:
