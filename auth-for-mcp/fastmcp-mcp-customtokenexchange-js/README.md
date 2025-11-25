@@ -33,7 +33,7 @@ MCP_AUTH0_CLIENT_SECRET=your-client-secret
 MCP_AUTH0_SUBJECT_TOKEN_TYPE=urn:fastmcp:mcp
 
 # Scopes to request
-MCP_AUTH0_EXCHANGE_SCOPE=read:tasks
+MCP_AUTH0_EXCHANGE_SCOPE=read:private
 
 # Upstream API configuration
 API_AUTH0_AUDIENCE=your-api-audience

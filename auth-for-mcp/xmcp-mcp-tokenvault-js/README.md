@@ -237,7 +237,7 @@ In order to obtain Google Access Tokens using Token Vault, we need to request cr
 <summary>Create an Associated Application using Auth0 CLI</summary>
 
 ```bash
-auth0 apps create --name "MCP Server" --type resource_server
+auth0 apps create --name "MCP Server" --type resource_server --resource-server-identifier "http://localhost:3001/mcp"
 ```
 </details>
 
@@ -282,9 +282,11 @@ Enable via Dashboard:
 
 <details>
 <summary>Show CLI command</summary>
+
 ```bash
 auth0 tenant-settings update set flags.enable_resource_server_identifier
 ```
+
 </details>
 
 
@@ -299,7 +301,7 @@ Dashboard:
 1. Navigate to Settings > Advanced.
 2. Enable **Dynamic Client Registration**.
 
-![Dashboard with DCR Enabled](./screenshots/dynamic-client-registration.png)
+![Dashboard with DCR Enabled](./screenshots/enable-dcr.png)
 
 <details>
 <summary>Show CLI command</summary>
@@ -326,9 +328,11 @@ Enable via Dashboard:
 
 <details>
 <summary>Show CLI command</summary>
+
 ```bash
 auth0 api patch tenants/settings --data '{"default_audience": "http://localhost:3001/mcp"}'
 ```
+
 </details>
 
 ## 7. Create Environment File
