@@ -25,10 +25,10 @@ Copy the `.env.example` file to `.env` and fill in the values for the following 
 
 ```sh
 # Auth0
-AUTH0_DOMAIN="<auth0-domain>"
-# Client for CIBA
-AUTH0_CLIENT_ID="<auth0-client-id>"
-AUTH0_CLIENT_SECRET="<auth0-client-secret>"
+AUTH0_DOMAIN="{yourDomain}"
+# M2M Client for CIBA
+AUTH0_CLIENT_ID="{yourClientId}"
+AUTH0_CLIENT_SECRET="{yourClientSecret}"
 
 # API
 STOCK_API_URL=http://an-api-url
