@@ -1,9 +1,28 @@
 # Example FastMCP MCP Server with Auth0 and Auth0 FGA Integration
 
 This is a practical example of securing a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs) server
-with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript framework. It demonstrates
-real-world OAuth 2.0 and OIDC integration with JWT token verification, and how to implement fine grained authorization for MCPs.
+with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript framework. 
 
+ This repository shows a minimal but realistic integration with:
+ - OAuth 2.0 / OIDC via Auth0 for authentication and token verification
+ - Auth0 FGA (OpenFGA) for fine-grained Resource Authorization
+ - FastMCP for exposing tools as MCP endpoints
+
+ This example uses an authorization model defined in [`fga/model.fga`](./fga/model.fga) that supports:
+
+- **Public Tools**: Accessible to all authenticated users (e.g., `get_datetime`)
+- **Role-Based Access**: Tools assigned to specific roles
+- **Group Membership**: Users inherit permissions through group membership
+- **Temporal Access**: Time-limited tool access with automatic expiration
+- **Resource-Specific Permissions**: Fine-grained access (e.g., viewing private documents)
+
+ ## Prerequisites
+
+ - Node.js 18+ 
+ - npm (or a compatible package manager)
+ - An Auth0 tenant (for OAuth and token verification)
+ - An Auth0 FGA account (OpenFGA / fga.dev) for authorization model and tuples
+ - `fga` CLI (optional, for bootstrapping the model and tuples)
 
 ## Available Tools
 
@@ -25,7 +44,6 @@ npm install
 ## Auth0 Tenant Setup
 
 For detailed instructions on setting up your Auth0 tenant for MCP server integration, please refer to the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup) in the FastMCP example.
-
 
 ## Auth0 FGA Setup 
 
@@ -59,13 +77,6 @@ After creating your FGA credentials, export the following (provided during crede
 
 ### Authorization Model
 
-This example uses an authorization model defined in [`fga/model.fga`](./fga/model.fga) that supports:
-
-- **Public Tools**: Accessible to all authenticated users (e.g., `get_datetime`)
-- **Role-Based Access**: Tools assigned to specific roles
-- **Group Membership**: Users inherit permissions through group membership
-- **Temporal Access**: Time-limited tool access with automatic expiration
-- **Resource-Specific Permissions**: Fine-grained access (e.g., viewing private documents)
 
 ### Initial Setup
 
