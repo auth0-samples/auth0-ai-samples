@@ -100,7 +100,7 @@ export class DocumentApi {
    * In a real implementation, the `publicOnly=false` case would trigger OpenFGA authorization
    * checks to verify the user has permission to access specific private documents.
    * 
-   * @param includePrivate - When true, turns all documents. 
+   * @param includePrivate - When true, returns all documents. 
    *                         When false, returns only public documents.
    *                         
    * @returns A promise resolving to an array of documents matching the filter criteria.
