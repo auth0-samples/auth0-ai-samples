@@ -96,7 +96,7 @@ auth0 api post resource-servers --data '{
 }'
 ```
 
-### Step 5: Authorization with Auht0 RBAC 
+### Step 5: Authorization with Auth0 RBAC 
 
 Now, set up roles and assign permissions to them. This allows you to control which users can access which tools. 
 
