@@ -1,0 +1,52 @@
+# FGA Authorization Tuples
+# This file contains example tuples for the MCP Tools authorization model
+# 
+# Import these tuples using the OpenFGA CLI:
+#   fga tuple import --store-id YOUR_STORE_ID --file tuples.yaml
+#
+---
+
+# Everyone can use the get_datetime tool
+- user: user:*
+  relation: can_use
+  object: tool:get_datetime
+
+# Admins can access every tool
+- user: role:admin#assignee
+  relation: can_use
+  object: tool:greet
+
+- user: role:admin#assignee
+  relation: can_use
+  object: tool:whoami
+
+- user: role:admin#assignee
+  relation: can_use
+  object: tool:get_documents
+
+# Admins can access private documents
+- user: role:admin#assignee
+  relation: can_view_private_documents
+  object: tool:get_documents
+
+# Content Team can access all tools and view public documents
+- user: role:content_editor#assignee
+  relation: can_use
+  object: tool:greet
+
+- user: role:content_editor#assignee
+  relation: can_use
+  object: tool:whoami
+
+- user: role:content_editor#assignee
+  relation: can_use
+  object: tool:get_documents
+
+# Assign groups to roles
+- user: group:marketing#member
+  relation: assignee
+  object: role:content_editor
+
+- user: group:managers#member
+  relation: assignee
+  object: role:admin

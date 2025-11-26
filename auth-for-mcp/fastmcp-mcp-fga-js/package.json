@@ -1,0 +1,26 @@
+{
+  "name": "fastmcp-mcp-fga-js",
+  "version": "0.0.0",
+  "description": "Example implementation of an MCP server using FastMCP framework with Auth0 and Auth0 FGA",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts --project tsconfig.json"
+  },
+  "dependencies": {
+    "@auth0/auth0-api-js": "^1.2.1",
+    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@openfga/sdk": "^0.9.1",
+    "dotenv": "^17.2.1",
+    "fastmcp": "^3.12.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "fastmcp",
+    "example"
+  ]
+}

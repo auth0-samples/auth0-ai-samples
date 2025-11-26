@@ -98,7 +98,7 @@ auth0 api post resource-servers --data '{
 
 ### Step 5: Configure RBAC Roles and Permissions
 
-Now, set up roles and assign permissions to them. This allows you to control which users can access which tools.
+Now, set up roles and assign permissions to them. This allows you to control which users can access which tools, using the core Auth0 RBAC features. If you want to learn how to implement authorization using Auth0 FGA, check the [FastMCP FGA example](../fastmcp-mcp-fga-js/).
 
 1. Create Roles: For each role you need (e.g., "Tool Administrator", "Tool User"), run the create command.
 
