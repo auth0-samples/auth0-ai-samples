@@ -1,7 +1,4 @@
-import {
-  DefaultChatTransport,
-  lastAssistantMessageIsCompleteWithToolCalls,
-} from "ai";
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from "ai";
 import { Loader2, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -11,6 +8,7 @@ import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 import { useAuth0 } from "../hooks/useAuth0";
 import { TokenVaultConsentPopup } from "./TokenVaultConsentPopup";
+import { MarkdownText } from "./MarkdownText";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -155,7 +153,13 @@ function MessageBubble({ message }: { message: UIMessage }) {
           isUser ? "bg-primary text-primary-foreground" : "bg-muted"
         }`}
       >
-        <p className="text-sm whitespace-pre-wrap">{textContent}</p>
+        {isUser ? (
+          <p className="text-sm whitespace-pre-wrap">{textContent}</p>
+        ) : (
+          <div className="text-sm">
+            <MarkdownText>{textContent}</MarkdownText>
+          </div>
+        )}
       </div>
     </div>
   );
