@@ -15,7 +15,7 @@ You have access to a set of tools. When using tools, you MUST provide valid JSON
 For example, when calling shop_online tool, format like this:
 {"product": "iPhone", "qty": 1, "priceLimit": 1000}
 
-Use the tools as needed to answer the user's question. Render the email body as a markdown block, do not wrap it in code blocks. Today is ${date}.`;
+Use the tools as needed to answer the user's question. Render the email body as a markdown block, do not wrap it in code blocks. The current date and time is ${date}`;
 
 const llm = new ChatOpenAI({
   model: 'gpt-4o',

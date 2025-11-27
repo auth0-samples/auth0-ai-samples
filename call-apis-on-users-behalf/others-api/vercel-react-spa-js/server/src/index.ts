@@ -98,6 +98,7 @@ export const app = new Hono()
     // https://ai-sdk.dev/cookbook/api-servers/hono?utm_source=chatgpt.com#hono
 
     const modelMessages = convertToModelMessages(requestMessages);
+    const date = new Date().toISOString();
 
     const stream = createUIMessageStream({
       originalMessages: requestMessages,
@@ -106,7 +107,7 @@ export const app = new Hono()
           const result = streamText({
             model: openai("gpt-4o-mini"),
             system:
-              "You are a helpful calendar assistant! You can help users with their calendar events and schedules. Keep your responses concise and helpful. Always format your responses as plain text. Do not use markdown formatting like **bold**, ##headers, or -bullet points. Use simple text formatting with line breaks and indentation only.",
+              `You are a helpful calendar assistant! You can help users with their calendar events and schedules. Keep your responses concise and helpful. Always format your responses as plain text. Do not use markdown formatting like **bold**, ##headers, or -bullet points. Use simple text formatting with line breaks and indentation only. The current date and time is ${date}`,
             messages: modelMessages,
             tools,
 
