@@ -107,7 +107,7 @@ export const app = new Hono()
           const result = streamText({
             model: openai("gpt-4o-mini"),
             system:
-              `You are a helpful calendar assistant! You can help users with their calendar events and schedules. Keep your responses concise and helpful. Always format your responses as plain text. Do not use markdown formatting like **bold**, ##headers, or -bullet points. Use simple text formatting with line breaks and indentation only. Today is ${date}.`,
+              `You are a helpful calendar assistant! You can help users with their calendar events and schedules. Keep your responses concise and helpful. Always format your responses as plain text. Do not use markdown formatting like **bold**, ##headers, or -bullet points. Use simple text formatting with line breaks and indentation only. The current date and time is ${date}`,
             messages: modelMessages,
             tools,
 
