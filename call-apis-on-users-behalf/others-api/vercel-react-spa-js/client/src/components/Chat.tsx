@@ -11,6 +11,7 @@ import { TokenVaultInterrupt } from "@auth0/ai/interrupts";
 
 import { useAuth0 } from "../hooks/useAuth0";
 import { TokenVaultConsentPopup } from "./TokenVaultConsentPopup";
+import { MarkdownText } from "./MarkdownText";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -42,7 +43,7 @@ export function Chat() {
         console.error("Chat error:", error);
       }),
       sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    })
+    }),
   );
 
   const { messages, sendMessage, status, error, setMessages, toolInterrupt } =
@@ -155,7 +156,13 @@ function MessageBubble({ message }: { message: UIMessage }) {
           isUser ? "bg-primary text-primary-foreground" : "bg-muted"
         }`}
       >
-        <p className="text-sm whitespace-pre-wrap">{textContent}</p>
+        {isUser ? (
+          <p className="text-sm whitespace-pre-wrap">{textContent}</p>
+        ) : (
+          <div className="text-sm">
+            <MarkdownText>{textContent}</MarkdownText>
+          </div>
+        )}
       </div>
     </div>
   );

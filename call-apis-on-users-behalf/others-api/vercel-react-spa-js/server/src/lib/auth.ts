@@ -4,14 +4,14 @@ import { Auth0AI } from "@auth0/ai-vercel";
 import type { Context } from "hono";
 
 import type { ToolWrapper } from "@auth0/ai-vercel";
-
-// Create an Auth0AI instance configured with enhanced Custom API client support
+// Create an Auth0AI instance configured with enhanced Custom API Client support
+// NOTE: This demonstrates the enhanced API approach using client credentials
 const auth0AI = new Auth0AI({
   auth0: {
     domain: process.env.AUTH0_DOMAIN!,
-    // For token exchange with Token Vault, we only need the Custom API credentials
-    clientId: process.env.AUTH0_CUSTOM_API_CLIENT_ID!, // Custom API client ID for token exchange
-    clientSecret: process.env.AUTH0_CUSTOM_API_CLIENT_SECRET!, // Custom API client secret
+    // For token exchange with Token Vault, we need the Custom API Client credentials
+    clientId: process.env.AUTH0_CUSTOM_API_CLIENT_ID!, // Custom API Client ID for token exchange
+    clientSecret: process.env.AUTH0_CUSTOM_API_CLIENT_SECRET!, // Custom API Client secret
   },
 });
 

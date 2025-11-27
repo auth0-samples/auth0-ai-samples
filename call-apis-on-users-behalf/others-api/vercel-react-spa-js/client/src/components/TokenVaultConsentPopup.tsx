@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import type { Auth0InterruptionUI } from "@auth0/ai-vercel/react";
 
 import { getAuth0Client } from "../lib/auth0";
 import { Button } from "./ui/button";
@@ -6,11 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 /**
  * Component for handling connection authorization popups.
- * This component manages the authorization flow for token exchange with Token Vault,
- * allowing the application to exchange access tokens for third-party API tokens.
+ * This component manages the connect account flow for Token Vault, allowing the
+ * user to authorize access to third-party providers.
  */
-
-import type { Auth0InterruptionUI } from "@auth0/ai-vercel/react";
 
 interface TokenVaultConsentPopupProps {
   interrupt: Auth0InterruptionUI;
@@ -53,7 +52,7 @@ export function TokenVaultConsentPopup({
         resume();
       }
     } catch (error) {
-      console.error("Federated login failed:", error);
+      console.error("Connect account flow failed:", error);
       setIsLoading(false);
 
       // Even if login fails, we should clear the interrupt
