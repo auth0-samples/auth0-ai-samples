@@ -1,4 +1,7 @@
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from "ai";
 import { Loader2, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,7 +43,7 @@ export function Chat() {
         console.error("Chat error:", error);
       }),
       sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    })
+    }),
   );
 
   const { messages, sendMessage, status, error, setMessages, toolInterrupt } =
