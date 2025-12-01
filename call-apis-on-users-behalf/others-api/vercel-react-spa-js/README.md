@@ -10,7 +10,7 @@ The flow works by having the client send its access token to a First Party API, 
 
 ## Features
 
-The following example app demonstrates using a SPA chatbot application, a backend API (and a linked Resource Server Client), and Token Vault to access a Third Party API (Google Calendar API).
+The following example app demonstrates using a SPA chatbot application, a backend API (and a linked Custom API Client), and Token Vault to access a Third Party API (Google Calendar API).
 
 This template leverages a modern stack for building a React SPA application with a Hono API.
 
@@ -51,7 +51,7 @@ You will need the following prerequisites to run this app:
 
 ### 1. Auth0 Configuration
 
-1. Create an Auth0 Application:
+1. Create an Auth0 SPA Application:
    - Go to your [Auth0 Dashboard](https://manage.auth0.com/)
    - Create a new **Single Page Application**
    - Configure the following settings:
@@ -64,59 +64,62 @@ You will need the following prerequisites to run this app:
 2. Create an Auth0 API (representing your back-end API):
    - In your Auth0 Dashboard, go to APIs
    - Create a new API with an identifier (audience)
-   - Enable "Allow Offline Access" in Access Settings
+   - Make sure to "Allow Offline Access" in Access Settings 
    - Note down the API identifier for your environment variables
 
 3. Create a Custom API Client (for Token Vault Token Exchange):
-    - The Custom API Client allows your API server to perform token exchanges using **access tokens** instead of **refresh tokens**. This client enables Token Vault to exchange an access token for an external API access token (e.g., Google Calendar API).
-    - Setup steps:
-        - Go to the API you created in Step #2 and click the **Add Application** button in the right top corner and create the application
-        - In the application settings, ensure that the `Token Vault` grant type is enabled under the Advanced Settings
-        - Note down the <code>client id</code> and <code>client secret</code> for your environment variables
+   - This is a special application that allows your API to perform token exchanges
+   - In your Auth0 Dashboard, on the configuration page of your API, click the "Add Application" button in the header and create the Custom API Client
+   - Ensure that the `Token Vault` grant type is enabled under the Advanced Settings
+   - Note down the "Client ID" and "Client Secret" of this newly created Custom API Client
+   - Now your Custom API will be able to use Token Vault, to exchange an access token for an external API access token (e.g., Google Calendar API)
 
 4. Grant access to My Account API from your application:
-    - When a call to Token Vault fails due to the user not having a connected account (or lacking some permissions), this demo triggers a Connect Account flow for this user. This flow leverages Auth0's [My Account API](https://auth0.com/docs/manage-users/my-account-api), and as such, your application will need to have access to it in order to enable this flow.
-    - In order to grant access, use the [Application Access to APIs](https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants) feature, by creating a client grant for user flows.
-    - In your Auth0 Dashboard, go to APIs, and open the Settings for "Auth0 My Account API".
-    - On the Settings tab, make sure to enable the "Allow Skipping User Consent" toggle.
-    - On the Applications tab, authorize your SPA application, ensuring that the `create:me:connected_accounts` permission at least is selected.
+   - When a call to Token Vault fails due to the user not having a connected account (or lacking some permissions), this demo triggers a Connect Account flow for this user. This flow leverages Auth0's [My Account API](https://auth0.com/docs/manage-users/my-account-api), and as such, your application will need to have access to it in order to enable this flow.
+   - In order to grant access, use the [Application Access to APIs](https://auth0.com/docs/get-started/applications/application-access-to-apis-client-grants) feature, by creating a client grant for user flows.
+   - In your Auth0 Dashboard, go to APIs, and open the Settings for "Auth0 My Account API".
+   - On the Settings tab, make sure to enable the "Allow Skipping User Consent" toggle.
+   - On the Applications tab, authorize your application, ensuring that the `create:me:connected_accounts` permission at least is selected.
 
 5. Define a Multi-Resource Refresh Token policy for your SPA Application:
-    - After your SPA Application has been granted access to the My Account API, you will also need to leverage the [Multi-Resource Refresh Token](https://auth0.com/docs/secure/tokens/refresh-tokens/multi-resource-refresh-token) feature, where the refresh token delivered to your SPA will allow it to obtain an access token to call My Account API.
-    - This will require defining a new [refresh token policy](https://auth0.com/docs/secure/tokens/refresh-tokens/multi-resource-refresh-token/configure-and-implement-multi-resource-refresh-token) for your SPA Application where the `audience` is `https://<your auth0 domain>/me/` and the `scope` should include at least the `"create:me:connected_accounts"` scope.
-    - Setup steps:
-        - In your Auth0 Dashboard, go to Applications, and open the Settings for your SPA application created at step 1.
-        - Under the "Multi-Resource Refresh Token" section, click "Edit Configuration".
-        - Enable MRRT for "Auth0 My Account API".
+   - After your SPA Application has been granted access to the My Account API, you will also need to leverage the [Multi-Resource Refresh Token](https://auth0.com/docs/secure/tokens/refresh-tokens/multi-resource-refresh-token) feature, where the refresh token delivered to your SPA will allow it to obtain an access token to call My Account API.
+   - This will require defining a new [refresh token policy](https://auth0.com/docs/secure/tokens/refresh-tokens/multi-resource-refresh-token/configure-and-implement-multi-resource-refresh-token) for your SPA Application where the `audience` is `https://<your auth0 domain>/me/` and the `scope` should include at least the `"create:me:connected_accounts"` scope.
+   - Setup steps:
+     - In your Auth0 Dashboard, go to Applications, and open the Settings for your SPA application created at step 1.
+     - Under the "Multi-Resource Refresh Token" section, click "Edit Configuration".
+     - Enable MRRT for "Auth0 My Account API".
 
-6. Configure a Social Connection for Google in Auth0:
-    - Make sure to enable the "Use for Connected Accounts with Token Vault" toggle
-    - Make sure to enable `Offline Access` and all `Calendar` scopes from the Permissions options
-    - On the Applications tab, make sure to enable the connection for your SPA Application created in Step 1 and the Custom API Client created in Step 3
-    - Test the connection in Auth0 "Try Connection" screen and make sure connection is working & configured correctly
+6. Configure a Social Connection for Google in Auth0
+   - Make sure to enable the "Use for Connected Accounts with Token Vault" toggle
+   - Make sure to enable `Offline Access` and all `Calendar` scopes from the Permissions options
+   - On the Applications tab, make sure to enable the connection for your SPA Application created in Step 1
+   - Test the connection in Auth0 "Try Connection" screen and make sure the connection is working & configured correctly
 
 ### 2. Environment Variables
 
 #### Client (.env)
-Copy `.env.example` to `.env` and fill in your Auth0 configuration:
+From the `./client` directory, copy `.env.example` to `.env` and fill in your Auth0 configuration using details from your SPA Application:
 
 ```bash
+# Auth0 Configuration
 VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
 VITE_AUTH0_CLIENT_ID=your-spa-client-id
 VITE_AUTH0_AUDIENCE=your-api-identifier
+
+# Server Configuration
 VITE_SERVER_URL=http://localhost:3000
 ```
 
 #### Server (.env)
-Copy `.env.example` to `.env` and fill in your Auth0 configuration:
+From the `./server` directory, copy `.env.example` to `.env` and fill in your Auth0 configuration using details from API and Custom API Client:
 
 ```bash
 # Auth0 Configuration
 AUTH0_DOMAIN=your-auth0-domain.auth0.com
 AUTH0_AUDIENCE=your-api-identifier
 
-# Custom API CLient Configuration (for Token Vault token exchange)
-# These credentials belong to a special "resource_server" client that can perform token exchanges
+# Custom API Client Configuration (for Token Vault token exchange)
+# These credentials belong to Custom API client that can perform token exchanges
 AUTH0_CUSTOM_API_CLIENT_ID=your-custom-api-client-id
 AUTH0_CUSTOM_API_CLIENT_SECRET=your-custom-api-client-secret
 
@@ -149,7 +152,7 @@ npm run dev
 or run them individually with:
 ```bash
 npm run dev:client    # Run the Vite dev server for React
-npm run dev:server    # Run the Hono backend
+npm run dev:server    # Run the Hono API backend
 ```
 
 The client will be available at `http://localhost:5173` and will communicate with the server at `http://localhost:3000`.
@@ -187,7 +190,7 @@ The client will be available at `http://localhost:5173` and will communicate wit
 ## SDK Notes
 
 The core `@auth0/ai` package now supports:
-- **Resource Server Client Credentials**: Separate client credentials for token exchange operations
+- **Custom API Client Credentials**: Separate client credentials for token exchange operations
 - **Access Token Support**: Direct access token exchange instead of requiring refresh tokens
 
 The example uses the enhanced SDK pattern with dedicated access token support:
@@ -196,9 +199,9 @@ The example uses the enhanced SDK pattern with dedicated access token support:
 const auth0AI = new Auth0AI({
   auth0: {
     domain: process.env.AUTH0_DOMAIN!,
-    // For token exchange with Token Vault, we want to provide the resource server client (linked client's) credentials
-    clientId: process.env.AUTH0_CUSTOM_API_CLIENT_ID!, // Resource server client
-    clientSecret: process.env.AUTH0_CUSTOM_API_CLIENT_SECRET!, // Resource server secret
+    // For token exchange with Token Vault, we want to provide the Custom API Client credentials
+    clientId: process.env.AUTH0_CUSTOM_API_CLIENT_ID!, // Custom API Client ID for token exchange
+    clientSecret: process.env.AUTH0_CUSTOM_API_CLIENT_SECRET!, // Custom API Client secret
   }
 });
 
@@ -212,12 +215,12 @@ export const withGoogleCalendar = auth0AI.withTokenVault({
 Tools can also now use the SDK's built-in token management when using access tokens with Token Vault token exchange:
 ```typescript
 // tools/listNearbyEvents.ts
-import { getAccessTokenForConnection } from "@auth0/ai-vercel";
+import { getAccessTokenFromTokenVault } from "@auth0/ai-vercel";
 
 export const listNearbyEvents = withGoogleCalendar(
   tool({
     execute: async ({ start, end, calendarId }) => {
-      const token = getAccessTokenForConnection(); // Automatic token retrieval
+      const token = getAccessTokenFromTokenVault(); // Automatic token retrieval
       // Use token with Google Calendar API...
     }
   })
