@@ -13,8 +13,8 @@
     "dotenv": "^17.2.1",
     "mcp-handler": "^1.0.0",
     "next": "^15.5.7",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
     "zod": "^3"
   },
   "devDependencies": {
