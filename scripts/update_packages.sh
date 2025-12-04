@@ -1,21 +1,54 @@
 #!/bin/bash
 
-# Script to update @auth0/ai packages to their latest versions
-# Usage: ./update_packages.sh
+# Script to update arbitrary npm dependency packages to specified versions across all samples
+# Usage: ./update_packages.sh <package@version> [<package@version> ...]
+# Examples:
+#   ./update_dependency.sh react@19.0.0
+#   ./update_dependency.sh react@19.0.0 react-dom@19.0.0
+#   ./update_dependency.sh @auth0/ai@^5.1.1 @auth0/ai-vercel@^4.1.0
 
 set -e
 
-# Define the versions
-AUTH0_SPA_JS_VERSION="^2.9.0"
-AUTH0_NEXTJS_VERSION="^4.13.0"
-AUTH0_AI_VERSION="^5.1.1"
-AUTH0_AI_VERCEL_VERSION="^4.1.0"
-AUTH0_AI_LANGCHAIN_VERSION="^4.1.0"
-AUTH0_AI_LLAMAINDEX_VERSION="^4.1.0"
-
 REGISTRY="--registry https://registry.npmjs.org/"
 
+# Check if at least one argument is provided
+if [ $# -eq 0 ]; then
+    echo "Error: No dependencies specified"
+    echo "Usage: $0 <package@version> [<package@version> ...]"
+    echo ""
+    echo "Examples:"
+    echo "  $0 react@19.0.0"
+    echo "  $0 react@19.0.0 react-dom@19.0.0"
+    echo "  $0 @auth0/ai@^5.1.1 @auth0/ai-vercel@^4.1.0"
+    exit 1
+fi
+
+# Parse arguments into arrays
+declare -a PACKAGE_NAMES
+declare -a PACKAGE_VERSIONS
+
+for arg in "$@"; do
+    # Split on @ but handle scoped packages (e.g., @auth0/ai@^5.1.1)
+    if [[ "$arg" =~ ^(@[^@]+/[^@]+)@(.+)$ ]]; then
+        # Scoped package: @scope/name@version
+        PACKAGE_NAMES+=("${BASH_REMATCH[1]}")
+        PACKAGE_VERSIONS+=("${BASH_REMATCH[2]}")
+    elif [[ "$arg" =~ ^([^@]+)@(.+)$ ]]; then
+        # Regular package: name@version
+        PACKAGE_NAMES+=("${BASH_REMATCH[1]}")
+        PACKAGE_VERSIONS+=("${BASH_REMATCH[2]}")
+    else
+        echo "Error: Invalid format for '$arg'. Expected format: package@version"
+        exit 1
+    fi
+done
+
 echo "Starting package updates..."
+echo "Will update the following packages:"
+for i in "${!PACKAGE_NAMES[@]}"; do
+    echo "  ${PACKAGE_NAMES[$i]} -> ${PACKAGE_VERSIONS[$i]}"
+done
+echo ""
 
 # Function to update a package.json file and reinstall packages
 update_package_json() {
@@ -24,87 +57,51 @@ update_package_json() {
 
     echo "Checking $file..."
 
-    if grep -q '"@auth0/auth0-spa-js"' "$file"; then
-        echo "  Updating @auth0/auth0-spa-js to $AUTH0_SPA_JS_VERSION"
-        sed -i '' 's/"@auth0\/auth0-spa-js": "[^"]*"/"@auth0\/auth0-spa-js": "'$AUTH0_SPA_JS_VERSION'"/g' "$file"
-        updated=true
-    fi
+    # Check and update each package
+    for i in "${!PACKAGE_NAMES[@]}"; do
+        local pkg="${PACKAGE_NAMES[$i]}"
+        local version="${PACKAGE_VERSIONS[$i]}"
 
-    if grep -q '"@auth0/nextjs-auth0"' "$file"; then
-        echo "  Updating @auth0/nextjs-auth0 to $AUTH0_NEXTJS_VERSION"
-        sed -i '' 's/"@auth0\/nextjs-auth0": "[^"]*"/"@auth0\/nextjs-auth0": "'$AUTH0_NEXTJS_VERSION'"/g' "$file"
-        updated=true
-    fi
+        # Escape special characters for grep and sed
+        local pkg_escaped=$(echo "$pkg" | sed 's/\//\\\//g')
 
-    if grep -q '"@auth0/ai"' "$file"; then
-        echo "  Updating @auth0/ai to $AUTH0_AI_VERSION"
-        sed -i '' 's/"@auth0\/ai": "[^"]*"/"@auth0\/ai": "'$AUTH0_AI_VERSION'"/g' "$file"
-        updated=true
-    fi
-
-    if grep -q '"@auth0/ai-vercel"' "$file"; then
-        echo "  Updating @auth0/ai-vercel to $AUTH0_AI_VERCEL_VERSION"
-        sed -i '' 's/"@auth0\/ai-vercel": "[^"]*"/"@auth0\/ai-vercel": "'$AUTH0_AI_VERCEL_VERSION'"/g' "$file"
-        updated=true
-    fi
-
-    if grep -q '"@auth0/ai-langchain"' "$file"; then
-        echo "  Updating @auth0/ai-langchain to $AUTH0_AI_LANGCHAIN_VERSION"
-        sed -i '' 's/"@auth0\/ai-langchain": "[^"]*"/"@auth0\/ai-langchain": "'$AUTH0_AI_LANGCHAIN_VERSION'"/g' "$file"
-        updated=true
-    fi
-
-    if grep -q '"@auth0/ai-llamaindex"' "$file"; then
-        echo "  Updating @auth0/ai-llamaindex to $AUTH0_AI_LLAMAINDEX_VERSION"
-        sed -i '' 's/"@auth0\/ai-llamaindex": "[^"]*"/"@auth0\/ai-llamaindex": "'$AUTH0_AI_LLAMAINDEX_VERSION'"/g' "$file"
-        updated=true
-    fi
+        if grep -q "\"$pkg\"" "$file"; then
+            echo "  Updating $pkg to $version"
+            # Use different sed syntax for macOS vs Linux
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' 's/"'"$pkg_escaped"'": "[^"]*"/"'"$pkg_escaped"'": "'"$version"'"/g' "$file"
+            else
+                sed -i 's/"'"$pkg_escaped"'": "[^"]*"/"'"$pkg_escaped"'": "'"$version"'"/g' "$file"
+            fi
+            updated=true
+        fi
+    done
 
     if [ "$updated" = true ]; then
         echo "  Updated $file"
         dir=$(dirname "$file")
 
-        # Simple approach: collect all @auth0 packages, uninstall them, then reinstall
+        # Collect packages to uninstall and reinstall
         packages_to_uninstall=""
         packages_to_reinstall=""
 
-        if grep -q '"@auth0/auth0-spa-js":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/auth0-spa-js"
-            packages_to_reinstall="$packages_to_reinstall @auth0/auth0-spa-js@$AUTH0_SPA_JS_VERSION"
-        fi
+        for i in "${!PACKAGE_NAMES[@]}"; do
+            local pkg="${PACKAGE_NAMES[$i]}"
+            local version="${PACKAGE_VERSIONS[$i]}"
 
-        if grep -q '"@auth0/nextjs-auth0":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/nextjs-auth0"
-            packages_to_reinstall="$packages_to_reinstall @auth0/nextjs-auth0@$AUTH0_NEXTJS_VERSION"
-        fi
+            if grep -q "\"$pkg\":" "$file"; then
+                packages_to_uninstall="$packages_to_uninstall $pkg"
+                packages_to_reinstall="$packages_to_reinstall $pkg@$version"
+            fi
+        done
 
-        if grep -q '"@auth0/ai":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/ai"
-            packages_to_reinstall="$packages_to_reinstall @auth0/ai@$AUTH0_AI_VERSION"
-        fi
-
-        if grep -q '"@auth0/ai-vercel":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/ai-vercel"
-            packages_to_reinstall="$packages_to_reinstall @auth0/ai-vercel@$AUTH0_AI_VERCEL_VERSION"
-        fi
-
-        if grep -q '"@auth0/ai-langchain":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/ai-langchain"
-            packages_to_reinstall="$packages_to_reinstall @auth0/ai-langchain@$AUTH0_AI_LANGCHAIN_VERSION"
-        fi
-
-        if grep -q '"@auth0/ai-llamaindex":' "$file"; then
-            packages_to_uninstall="$packages_to_uninstall @auth0/ai-llamaindex"
-            packages_to_reinstall="$packages_to_reinstall @auth0/ai-llamaindex@$AUTH0_AI_LLAMAINDEX_VERSION"
-        fi
-
-        # Uninstall all @auth0 packages at once
+        # Uninstall all specified packages at once
         if [ -n "$packages_to_uninstall" ]; then
             echo "    Uninstalling:$packages_to_uninstall"
-            (cd "$dir" && npm uninstall$packages_to_uninstall 2>/dev/null || true)
+            (cd "$dir" && npm uninstall$packages_to_uninstall $REGISTRY 2>/dev/null || true)
         fi
 
-        # Reinstall all @auth0 packages at once
+        # Reinstall all specified packages at once
         if [ -n "$packages_to_reinstall" ]; then
             echo "    Reinstalling:$packages_to_reinstall"
             (cd "$dir" && npm install$packages_to_reinstall $REGISTRY)
@@ -114,9 +111,19 @@ update_package_json() {
 
 # Find all package.json files and update them
 find . -name "package.json" -type f -not -path "*/node_modules/*" | while read -r file; do
-    if grep -q '@auth0/ai' "$file"; then
+    # Check if any of the specified packages exist in this package.json
+    should_update=false
+    for pkg in "${PACKAGE_NAMES[@]}"; do
+        if grep -q "\"$pkg\"" "$file"; then
+            should_update=true
+            break
+        fi
+    done
+
+    if [ "$should_update" = true ]; then
         update_package_json "$file"
     fi
 done
 
+echo ""
 echo "Package updates completed!"
