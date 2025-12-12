@@ -175,6 +175,15 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: npm install
 
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
       - name: Build
         working-directory: ${{ matrix.project }}
         run: |
@@ -233,6 +242,15 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: poetry install --no-interaction
 
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
       - name: Lint with ruff (if available)
         working-directory: ${{ matrix.project }}
         run: |
@@ -279,6 +297,15 @@ jobs:
       - name: Install dependencies
         working-directory: ${{ matrix.project }}
         run: uv sync
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
 
       - name: Lint with ruff (if available)
         working-directory: ${{ matrix.project }}
@@ -348,6 +375,15 @@ jobs:
             export PIP_CONFIG_FILE="$(pwd)/pip.conf"
           fi
           pip install -r requirements.txt
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
 
       - name: Install linters
         run: pip install ruff
