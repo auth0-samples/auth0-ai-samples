@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { LogIn, UserPlus } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import DocumentItemActions from "@/components/document-item-actions";
 import DocumentUploadForm from "@/components/document-upload-form";
