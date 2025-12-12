@@ -9,7 +9,7 @@ import { TokenVaultInterruptHandler } from "@/components/TokenVaultInterruptHand
 import { Button } from "@/components/ui/button";
 import { getConnectUrl } from "@/lib/use-auth";
 import { cn } from "@/lib/utils";
-import { Message, type } from "@langchain/langgraph-sdk";
+import type { Message } from "@langchain/langgraph-sdk";
 import { useStream } from "@langchain/langgraph-sdk/react";
 
 import type { FormEvent, ReactNode } from "react";
