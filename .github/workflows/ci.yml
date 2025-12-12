@@ -37,7 +37,27 @@ jobs:
         id: find-projects
         run: |
           # Find Node.js projects (have package.json but not in node_modules)
-          NODE_PROJECTS=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          # Exclude workspace member packages (those listed in a parent package.json workspaces field)
+          NODE_PROJECTS=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | while read dir; do
+            # Check if this directory is a workspace member of a parent
+            is_workspace_member=false
+            parent_dir=$(dirname "$dir")
+            while [ "$parent_dir" != "." ] && [ "$parent_dir" != "/" ]; do
+              if [ -f "$parent_dir/package.json" ]; then
+                # Check if parent has workspaces field that includes this dir
+                rel_path=$(echo "$dir" | sed "s|^$parent_dir/||")
+                if grep -q '"workspaces"' "$parent_dir/package.json" 2>/dev/null; then
+                  # This is a simplified check - if parent has workspaces, skip this dir
+                  is_workspace_member=true
+                  break
+                fi
+              fi
+              parent_dir=$(dirname "$parent_dir")
+            done
+            if [ "$is_workspace_member" = "false" ]; then
+              echo "$dir"
+            fi
+          done | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "node-projects=$NODE_PROJECTS" >> $GITHUB_OUTPUT
 
           # Find Poetry projects (have poetry.lock)
