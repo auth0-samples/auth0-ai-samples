@@ -19,7 +19,7 @@ function ChatMessages(props: {
 }) {
   return (
     <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
-      {props.messages.map((m, i) => {
+      {props.messages.map((m) => {
         return (
           <ChatMessageBubble key={m.id} message={m} aiEmoji={props.aiEmoji} />
         );
@@ -124,7 +124,7 @@ export function ChatWindow(props: {
   const [threadId, setThreadId] = useQueryState("threadId");
   const [input, setInput] = useState("");
 
-  const fetchWithCredentials = (url, options = {}) => {
+  const fetchWithCredentials = (url: string, options: RequestInit = {}) => {
     return fetch(url, {
       ...options,
       credentials: "include",
