@@ -178,8 +178,10 @@ jobs:
       - name: Build
         working-directory: ${{ matrix.project }}
         run: |
-          if npm run build --if-present 2>/dev/null; then
-            echo "Build completed successfully"
+          # Check if build script exists in package.json
+          if grep -q '"build"' package.json 2>/dev/null; then
+            echo "Running build..."
+            npm run build
           else
             echo "No build script found, skipping..."
           fi
@@ -187,8 +189,10 @@ jobs:
       - name: Lint
         working-directory: ${{ matrix.project }}
         run: |
-          if npm run lint --if-present 2>/dev/null; then
-            echo "Lint completed successfully"
+          # Check if lint script exists in package.json
+          if grep -q '"lint"' package.json 2>/dev/null; then
+            echo "Running lint..."
+            npm run lint
           else
             echo "No lint script found, skipping..."
           fi
@@ -232,10 +236,12 @@ jobs:
       - name: Lint with ruff (if available)
         working-directory: ${{ matrix.project }}
         run: |
-          if poetry run ruff check . 2>/dev/null; then
-            echo "Ruff lint completed"
-          elif poetry run flake8 . 2>/dev/null; then
-            echo "Flake8 lint completed"
+          if poetry run python -c "import ruff" 2>/dev/null; then
+            echo "Running ruff..."
+            poetry run ruff check .
+          elif poetry run python -c "import flake8" 2>/dev/null; then
+            echo "Running flake8..."
+            poetry run flake8 .
           else
             echo "No Python linter found, skipping..."
           fi
@@ -243,8 +249,9 @@ jobs:
       - name: Type check with mypy (if available)
         working-directory: ${{ matrix.project }}
         run: |
-          if poetry run mypy . 2>/dev/null; then
-            echo "Type check completed"
+          if poetry run python -c "import mypy" 2>/dev/null; then
+            echo "Running mypy..."
+            poetry run mypy .
           else
             echo "No type checker found, skipping..."
           fi
@@ -276,10 +283,12 @@ jobs:
       - name: Lint with ruff (if available)
         working-directory: ${{ matrix.project }}
         run: |
-          if uv run ruff check . 2>/dev/null; then
-            echo "Ruff lint completed"
-          elif uv run flake8 . 2>/dev/null; then
-            echo "Flake8 lint completed"
+          if uv run python -c "import ruff" 2>/dev/null; then
+            echo "Running ruff..."
+            uv run ruff check .
+          elif uv run python -c "import flake8" 2>/dev/null; then
+            echo "Running flake8..."
+            uv run flake8 .
           else
             echo "No Python linter found, skipping..."
           fi
@@ -287,8 +296,9 @@ jobs:
       - name: Type check with mypy (if available)
         working-directory: ${{ matrix.project }}
         run: |
-          if uv run mypy . 2>/dev/null; then
-            echo "Type check completed"
+          if uv run python -c "import mypy" 2>/dev/null; then
+            echo "Running mypy..."
+            uv run mypy .
           else
             echo "No type checker found, skipping..."
           fi
@@ -340,11 +350,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Install linters
-        run: pip install ruff flake8
+        run: pip install ruff
 
       - name: Lint with ruff
         working-directory: ${{ matrix.project }}
-        run: ruff check . || echo "Ruff lint skipped or failed"
+        run: |
+          echo "Running ruff..."
+          ruff check .
 
   # Summary job to ensure all checks passed
   ci-success:
