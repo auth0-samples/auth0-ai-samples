@@ -28,7 +28,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_index(request: Request, response: Response):
     try:
         await auth0_client.require_session(request, response)
-    except Exception as e:
+    except Exception:
         return RedirectResponse(url="/auth/login")
     
     return FileResponse("static/index.html")
