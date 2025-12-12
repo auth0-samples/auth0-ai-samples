@@ -1,22 +1,24 @@
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   deleteDocument,
+  Document,
   getDocumentContent,
   shareDocument,
-  type Document,
+  type,
 } from "@/lib/documents";
 
 interface DocumentItemActionsProps {

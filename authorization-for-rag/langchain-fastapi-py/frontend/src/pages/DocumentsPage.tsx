@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import { LogIn, UserPlus } from "lucide-react";
-import type { ReactNode } from "react";
 
 import DocumentItemActions from "@/components/document-item-actions";
 import DocumentUploadForm from "@/components/document-upload-form";
@@ -8,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getDocumentsForUser } from "@/lib/documents";
 import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+import type { ReactNode } from "react";
 
 export default function DocumentsPage() {
   const queryClient = useQueryClient();
