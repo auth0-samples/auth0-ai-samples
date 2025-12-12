@@ -7,16 +7,31 @@ on:
     branches: [main]
 
 jobs:
-  # Discover all projects in the repository
+  # Discover all projects in the repository and filter by changed files
   discover:
     runs-on: ubuntu-latest
     outputs:
-      node-projects: ${{ steps.find-projects.outputs.node-projects }}
-      poetry-projects: ${{ steps.find-projects.outputs.poetry-projects }}
-      uv-projects: ${{ steps.find-projects.outputs.uv-projects }}
-      pip-projects: ${{ steps.find-projects.outputs.pip-projects }}
+      node-projects: ${{ steps.filter-projects.outputs.node-projects }}
+      poetry-projects: ${{ steps.filter-projects.outputs.poetry-projects }}
+      uv-projects: ${{ steps.filter-projects.outputs.uv-projects }}
+      pip-projects: ${{ steps.filter-projects.outputs.pip-projects }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, compare against the base branch
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
+          else
+            # For pushes, compare against the previous commit
+            CHANGED_FILES=$(git diff --name-only HEAD~1...HEAD 2>/dev/null | tr '\n' ' ' || echo "")
+          fi
+          echo "Changed files: $CHANGED_FILES"
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
 
       - name: Find all projects
         id: find-projects
@@ -41,11 +56,90 @@ jobs:
           done | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "pip-projects=$PIP_PROJECTS" >> $GITHUB_OUTPUT
 
+      - name: Filter projects by changed files
+        id: filter-projects
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.files }}"
+          
+          echo "DEBUG: Changed files = '$CHANGED_FILES'"
+          
+          # Store the project lists in variables for proper quoting
+          NODE_ALL='${{ steps.find-projects.outputs.node-projects }}'
+          POETRY_ALL='${{ steps.find-projects.outputs.poetry-projects }}'
+          UV_ALL='${{ steps.find-projects.outputs.uv-projects }}'
+          PIP_ALL='${{ steps.find-projects.outputs.pip-projects }}'
+          
+          echo "DEBUG: NODE_ALL = $NODE_ALL"
+          echo "DEBUG: POETRY_ALL = $POETRY_ALL"
+          echo "DEBUG: UV_ALL = $UV_ALL"
+          echo "DEBUG: PIP_ALL = $PIP_ALL"
+          
+          # If no changed files detected (e.g., first commit), run all projects
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected, running all projects"
+            echo "node-projects=$NODE_ALL" >> $GITHUB_OUTPUT
+            echo "poetry-projects=$POETRY_ALL" >> $GITHUB_OUTPUT
+            echo "uv-projects=$UV_ALL" >> $GITHUB_OUTPUT
+            echo "pip-projects=$PIP_ALL" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if CI workflow itself changed - if so, run all projects
+          if echo "$CHANGED_FILES" | grep -qE "(^|[[:space:]])\.github/workflows/ci\.yml([[:space:]]|$)"; then
+            echo "CI workflow changed, running all projects"
+            echo "node-projects=$NODE_ALL" >> $GITHUB_OUTPUT
+            echo "poetry-projects=$POETRY_ALL" >> $GITHUB_OUTPUT
+            echo "uv-projects=$UV_ALL" >> $GITHUB_OUTPUT
+            echo "pip-projects=$PIP_ALL" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Filter projects based on changed files
+          filter_projects() {
+            local projects_json="$1"
+            local matched_projects=""
+            
+            # Parse JSON array and check each project
+            while IFS= read -r project; do
+              [ -z "$project" ] && continue
+              
+              # Remove leading ./ for comparison
+              project_path="${project#./}"
+              
+              # Check if any changed file starts with this project path
+              for changed_file in $CHANGED_FILES; do
+                changed_file_clean="${changed_file#./}"
+                if [[ "$changed_file_clean" == "$project_path"* ]]; then
+                  if [ -z "$matched_projects" ]; then
+                    matched_projects="\"$project\""
+                  else
+                    matched_projects="$matched_projects,\"$project\""
+                  fi
+                  break
+                fi
+              done
+            done < <(echo "$projects_json" | jq -r '.[]')
+            
+            # Return as JSON array
+            echo "[$matched_projects]"
+          }
+          
+          # Filter each project type
+          NODE_FILTERED=$(filter_projects "$NODE_ALL")
+          POETRY_FILTERED=$(filter_projects "$POETRY_ALL")
+          UV_FILTERED=$(filter_projects "$UV_ALL")
+          PIP_FILTERED=$(filter_projects "$PIP_ALL")
+          
+          echo "node-projects=$NODE_FILTERED" >> $GITHUB_OUTPUT
+          echo "poetry-projects=$POETRY_FILTERED" >> $GITHUB_OUTPUT
+          echo "uv-projects=$UV_FILTERED" >> $GITHUB_OUTPUT
+          echo "pip-projects=$PIP_FILTERED" >> $GITHUB_OUTPUT
+          
           # Debug output
-          echo "Node.js projects: $NODE_PROJECTS"
-          echo "Poetry projects: $POETRY_PROJECTS"
-          echo "uv projects: $UV_PROJECTS"
-          echo "pip projects: $PIP_PROJECTS"
+          echo "Filtered Node.js projects: $NODE_FILTERED"
+          echo "Filtered Poetry projects: $POETRY_FILTERED"
+          echo "Filtered uv projects: $UV_FILTERED"
+          echo "Filtered pip projects: $PIP_FILTERED"
 
   # Build and lint Node.js projects
   node:
@@ -145,7 +239,6 @@ jobs:
           else
             echo "No Python linter found, skipping..."
           fi
-        continue-on-error: true
 
       - name: Type check with mypy (if available)
         working-directory: ${{ matrix.project }}
@@ -155,7 +248,6 @@ jobs:
           else
             echo "No type checker found, skipping..."
           fi
-        continue-on-error: true
 
   # Build and lint uv projects
   uv:
@@ -191,7 +283,6 @@ jobs:
           else
             echo "No Python linter found, skipping..."
           fi
-        continue-on-error: true
 
       - name: Type check with mypy (if available)
         working-directory: ${{ matrix.project }}
@@ -201,7 +292,6 @@ jobs:
           else
             echo "No type checker found, skipping..."
           fi
-        continue-on-error: true
 
   # Build and lint pip projects
   pip:
@@ -251,12 +341,10 @@ jobs:
 
       - name: Install linters
         run: pip install ruff flake8
-        continue-on-error: true
 
       - name: Lint with ruff
         working-directory: ${{ matrix.project }}
         run: ruff check . || echo "Ruff lint skipped or failed"
-        continue-on-error: true
 
   # Summary job to ensure all checks passed
   ci-success:
@@ -266,10 +354,22 @@ jobs:
     steps:
       - name: Check all jobs passed
         run: |
-          if [ "${{ needs.node.result }}" == "failure" ] || \
-             [ "${{ needs.poetry.result }}" == "failure" ] || \
-             [ "${{ needs.uv.result }}" == "failure" ] || \
-             [ "${{ needs.pip.result }}" == "failure" ]; then
+          # Check each job result - 'skipped' is OK (no projects to build)
+          # 'success' is OK, 'failure' is not OK
+          NODE_RESULT="${{ needs.node.result }}"
+          POETRY_RESULT="${{ needs.poetry.result }}"
+          UV_RESULT="${{ needs.uv.result }}"
+          PIP_RESULT="${{ needs.pip.result }}"
+          
+          echo "Node job result: $NODE_RESULT"
+          echo "Poetry job result: $POETRY_RESULT"
+          echo "uv job result: $UV_RESULT"
+          echo "pip job result: $PIP_RESULT"
+          
+          if [ "$NODE_RESULT" == "failure" ] || \
+             [ "$POETRY_RESULT" == "failure" ] || \
+             [ "$UV_RESULT" == "failure" ] || \
+             [ "$PIP_RESULT" == "failure" ]; then
             echo "One or more jobs failed"
             exit 1
           fi
