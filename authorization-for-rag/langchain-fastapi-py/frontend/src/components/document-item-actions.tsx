@@ -15,11 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   deleteDocument,
-  Document,
   getDocumentContent,
   shareDocument,
-  type,
 } from "@/lib/documents";
+import type { Document } from "@/lib/documents";
 
 interface DocumentItemActionsProps {
   doc: Omit<Document, "content">;

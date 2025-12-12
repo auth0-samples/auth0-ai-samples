@@ -7,7 +7,7 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { ChatMessageBubble } from "@/components/chat-message-bubble";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Message, type } from "@langchain/langgraph-sdk";
+import type { Message } from "@langchain/langgraph-sdk";
 import { useStream } from "@langchain/langgraph-sdk/react";
 
 import type { FormEvent, ReactNode } from "react";

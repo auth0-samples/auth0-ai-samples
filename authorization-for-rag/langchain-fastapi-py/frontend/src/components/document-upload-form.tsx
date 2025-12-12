@@ -1,5 +1,6 @@
 import axios from "axios";
-import { FormEvent, type, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
