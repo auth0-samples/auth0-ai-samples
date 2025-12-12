@@ -31,6 +31,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
     "@jest/globals": "^30.2.0",
+    "@tsconfig/recommended": "^1.0.10",
     "@types/node": "^24",
     "@types/uuid": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^8.45.0",

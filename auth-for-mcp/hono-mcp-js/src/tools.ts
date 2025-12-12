@@ -55,6 +55,7 @@ export const registerTools = (
     {
       title: "Whoami Tool",
       description: "Returns the authenticated user's information",
+      inputSchema: emptyToolInputSchema,
       annotations: { readOnlyHint: false },
     },
     (args, extra) =>

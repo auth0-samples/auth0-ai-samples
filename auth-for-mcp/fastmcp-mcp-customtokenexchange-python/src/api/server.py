@@ -60,7 +60,7 @@ class Auth0APIMiddleware(BaseHTTPMiddleware):
         except VerifyAccessTokenError as e:
             logger.info(f"Token verification failed: {e}")
             return self._error_response("invalid_token", str(e))
-        except Exception as e:
+        except Exception:
             logger.exception("Unexpected error in middleware")
             return self._error_response("server_error", "Internal server error", 500)
 

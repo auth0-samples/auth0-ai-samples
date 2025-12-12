@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from "react";
+import axios from "axios";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api-client";
-import axios from "axios";
 
 interface DocumentUploadFormProps {
   onUploadSuccess?: () => void; // Callback to refresh document list, etc.
@@ -23,7 +24,7 @@ export default function DocumentUploadForm({
       const allowedTypes = ["text/plain", "application/pdf", "text/markdown"];
       if (!allowedTypes.includes(selectedFile.type)) {
         toast.error(
-          "Invalid File Type: Please upload a TXT, PDF, or Markdown file.",
+          "Invalid File Type: Please upload a TXT, PDF, or Markdown file."
         );
         setFile(null);
         event.target.value = ""; // Reset file input
@@ -51,20 +52,23 @@ export default function DocumentUploadForm({
       toast.success(`${file.name} has been uploaded.`);
       setFile(null); // Reset file input
       const fileInput = document.getElementById(
-        "file-upload",
+        "file-upload"
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-      onUploadSuccess && onUploadSuccess(); // Trigger refresh or other actions
+      onUploadSuccess?.(); // Trigger refresh or other actions
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Upload error:", error?.response?.data || error);
         toast.error(
-          `Upload error: ${error?.response?.data?.detail || "An unexpected error occurred. Please try again."}`,
+          `Upload error: ${
+            error?.response?.data?.detail ||
+            "An unexpected error occurred. Please try again."
+          }`
         );
       } else {
         console.error("Upload error:", error);
         toast.error(
-          "Upload Error: An unexpected error occurred. Please try again.",
+          "Upload Error: An unexpected error occurred. Please try again."
         );
       }
     }

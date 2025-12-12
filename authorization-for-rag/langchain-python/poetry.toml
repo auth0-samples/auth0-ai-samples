@@ -1,0 +1,4 @@
+[repositories]
+[repositories.pypi]
+url = "https://pypi.org/simple/"
+default = true
