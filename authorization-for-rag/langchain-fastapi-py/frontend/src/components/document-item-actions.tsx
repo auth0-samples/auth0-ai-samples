@@ -78,7 +78,7 @@ export default function DocumentItemActions({
     try {
       await shareDocument(doc.id, emailToShare.split(","));
       toast.success(`${doc.fileName} shared with ${emailToShare}.`);
-      onActionComplete && onActionComplete(); // Trigger revalidation
+      onActionComplete?.(); // Trigger revalidation
       setEmailToShare(""); // Reset email input
     } catch (error) {
       console.error("Error sharing document:", error);
@@ -93,7 +93,7 @@ export default function DocumentItemActions({
     try {
       await deleteDocument(doc.id);
       toast.success(`${doc.fileName} deleted successfully.`);
-      onActionComplete && onActionComplete(); // Trigger revalidation
+      onActionComplete?.(); // Trigger revalidation
     } catch (error) {
       console.error("Error deleting document:", error);
       toast.error("Failed to delete document.");

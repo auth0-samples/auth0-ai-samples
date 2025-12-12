@@ -54,7 +54,7 @@ export default function DocumentUploadForm({
         "file-upload",
       ) as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-      onUploadSuccess && onUploadSuccess(); // Trigger refresh or other actions
+      onUploadSuccess?.(); // Trigger refresh or other actions
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Upload error:", error?.response?.data || error);

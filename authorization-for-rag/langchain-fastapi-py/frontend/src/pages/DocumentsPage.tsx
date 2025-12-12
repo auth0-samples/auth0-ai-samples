@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { LogIn, UserPlus } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import DocumentItemActions from "@/components/document-item-actions";
 import DocumentUploadForm from "@/components/document-upload-form";
@@ -58,7 +58,7 @@ export default function DocumentsPage() {
     if (!sharedWith || sharedWith.length === 0) {
       return <span className="text-sm text-muted-foreground">Not shared</span>;
     }
-    if (sharedWith.includes(user?.email!)) {
+    if (user?.email && sharedWith.includes(user.email)) {
       return <span className="text-sm text-green-500">Shared with you</span>;
     }
     return (
