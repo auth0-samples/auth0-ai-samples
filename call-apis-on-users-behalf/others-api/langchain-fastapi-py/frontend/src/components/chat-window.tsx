@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { toast } from "sonner";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { TokenVaultInterruptHandler } from "@/components/TokenVaultInterruptHandler.tsx";
 import { cn } from "@/lib/utils";
 import { getConnectUrl } from "@/lib/use-auth";
-import { useLocation } from "react-router-dom";
 
 function ChatMessages(props: {
   messages: Message[];
