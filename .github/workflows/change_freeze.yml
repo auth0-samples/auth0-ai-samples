@@ -1,0 +1,20 @@
+name: Change Freeze Check
+on:
+  schedule:
+    - cron: "2 0 * * *"
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+      - labeled
+jobs:
+  check:
+    if: ${{ github.event_name == 'pull_request_target' }}
+    uses: atko-cic/change-freeze-github-action/.github/workflows/change_freeze_check.yml@main
+    secrets: inherit
+  rerun:
+    if: ${{ github.event_name == 'schedule' }}
+    uses: atko-cic/change-freeze-github-action/.github/workflows/change_freeze_rerun.yml@main
+    secrets: inherit
