@@ -13,6 +13,7 @@ from collections.abc import Callable
 from mcp.server.auth.routes import create_protected_resource_routes
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware import Middleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route, Router
@@ -80,7 +81,14 @@ class Auth0Mcp:
             resource_name=self.name,
         )
 
-        return Router(routes=routes)
+        # Middleware to override cache headers
+        class NoCacheMiddleware(BaseHTTPMiddleware):
+            async def dispatch(self, request: Request, call_next: Callable) -> Response:
+                response = await call_next(request)
+                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                return response
+
+        return Router(routes=routes, middleware=[Middleware(NoCacheMiddleware)])
 
     def auth_middleware(self) -> list[Middleware]:
         return [Middleware(
