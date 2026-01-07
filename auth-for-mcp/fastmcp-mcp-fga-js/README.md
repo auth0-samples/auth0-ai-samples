@@ -75,52 +75,56 @@ export FGA_CLIENT_ID='<your-client-id>'
 export FGA_CLIENT_SECRET='<your-client-secret>'
 ```
 
-4. **Write the FGA model and tuple**: Update the authorization model and import the initial FGA tuples:
+4. **Import the authorization model and tuples**:
 
-```
-fga store import --file fga/store.fga.yaml 
+```bash
+fga store import --file fga/store.fga.yaml
 ```
 
 #### To use OpenFGA
 
-1. **Start OpenFGA**: Run it locally or with Docker.
+1. **Start OpenFGA**: Run it as a binary or using Docker.
 
 Using [Homebrew](https://brew.sh/) (or download the binaries from the [OpenFGA releases page](https://github.com/openfga/openfga/releases/)):
 
-```
+```bash
 brew install openfga
 ```
 
-Start OpenFGA with default settings:
-```
-./openfga run
-```
-
-or use Docker:
-
-```
-docker pull openfga/openfga && docker run -p 8080:8080 -p 8081:8081 -p 3000:3000 openfga/openfga run
+Start OpenFGA:
+```bash
+openfga run
 ```
 
-2. **Bootstrap a new store**: import model and tuples:
+Or use Docker:
 
+```bash
+docker run -p 8080:8080 -p 8081:8081 -p 3000:3000 openfga/openfga run
 ```
-fga store import --file fga/store.fga.yaml 
 
-{                                                                                                                                
+
+2. **Bootstrap a new store**: Import the authorization model and initial tuples:
+
+```bash
+fga store import --file fga/store.fga.yaml
+```
+
+This will create a new store and return output like:
+```json
+{
   "store": {
     "created_at":"0001-01-01T00:00:00Z",
     "id":"01KB0NZZFAV9AX7SAPWY23KJAF",
     "name":"",
-    "updated_at":"0001-01-01T00:00:00Z"
+    "updated_at":"0001-01-01T00:00:00Z"  
   },
   "model": {
-    "authorization_model_id":"01KED54TEMBDE753YBK7NT3DRZ"
+    "authorization_model_id": "01KED54TEMBDE753YBK7NT3DRZ"
   }
 }
 ```
 
-3. **Create CLI environment variables**: Configure the CLI to use the store ID returned by the previous command:
+3. **Configure environment variables**: Use the store ID from the output above:
 
 ```bash
 export FGA_STORE_ID='<your-store-id>'
@@ -180,30 +184,37 @@ After modifying permissions, test with different users to verify:
 4. **User with No Assignments**:
    - Should see: `get_datetime` only
 
-You can also manage tuples directly in the [Auth0 FGA Dashboard](https://dashboard.fga.dev) for.
+You can also manage tuples directly in the [Auth0 FGA Dashboard](https://dashboard.fga.dev) for real-time testing and debugging.
 
 ## Configuration
 
-Rename `.env.example` to `.env` and configure the domain and audience:
+Rename `.env.example` to `.env` and configure your environment:
 
-```
+### Common Configuration (Required)
+```bash
 # Auth0 tenant domain
 AUTH0_DOMAIN=example-tenant.us.auth0.com
 
 # Auth0 API Identifier
 AUTH0_AUDIENCE=http://localhost:3001/
+```
 
-# Auth0 FGA Configuration
+### Auth0 FGA Configuration
+If using Auth0 FGA, add these variables:
+```bash
 FGA_API_URL=https://api.us1.fga.dev
-FGA_STORE_ID=<store_id>
+FGA_STORE_ID=<your-store-id>
 FGA_API_TOKEN_ISSUER=auth.fga.dev
 FGA_API_AUDIENCE=https://api.us1.fga.dev/
-FGA_CLIENT_ID=<client_secret>
-FGA_CLIENT_SECRET=<client_secret>
+FGA_CLIENT_ID=<your-client-id>
+FGA_CLIENT_SECRET=<your-client-secret>
+```
 
-# OpenFGA Configuration
-FGA_API_URL=https://localhost:8080
-FGA_STORE_ID=<store_id>
+### OpenFGA Configuration
+If using OpenFGA locally, add these variables:
+```bash
+FGA_API_URL=http://localhost:8080
+FGA_STORE_ID=<your-store-id>
 ```
 
 With the configuration in place, the example can be started by running:
