@@ -21,8 +21,8 @@ with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript f
  - Node.js 18+ 
  - npm (or a compatible package manager)
  - An Auth0 tenant (for OAuth and token verification)
- - An Auth0 FGA account (OpenFGA / fga.dev) for authorization model and tuples
- - `fga` CLI (optional, for bootstrapping the model and tuples)
+ - Either an Auth0 FGA account ([fga.dev](https://fga.dev)) OR a local OpenFGA instance for authorization
+ - `fga` CLI (for managing the authorization model and tuples)
 
 ## Available Tools
 
@@ -30,7 +30,7 @@ The server exposes the following tools:
 
 - `whoami` - Returns authenticated user information and granted scopes
 - `greet` - Personalized greeting demonstrating authenticated tool access
-- `get_datetime`  Returns the current UTC date and time (no scope required)
+- `get_datetime` - Returns the current UTC date and time (no scope required)
 - `get_documents` - Returns a list of documents from a mock API. Depending on the user role, it will return private documents or not.
 
 ## Install dependencies
@@ -83,9 +83,9 @@ fga store import --file fga/store.fga.yaml
 
 #### To use OpenFGA
 
-1. **Start OpenFGA**: run it locally or through docker:
+1. **Start OpenFGA**: Run it locally or with Docker.
 
-Use [Homebrew](https://brew.sh/ or download the binaries from the [OpenFGA releases page](https://github.com/openfga/openfga/releases/):
+Using [Homebrew](https://brew.sh/) (or download the binaries from the [OpenFGA releases page](https://github.com/openfga/openfga/releases/)):
 
 ```
 brew install openfga
@@ -194,15 +194,15 @@ AUTH0_DOMAIN=example-tenant.us.auth0.com
 AUTH0_AUDIENCE=http://localhost:3001/
 
 # Auth0 FGA Configuration
-FGA_API_URL='https://api.us1.fga.dev'
+FGA_API_URL=https://api.us1.fga.dev
 FGA_STORE_ID=<store_id>
-FGA_API_TOKEN_ISSUER='auth.fga.dev'
-FGA_API_AUDIENCE='https://api.us1.fga.dev/'
-FGA_CLIENT_ID='<client_secret>'
-FGA_CLIENT_SECRET='<client_secret>'
+FGA_API_TOKEN_ISSUER=auth.fga.dev
+FGA_API_AUDIENCE=https://api.us1.fga.dev/
+FGA_CLIENT_ID=<client_secret>
+FGA_CLIENT_SECRET=<client_secret>
 
 # OpenFGA Configuration
-FGA_API_URL='https://localhost:8080
+FGA_API_URL=https://localhost:8080
 FGA_STORE_ID=<store_id>
 ```
 
