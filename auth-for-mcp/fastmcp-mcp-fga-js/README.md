@@ -5,7 +5,7 @@ with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript f
 
  This repository shows a minimal but realistic integration with:
  - OAuth 2.0 / OIDC via Auth0 for authentication and token verification
- - Auth0 FGA (OpenFGA) for fine-grained Resource Authorization
+ - Auth0 FGA or OpenFGA for fine-grained Resource Authorization
  - FastMCP for exposing tools as MCP endpoints
 
  This example uses an authorization model defined in [`fga/model.fga`](./fga/model.fga) that supports:
@@ -21,8 +21,8 @@ with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript f
  - Node.js 18+ 
  - npm (or a compatible package manager)
  - An Auth0 tenant (for OAuth and token verification)
- - An Auth0 FGA account (OpenFGA / fga.dev) for authorization model and tuples
- - `fga` CLI (optional, for bootstrapping the model and tuples)
+ - Either an Auth0 FGA account ([fga.dev](https://fga.dev)) OR a local OpenFGA instance for authorization
+ - `fga` CLI (for managing the authorization model and tuples)
 
 ## Available Tools
 
@@ -30,7 +30,7 @@ The server exposes the following tools:
 
 - `whoami` - Returns authenticated user information and granted scopes
 - `greet` - Personalized greeting demonstrating authenticated tool access
-- `get_datetime`  Returns the current UTC date and time (no scope required)
+- `get_datetime` - Returns the current UTC date and time (no scope required)
 - `get_documents` - Returns a list of documents from a mock API. Depending on the user role, it will return private documents or not.
 
 ## Install dependencies
@@ -45,15 +45,13 @@ npm install
 
 For detailed instructions on setting up your Auth0 tenant for MCP server integration, please refer to the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup) in the FastMCP example.
 
-## Auth0 FGA Setup 
+## FGA Setup 
 
 Auth0 FGA provides fine-grained authorization using [Relationship-Based Access Control (ReBAC)](https://docs.fga.dev/concepts#what-is-relationship-based-access-control-rebac). It's built on [OpenFGA](https://openfga.dev), a CNCF incubation project, and offers more flexible authorization patterns than traditional RBAC.
 
 ### Prerequisites
 
-1. **Create an Auth0 FGA Account**: Sign up for free at [fga.dev](https://fga.dev)
-2. **Generate API Credentials**: Follow [this guide](https://docs.fga.dev/intro/settings) to create credentials with full permissions
-3. **Install the FGA CLI**:
+1. **Install the FGA CLI**:
    ```bash
    # macOS
    brew install openfga/tap/fga
@@ -62,41 +60,75 @@ Auth0 FGA provides fine-grained authorization using [Relationship-Based Access C
    # https://github.com/openfga/cli/releases
    ```
 
-### CLI Configuration
+#### To use Auth0 FGA
 
-After creating your FGA credentials, export the following (provided during credential creation):
+1. **Create an Auth0 FGA Account**: Sign up for free at [fga.dev](https://fga.dev)
+2. **Generate API Credentials**: Follow [this guide](https://docs.fga.dev/intro/settings) to create credentials with full permissions
+3. **Create CLI environment variables**: Configure the CLI to use the proper configuration values:
 
-   ```bash
-   export FGA_API_URL='https://api.us1.fga.dev'
-   export FGA_STORE_ID='<your-store-id>'
-   export FGA_API_TOKEN_ISSUER='auth.fga.dev'
-   export FGA_API_AUDIENCE='https://api.us1.fga.dev/'
-   export FGA_CLIENT_ID='<your-client-id>'
-   export FGA_CLIENT_SECRET='<your-client-secret>'
-   ```
+```bash
+export FGA_API_URL='https://api.us1.fga.dev'
+export FGA_STORE_ID='<your-store-id>'
+export FGA_API_TOKEN_ISSUER='auth.fga.dev'
+export FGA_API_AUDIENCE='https://api.us1.fga.dev/'
+export FGA_CLIENT_ID='<your-client-id>'
+export FGA_CLIENT_SECRET='<your-client-secret>'
+```
 
-### Authorization Model
+4. **Import the authorization model and tuples**:
+
+```bash
+fga store import --file fga/store.fga.yaml
+```
+
+#### To use OpenFGA
+
+1. **Start OpenFGA**: Run it as a binary or using Docker.
+
+Using [Homebrew](https://brew.sh/) (or download the binaries from the [OpenFGA releases page](https://github.com/openfga/openfga/releases/)):
+
+```bash
+brew install openfga
+```
+
+Start OpenFGA:
+```bash
+openfga run
+```
+
+Or use Docker:
+
+```bash
+docker run -p 8080:8080 -p 8081:8081 -p 3000:3000 openfga/openfga run
+```
 
 
-### Initial Setup
+2. **Bootstrap a new store**: Import the authorization model and initial tuples:
 
-1. **Deploy the Authorization Model**:
-   ```bash
-   fga model write --file ./fga/model.fga
-   ```
+```bash
+fga store import --file fga/store.fga.yaml
+```
 
-2. **Import Initial Data**: The [`fga/tuples.yaml`](./fga/tuples.yaml) file defines:
-   - Two roles: `admin` and `content_manager`
-   - Two groups: `marketing` (content_manager role) and `managers` (admin role)
-   - Tool permissions:
-     - Everyone: `get_datetime`
-     - Admin & Content Manager: `greet`, `whoami`, `get_documents`
-     - Admin only: Can view private documents
+This will create a new store and return output like:
+```json
+{
+  "store": {
+    "created_at":"0001-01-01T00:00:00Z",
+    "id":"01KB0NZZFAV9AX7SAPWY23KJAF",
+    "name":"",
+    "updated_at":"0001-01-01T00:00:00Z"  
+  },
+  "model": {
+    "authorization_model_id": "01KED54TEMBDE753YBK7NT3DRZ"
+  }
+}
+```
 
-   Import the tuples:
-   ```bash
-   fga tuple write --file ./fga/tuples.yaml
-   ```
+3. **Configure environment variables**: Use the store ID from the output above:
+
+```bash
+export FGA_STORE_ID='<your-store-id>'
+```
 
 ### Managing User Access
 
@@ -152,26 +184,37 @@ After modifying permissions, test with different users to verify:
 4. **User with No Assignments**:
    - Should see: `get_datetime` only
 
-You can also manage tuples directly in the [Auth0 FGA Dashboard](https://dashboard.fga.dev) for.
+You can also manage tuples directly in the [Auth0 FGA Dashboard](https://dashboard.fga.dev) for real-time testing and debugging.
 
 ## Configuration
 
-Rename `.env.example` to `.env` and configure the domain and audience:
+Rename `.env.example` to `.env` and configure your environment:
 
-```
+### Common Configuration (Required)
+```bash
 # Auth0 tenant domain
 AUTH0_DOMAIN=example-tenant.us.auth0.com
 
 # Auth0 API Identifier
 AUTH0_AUDIENCE=http://localhost:3001/
+```
 
-# FGA Configuration
-FGA_API_URL='https://api.us1.fga.dev'
-FGA_STORE_ID=<store_id>
-FGA_API_TOKEN_ISSUER='auth.fga.dev'
-FGA_API_AUDIENCE='https://api.us1.fga.dev/'
-FGA_CLIENT_ID='<client_secret>'
-FGA_CLIENT_SECRET='<client_secret>'
+### Auth0 FGA Configuration
+If using Auth0 FGA, add these variables:
+```bash
+FGA_API_URL=https://api.us1.fga.dev
+FGA_STORE_ID=<your-store-id>
+FGA_API_TOKEN_ISSUER=auth.fga.dev
+FGA_API_AUDIENCE=https://api.us1.fga.dev/
+FGA_CLIENT_ID=<your-client-id>
+FGA_CLIENT_SECRET=<your-client-secret>
+```
+
+### OpenFGA Configuration
+If using OpenFGA locally, add these variables:
+```bash
+FGA_API_URL=http://localhost:8080
+FGA_STORE_ID=<your-store-id>
 ```
 
 With the configuration in place, the example can be started by running:
@@ -214,3 +257,4 @@ curl -X POST http://localhost:3001/mcp \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
 ```
+

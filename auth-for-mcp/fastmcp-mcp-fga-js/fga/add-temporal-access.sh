@@ -7,14 +7,17 @@
 # Prerequisites:
 #   - Auth0 CLI installed and authenticated (auth0 login)
 #   - FGA CLI installed (fga)
-#   - FGA_STORE_ID environment variable set
-# 
+#   - For Auth0 FGA:
+#       FGA_API_URL, FGA_STORE_ID, FGA_API_TOKEN_ISSUER, FGA_API_AUDIENCE, FGA_CLIENT_ID and FGA_CLIENT_SECRET environment variables set
+#   - For OpenFGA:
+#       - FGA_STORE_ID environment variable set
+
 # Usage:
-#   ./add-temporal-access.sh <email> <tool-name> <duration-seconds>
+#   ./fga/add-temporal-access.sh <email> <tool-name> <duration-seconds>
 #   
 # Example:
-#   ./add-temporal-access.sh peter@gmail.com greet 3600s
-#   ./add-temporal-access.sh alice@company.com whoami 7200s
+#   ./fga/add-temporal-access.sh peter@gmail.com greet 3600s
+#   ./fga/add-temporal-access.sh alice@company.com whoami 7200s
 
 set -e
 

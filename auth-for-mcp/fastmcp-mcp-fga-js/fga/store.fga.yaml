@@ -1,0 +1,8 @@
+model_file: model.fga
+tuple_file: tuples.yaml
+tests:
+    - check:
+        - user: user:anne
+          object: tool:get_datetime
+          assertions:
+            can_use: true

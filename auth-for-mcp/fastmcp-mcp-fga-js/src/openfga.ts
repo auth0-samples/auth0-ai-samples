@@ -34,26 +34,40 @@ const FGA_API_TOKEN_ISSUER = process.env.FGA_API_TOKEN_ISSUER;
 const FGA_API_AUDIENCE = process.env.FGA_API_AUDIENCE;
 const FGA_CLIENT_ID = process.env.FGA_CLIENT_ID;
 const FGA_CLIENT_SECRET = process.env.FGA_CLIENT_SECRET;
+const FGA_API_TOKEN = process.env.FGA_API_TOKEN;
 
-if (!FGA_API_URL || !FGA_STORE_ID || !FGA_API_TOKEN_ISSUER || !FGA_API_AUDIENCE || !FGA_CLIENT_ID || !FGA_CLIENT_SECRET) {
+if (!FGA_API_URL || !FGA_STORE_ID ) {
   throw new Error(
-    "FGA configuration missing: FGA_API_URL, FGA_STORE_ID, FGA_API_TOKEN_ISSUER, FGA_API_AUDIENCE, FGA_CLIENT_ID, and FGA_CLIENT_SECRET are required"
+    "FGA configuration missing: FGA_API_URL, FGA_STORE_ID are required"
   );
 }
 
-// Initialize OpenFGA client with Auth0 FGA credentials
+// Initialize OpenFGA client. If FGA_API_TOKEN is provided, use it; if client_id is specified, use it, if not, do not use authentication
 let fgaClient = new OpenFgaClient({
   apiUrl: FGA_API_URL,
   storeId: FGA_STORE_ID,
-  credentials: {
-    method: CredentialsMethod.ClientCredentials,
-    config: {
-      apiTokenIssuer: FGA_API_TOKEN_ISSUER,
-      apiAudience: FGA_API_AUDIENCE,
-      clientId: FGA_CLIENT_ID,
-      clientSecret: FGA_CLIENT_SECRET,
-    },
-  },
+  ...(FGA_API_TOKEN
+    ? {
+        credentials: {
+          method: CredentialsMethod.ApiToken,
+          config: {
+            token: FGA_API_TOKEN,
+          },
+        },
+      }
+    : FGA_CLIENT_ID
+    ? {
+        credentials: {
+          method: CredentialsMethod.ClientCredentials,
+          config: {
+            apiTokenIssuer: FGA_API_TOKEN_ISSUER ?? '',
+            apiAudience: FGA_API_AUDIENCE ?? '',
+            clientId: FGA_CLIENT_ID,
+            clientSecret: FGA_CLIENT_SECRET ?? '',
+          },
+        },
+      }
+    : {}),
 });
 
 /**

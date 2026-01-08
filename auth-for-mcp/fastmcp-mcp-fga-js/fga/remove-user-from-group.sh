@@ -7,13 +7,15 @@
 # Prerequisites:
 #   - Auth0 CLI installed and authenticated (auth0 login)
 #   - FGA CLI installed (fga)
-#   - FGA_STORE_ID environment variable set
-# 
+#   - For Auth0 FGA:
+#       FGA_API_URL, FGA_STORE_ID, FGA_API_TOKEN_ISSUER, FGA_API_AUDIENCE, FGA_CLIENT_ID and FGA_CLIENT_SECRET environment variables set
+#   - For OpenFGA:
+#       - FGA_STORE_ID environment variable set# 
 # Usage:
-#   ./scripts/remove-user-from-group.sh <email> <group-name>
+#   ./fga/remove-user-from-group.sh <email> <group-name>
 #   
 # Example:
-#   ./scripts/remove-user-from-group.sh peter@gmail.com marketing
+#   ./fga/remove-user-from-group.sh peter@gmail.com marketing
 
 set -e
 
