@@ -1,0 +1,444 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Discover all projects in the repository and filter by changed files
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      node-projects: ${{ steps.filter-projects.outputs.node-projects }}
+      poetry-projects: ${{ steps.filter-projects.outputs.poetry-projects }}
+      uv-projects: ${{ steps.filter-projects.outputs.uv-projects }}
+      pip-projects: ${{ steps.filter-projects.outputs.pip-projects }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, compare against the base branch
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
+          else
+            # For pushes, compare against the previous commit
+            CHANGED_FILES=$(git diff --name-only HEAD~1...HEAD 2>/dev/null | tr '\n' ' ' || echo "")
+          fi
+          echo "Changed files: $CHANGED_FILES"
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Find all projects
+        id: find-projects
+        run: |
+          # Find Node.js projects (have package.json but not in node_modules)
+          # Exclude workspace member packages (those listed in a parent package.json workspaces field)
+          NODE_PROJECTS=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | while read dir; do
+            # Check if this directory is a workspace member of a parent
+            is_workspace_member=false
+            parent_dir=$(dirname "$dir")
+            while [ "$parent_dir" != "." ] && [ "$parent_dir" != "/" ]; do
+              if [ -f "$parent_dir/package.json" ]; then
+                # Check if parent has workspaces field that includes this dir
+                rel_path=$(echo "$dir" | sed "s|^$parent_dir/||")
+                if grep -q '"workspaces"' "$parent_dir/package.json" 2>/dev/null; then
+                  # This is a simplified check - if parent has workspaces, skip this dir
+                  is_workspace_member=true
+                  break
+                fi
+              fi
+              parent_dir=$(dirname "$parent_dir")
+            done
+            if [ "$is_workspace_member" = "false" ]; then
+              echo "$dir"
+            fi
+          done | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "node-projects=$NODE_PROJECTS" >> $GITHUB_OUTPUT
+
+          # Find Poetry projects (have poetry.lock)
+          POETRY_PROJECTS=$(find . -name "poetry.lock" -exec dirname {} \; | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "poetry-projects=$POETRY_PROJECTS" >> $GITHUB_OUTPUT
+
+          # Find uv projects (have uv.lock)
+          UV_PROJECTS=$(find . -name "uv.lock" -exec dirname {} \; | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "uv-projects=$UV_PROJECTS" >> $GITHUB_OUTPUT
+
+          # Find pip projects (have requirements.txt but no poetry.lock or uv.lock)
+          PIP_PROJECTS=$(find . -name "requirements.txt" -exec dirname {} \; | while read dir; do
+            if [ ! -f "$dir/poetry.lock" ] && [ ! -f "$dir/uv.lock" ]; then
+              echo "$dir"
+            fi
+          done | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "pip-projects=$PIP_PROJECTS" >> $GITHUB_OUTPUT
+
+      - name: Filter projects by changed files
+        id: filter-projects
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.files }}"
+          
+          echo "DEBUG: Changed files = '$CHANGED_FILES'"
+          
+          # Store the project lists in variables for proper quoting
+          NODE_ALL='${{ steps.find-projects.outputs.node-projects }}'
+          POETRY_ALL='${{ steps.find-projects.outputs.poetry-projects }}'
+          UV_ALL='${{ steps.find-projects.outputs.uv-projects }}'
+          PIP_ALL='${{ steps.find-projects.outputs.pip-projects }}'
+          
+          echo "DEBUG: NODE_ALL = $NODE_ALL"
+          echo "DEBUG: POETRY_ALL = $POETRY_ALL"
+          echo "DEBUG: UV_ALL = $UV_ALL"
+          echo "DEBUG: PIP_ALL = $PIP_ALL"
+          
+          # If no changed files detected (e.g., first commit), run all projects
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected, running all projects"
+            echo "node-projects=$NODE_ALL" >> $GITHUB_OUTPUT
+            echo "poetry-projects=$POETRY_ALL" >> $GITHUB_OUTPUT
+            echo "uv-projects=$UV_ALL" >> $GITHUB_OUTPUT
+            echo "pip-projects=$PIP_ALL" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if CI workflow itself changed - if so, run all projects
+          if echo "$CHANGED_FILES" | grep -qE "(^|[[:space:]])\.github/workflows/ci\.yml([[:space:]]|$)"; then
+            echo "CI workflow changed, running all projects"
+            echo "node-projects=$NODE_ALL" >> $GITHUB_OUTPUT
+            echo "poetry-projects=$POETRY_ALL" >> $GITHUB_OUTPUT
+            echo "uv-projects=$UV_ALL" >> $GITHUB_OUTPUT
+            echo "pip-projects=$PIP_ALL" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Filter projects based on changed files
+          filter_projects() {
+            local projects_json="$1"
+            local matched_projects=""
+            
+            # Parse JSON array and check each project
+            while IFS= read -r project; do
+              [ -z "$project" ] && continue
+              
+              # Remove leading ./ for comparison
+              project_path="${project#./}"
+              
+              # Check if any changed file starts with this project path
+              for changed_file in $CHANGED_FILES; do
+                changed_file_clean="${changed_file#./}"
+                if [[ "$changed_file_clean" == "$project_path"* ]]; then
+                  if [ -z "$matched_projects" ]; then
+                    matched_projects="\"$project\""
+                  else
+                    matched_projects="$matched_projects,\"$project\""
+                  fi
+                  break
+                fi
+              done
+            done < <(echo "$projects_json" | jq -r '.[]')
+            
+            # Return as JSON array
+            echo "[$matched_projects]"
+          }
+          
+          # Filter each project type
+          NODE_FILTERED=$(filter_projects "$NODE_ALL")
+          POETRY_FILTERED=$(filter_projects "$POETRY_ALL")
+          UV_FILTERED=$(filter_projects "$UV_ALL")
+          PIP_FILTERED=$(filter_projects "$PIP_ALL")
+          
+          echo "node-projects=$NODE_FILTERED" >> $GITHUB_OUTPUT
+          echo "poetry-projects=$POETRY_FILTERED" >> $GITHUB_OUTPUT
+          echo "uv-projects=$UV_FILTERED" >> $GITHUB_OUTPUT
+          echo "pip-projects=$PIP_FILTERED" >> $GITHUB_OUTPUT
+          
+          # Debug output
+          echo "Filtered Node.js projects: $NODE_FILTERED"
+          echo "Filtered Poetry projects: $POETRY_FILTERED"
+          echo "Filtered uv projects: $UV_FILTERED"
+          echo "Filtered pip projects: $PIP_FILTERED"
+
+  # Build and lint Node.js projects
+  node:
+    needs: discover
+    if: ${{ needs.discover.outputs.node-projects != '[]' && needs.discover.outputs.node-projects != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.node-projects) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', matrix.project), format('{0}/package.json', matrix.project)) }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: npm install
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
+      - name: Build
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Check if build script exists in package.json
+          if grep -q '"build"' package.json 2>/dev/null; then
+            echo "Running build..."
+            npm run build
+          else
+            echo "No build script found, skipping..."
+          fi
+
+      - name: Lint
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Check if lint script exists in package.json
+          if grep -q '"lint"' package.json 2>/dev/null; then
+            echo "Running lint..."
+            npm run lint
+          else
+            echo "No lint script found, skipping..."
+          fi
+
+  # Build and lint Poetry projects
+  poetry:
+    needs: discover
+    if: ${{ needs.discover.outputs.poetry-projects != '[]' && needs.discover.outputs.poetry-projects != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.poetry-projects) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.project }}/.venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles(format('{0}/poetry.lock', matrix.project)) }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: poetry install --no-interaction
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
+      - name: Lint with ruff (if available)
+        working-directory: ${{ matrix.project }}
+        run: |
+          if poetry run python -c "import ruff" 2>/dev/null; then
+            echo "Running ruff..."
+            poetry run ruff check .
+          elif poetry run python -c "import flake8" 2>/dev/null; then
+            echo "Running flake8..."
+            poetry run flake8 .
+          else
+            echo "No Python linter found, skipping..."
+          fi
+
+      - name: Type check with mypy (if available)
+        working-directory: ${{ matrix.project }}
+        run: |
+          if poetry run python -c "import mypy" 2>/dev/null; then
+            echo "Running mypy..."
+            poetry run mypy .
+          else
+            echo "No type checker found, skipping..."
+          fi
+
+  # Build and lint uv projects
+  uv:
+    needs: discover
+    if: ${{ needs.discover.outputs.uv-projects != '[]' && needs.discover.outputs.uv-projects != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.uv-projects) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: uv sync
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
+      - name: Lint with ruff (if available)
+        working-directory: ${{ matrix.project }}
+        run: |
+          if uv run python -c "import ruff" 2>/dev/null; then
+            echo "Running ruff..."
+            uv run ruff check .
+          elif uv run python -c "import flake8" 2>/dev/null; then
+            echo "Running flake8..."
+            uv run flake8 .
+          else
+            echo "No Python linter found, skipping..."
+          fi
+
+      - name: Type check with mypy (if available)
+        working-directory: ${{ matrix.project }}
+        run: |
+          if uv run python -c "import mypy" 2>/dev/null; then
+            echo "Running mypy..."
+            uv run mypy .
+          else
+            echo "No type checker found, skipping..."
+          fi
+
+  # Build and lint pip projects
+  pip:
+    needs: discover
+    if: ${{ needs.discover.outputs.pip-projects != '[]' && needs.discover.outputs.pip-projects != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.pip-projects) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect Python version
+        id: python-version
+        working-directory: ${{ matrix.project }}
+        run: |
+          if [ -f ".python-version" ]; then
+            VERSION=$(cat .python-version | tr -d '[:space:]')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "version=3.12" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ steps.python-version.outputs.version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles(format('{0}/requirements.txt', matrix.project)) }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: |
+          python -m pip install --upgrade pip
+          # Use project-level pip.conf if it exists
+          if [ -f "pip.conf" ]; then
+            export PIP_CONFIG_FILE="$(pwd)/pip.conf"
+          fi
+          pip install -r requirements.txt
+
+      - name: Setup environment
+        working-directory: ${{ matrix.project }}
+        run: |
+          # Copy .env.example to .env if .env doesn't exist
+          if [ -f ".env.example" ] && [ ! -f ".env" ]; then
+            echo "Copying .env.example to .env..."
+            cp .env.example .env
+          fi
+
+      - name: Install linters
+        run: pip install ruff
+
+      - name: Lint with ruff
+        working-directory: ${{ matrix.project }}
+        run: |
+          echo "Running ruff..."
+          ruff check .
+
+  # Summary job to ensure all checks passed
+  ci-success:
+    needs: [node, poetry, uv, pip]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all jobs passed
+        run: |
+          # Check each job result - 'skipped' is OK (no projects to build)
+          # 'success' is OK, 'failure' is not OK
+          NODE_RESULT="${{ needs.node.result }}"
+          POETRY_RESULT="${{ needs.poetry.result }}"
+          UV_RESULT="${{ needs.uv.result }}"
+          PIP_RESULT="${{ needs.pip.result }}"
+          
+          echo "Node job result: $NODE_RESULT"
+          echo "Poetry job result: $POETRY_RESULT"
+          echo "uv job result: $UV_RESULT"
+          echo "pip job result: $PIP_RESULT"
+          
+          if [ "$NODE_RESULT" == "failure" ] || \
+             [ "$POETRY_RESULT" == "failure" ] || \
+             [ "$UV_RESULT" == "failure" ] || \
+             [ "$PIP_RESULT" == "failure" ]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All CI checks passed!"

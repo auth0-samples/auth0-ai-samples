@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import { LogIn, UserPlus } from "lucide-react";
-import { ReactNode } from "react";
 
 import DocumentItemActions from "@/components/document-item-actions";
 import DocumentUploadForm from "@/components/document-upload-form";
@@ -8,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getDocumentsForUser } from "@/lib/documents";
 import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+import type { ReactNode } from "react";
 
 export default function DocumentsPage() {
   const queryClient = useQueryClient();
@@ -58,7 +59,7 @@ export default function DocumentsPage() {
     if (!sharedWith || sharedWith.length === 0) {
       return <span className="text-sm text-muted-foreground">Not shared</span>;
     }
-    if (sharedWith.includes(user?.email!)) {
+    if (user?.email && sharedWith.includes(user.email)) {
       return <span className="text-sm text-green-500">Shared with you</span>;
     }
     return (
