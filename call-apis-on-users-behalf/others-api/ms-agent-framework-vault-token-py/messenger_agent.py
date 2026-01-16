@@ -38,4 +38,4 @@ async def create_and_send_message(prompt: str, gmail_token: str) -> str:
 
     email_tool = create_email_sender(gmail_token)
     response = await agent.run(prompt, tools=[email_tool])
-    return response.messages[0].contents[0].text
+    return response.text

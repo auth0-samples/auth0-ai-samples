@@ -12,6 +12,7 @@ auth0_config = Auth0Config(
         "scope": "openid profile email offline_access",
         "prompt": "consent"
     },
+    mount_connected_account_routes=True,
     app_base_url=settings.app_base_url,
     secret=settings.SESSION_SECRET)
 

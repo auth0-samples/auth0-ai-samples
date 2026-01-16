@@ -16,7 +16,20 @@ async function sendMessage() {
         });
 
         const data = await response.json();
-        messagesContainer.innerHTML += `<div class="alert alert-secondary" style="max-width:80%">${data.response}</div>`;
+        
+        // Handle connected account error
+        if (data.error === 'google_account_not_connected') {
+            messagesContainer.innerHTML += `<div class="alert alert-warning" style="max-width:80%">${data.message}</div>`;
+            
+            // Redirect to /auth/connect to initiate the Connected Accounts flow
+            const connection = data.connect_params?.connection || 'google-oauth2';
+            window.location.href = `/auth/connect?connection=${connection}`;
+            return;
+        }
+        
+        // Display the response or error
+        const messageText = data.response || data.message || 'An error occurred';
+        messagesContainer.innerHTML += `<div class="alert alert-secondary" style="max-width:80%">${messageText}</div>`;
     }
 }
 
