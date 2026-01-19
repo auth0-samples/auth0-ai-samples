@@ -18,11 +18,11 @@ async function sendMessage() {
         const data = await response.json();
         
         // Handle connected account error
-        if (data.error === 'google_account_not_connected') {
-            messagesContainer.innerHTML += `<div class="alert alert-warning" style="max-width:80%">${data.message}</div>`;
+        if (response.status == 403 && data.detail?.error === 'google_account_not_connected') {
+            messagesContainer.innerHTML += `<div class="alert alert-warning" style="max-width:80%">${data.detail.message}</div>`;
             
             // Redirect to /auth/connect to initiate the Connected Accounts flow
-            const connection = data.connect_params?.connection || 'google-oauth2';
+            const connection = data.detail.connect_params?.connection || 'google-oauth2';
             window.location.href = `/auth/connect?connection=${connection}`;
             return;
         }

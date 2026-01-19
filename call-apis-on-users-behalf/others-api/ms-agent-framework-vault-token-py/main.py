@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response, Depends
+from fastapi import FastAPI, Request, HTTPException, Response, Depends
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -60,14 +60,17 @@ async def submit_prompt(
     except AccessTokenForConnectionError:
         # User hasn't connected their Google account yet
         # Instruct frontend to POST to /auth/connect to initiate Connected Accounts flow
-        return {
+        raise HTTPException(
+            status_code=403,
+            detail={
             "error": "google_account_not_connected",
             "message": "Please connect your Google account first",
             "connect_endpoint": "/auth/connect",
             "connect_params": {
                 "connection": "google-oauth2"
+                }
             }
-        }
+        )
 
 
 if __name__ == "__main__":
