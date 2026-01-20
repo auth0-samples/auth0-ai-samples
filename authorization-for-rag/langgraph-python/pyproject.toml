@@ -14,7 +14,7 @@ langgraph = "0.5.3"
 openfga-sdk = "0.9.5"
 faiss-cpu = "1.10.0"
 langchain-openai = "0.3.5"
-auth0-ai-langchain = "1.0.0b4"
+auth0-ai-langchain = ">=1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
