@@ -1,6 +1,7 @@
 import { getAuthInfo } from "@xmcp-dev/auth0";
 import { z } from "zod";
 import { type ToolMetadata } from "xmcp";
+import { type InferSchema } from "xmcp";
 
 /**
  * Schema definition for greet tool parameters, following the XMCP tool export convention.
@@ -30,8 +31,10 @@ export const metadata: ToolMetadata = {
 /**
  * Greet tool handler using the official @xmcp-dev/auth0 plugin.
  */
-export default async function handler({ name = "there" }: { name?: string }) {
-  const authInfo = await getAuthInfo();
+export default async function greet({
+  name = "there",
+}: InferSchema<typeof schema>) {
+  const authInfo = getAuthInfo();
 
   return {
     content: [
@@ -41,7 +44,7 @@ export default async function handler({ name = "there" }: { name?: string }) {
 Hello, ${name}!
 
 XMCP with Auth0 OAuth integration working!
-Authenticated as: ${authInfo.user.sub}
+Authenticated as: ${authInfo.user.name}
 This tool demonstrates the official @xmcp-dev/auth0 plugin
 `.trim(),
       },

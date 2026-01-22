@@ -25,8 +25,8 @@ export const metadata: ToolMetadata = {
  * Whoami tool handler using the official @xmcp-dev/auth0 plugin.
  * Returns authenticated user information.
  */
-export default async function handler(_params: InferSchema<typeof schema>) {
-  const authInfo = await getAuthInfo();
+export default async function whoami(_params: InferSchema<typeof schema>) {
+  const authInfo = getAuthInfo();
 
   return {
     content: [
