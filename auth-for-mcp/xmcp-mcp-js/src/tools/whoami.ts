@@ -1,13 +1,11 @@
+import { getAuthInfo } from "@xmcp-dev/auth0";
 import { InferSchema, type ToolMetadata } from "xmcp";
-import auth0Mcp from "../auth0";
 
 /**
- * Schema definition for whoami tool parameters, following the XMCP tool export convention.
- * This tool takes no parameters, but exporting it for consistency.
+ * Schema definition for whoami tool parameters.
+ * This tool takes no parameters.
  */
-export const schema = {
-  // Empty object schema for tools that take no parameters
-} as const;
+export const schema = {} as const;
 
 /**
  * Metadata for the whoami tool, following the XMCP tool export convention.
@@ -24,25 +22,26 @@ export const metadata: ToolMetadata = {
 } as const;
 
 /**
- * Whoami tool with Auth0 scope-based authorization, following the XMCP tool export convention.
+ * Whoami tool handler using the official @xmcp-dev/auth0 plugin.
+ * Returns authenticated user information.
  */
-export default auth0Mcp.requireScopes(
-  ["tool:whoami"],
-  async (_params: InferSchema<typeof schema>, { authInfo }) => {
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(
-            {
-              user: authInfo.extra,
-              scopes: authInfo.scopes,
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
-  }
-);
+export default async function handler(_params: InferSchema<typeof schema>) {
+  const authInfo = await getAuthInfo();
+
+  return {
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify(
+          {
+            user: authInfo.user,
+            permissions: authInfo.permissions,
+            expiresAt: authInfo.expiresAt,
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  };
+}
