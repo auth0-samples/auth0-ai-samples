@@ -7,4 +7,5 @@ export default auth0Provider({
   baseURL: BASE_URL,
   clientId: CLIENT_ID,
   clientSecret: CLIENT_SECRET,
+  scopesSupported: ["tool:whoami", "tool:greet", "tool:calendar_summary"],
 });
