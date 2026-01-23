@@ -1,7 +1,12 @@
 import { type XmcpConfig } from "xmcp";
-import { PORT } from "./src/config.ts";
+
+const PORT = parseInt(process.env.PORT ?? "3001", 10);
 
 const config: XmcpConfig = {
+  paths: {
+    prompts: false,
+    resources: false,
+  },
   http: {
     port: PORT,
     endpoint: "/",

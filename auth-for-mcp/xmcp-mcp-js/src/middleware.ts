@@ -1,9 +1,9 @@
-import { RequestHandlerAndRouter } from "xmcp/dist/types/middleware";
-import auth0Mcp from "./auth0";
+import { auth0Provider } from "@xmcp-dev/auth0";
 
-const middlewareAndRouter: RequestHandlerAndRouter = {
-  middleware: auth0Mcp.authMiddleware(),
-  router: auth0Mcp.authMetadataRouter(),
-};
-
-export default middlewareAndRouter;
+export default auth0Provider({
+  domain: process.env.DOMAIN!,
+  audience: process.env.AUDIENCE!,
+  baseURL: process.env.BASE_URL!,
+  clientId: process.env.CLIENT_ID!,
+  clientSecret: process.env.CLIENT_SECRET!,
+});

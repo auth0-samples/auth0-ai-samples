@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { type InferSchema, type ToolMetadata } from "xmcp";
-import auth0Mcp from "../auth0";
+import { getAuthInfo } from "@xmcp-dev/auth0";
 
 /**
  * Schema definition for greet tool parameters, following the XMCP tool export convention.
@@ -28,26 +28,27 @@ export const metadata: ToolMetadata = {
 } as const;
 
 /**
- * Greet tool with Auth0 scope-based authorization, following the XMCP tool export convention.
+ * Greet tool with Auth0 authentication using official xmcp plugin.
  */
-export default auth0Mcp.requireScopes(
-  ["tool:greet"],
-  async ({ name = "there" }: InferSchema<typeof schema>) => {
-    console.log(`Greet tool invoked with name: ${name}`);
+export default async function greet({
+  name = "there",
+}: InferSchema<typeof schema>) {
+  console.log(`Greet tool invoked with name: ${name}`);
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: `
-  Hello, ${name}!
+  const authInfo = getAuthInfo();
+  const displayName = authInfo.user.name ?? name;
 
-  XMCP with Auth0 OAuth integration working!
-  Authentication handled by XMCP's built-in OAuth support
-  This tool demonstrates XMCP framework integration
+  return {
+    content: [
+      {
+        type: "text",
+        text: `
+Hello, ${displayName}!
+
+XMCP with Auth0 OAuth integration working!
+Authentication handled by official @xmcp-dev/auth0 plugin.
 `.trim(),
-        },
-      ],
-    };
-  }
-);
+      },
+    ],
+  };
+}
