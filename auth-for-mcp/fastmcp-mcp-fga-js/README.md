@@ -47,7 +47,7 @@ For detailed instructions on setting up your Auth0 tenant for MCP server integra
 
 ## FGA Setup 
 
-Auth0 FGA provides fine-grained authorization using [Relationship-Based Access Control (ReBAC)](https://docs.fga.dev/concepts#what-is-relationship-based-access-control-rebac). It's built on [OpenFGA](https://openfga.dev), a CNCF incubation project, and offers more flexible authorization patterns than traditional RBAC.
+Auth0 FGA provides fine-grained authorization using [Relationship-Based Access Control (ReBAC)](https://docs.fga.dev/authorization-concepts#what-is-relationship-based-access-control). It's built on [OpenFGA](https://openfga.dev), a CNCF incubation project, and offers more flexible authorization patterns than traditional RBAC.
 
 ### Prerequisites
 
