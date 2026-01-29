@@ -8,7 +8,7 @@
     "start": "node dist/http.js"
   },
   "dependencies": {
-    "@xmcp-dev/auth0": "^0.0.2",
+    "@xmcp-dev/auth0": "^0.1.0",
     "xmcp": "^0.6.2",
     "zod": "^4.3.6"
   },
