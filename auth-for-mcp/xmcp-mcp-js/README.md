@@ -1,7 +1,7 @@
 # Example XMCP MCP Server with Auth0 Integration
 
 This is a practical example of securing a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs) server
-with Auth0 using the [XMCP](https://xmcp.dev/) framework.
+with Auth0 using the [XMCP](https://xmcp.dev/) framework and the official [@xmcp-dev/auth0](https://xmcp.dev/docs/integrations/auth0) plugin.
 
 ## Available Tools
 
@@ -21,18 +21,54 @@ npm install
 
 ## Auth0 Tenant Setup
 
-For detailed instructions on setting up your Auth0 tenant for MCP server integration, please refer to the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup) in the FastMCP example.
+The `@xmcp-dev/auth0` plugin requires the following Auth0 configuration:
+
+1. **Enable Dynamic Client Registration**: In Auth0 Dashboard → Settings → Advanced, enable "OIDC Dynamic Application Registration"
+2. **Enable Resource Parameter Support**: In the same location, activate "Resource Parameter Compatibility Profile"
+3. **Promote Database Connection**: Promote your database connection to work with third-party clients
+4. **Create API Resource**: Create an API resource with an identifier matching your server URL
+5. **Set Default Audience**: Set the API identifier as the default audience in general settings
+6. **Create M2M Application**: Create a machine-to-machine application and save its Domain, Client ID, and Client Secret
+
+For detailed instructions, see the [xMCP Auth0 Integration guide](https://xmcp.dev/docs/integrations/auth0).
 
 ## Configuration
 
-Rename `.env.example` to `.env` and configure the domain and audience:
+Rename `.env.example` to `.env` and configure the following environment variables:
 
+```bash
+# Auth0 tenant domain (format: <tenant>.<region>.auth0.com)
+DOMAIN=example-tenant.us.auth0.com
+
+# API identifier URL (must match the API resource created in Auth0)
+AUDIENCE=http://localhost:3001/mcp
+
+# MCP server base URL
+BASE_URL=http://localhost:3001
+
+# Machine-to-machine application credentials
+CLIENT_ID=your_m2m_client_id
+CLIENT_SECRET=your_m2m_client_secret
 ```
-# Auth0 tenant domain
-AUTH0_DOMAIN=example-tenant.us.auth0.com
-# Auth0 API Identifier
-AUTH0_AUDIENCE=http://localhost:3001/
-```
+
+## Permission Enforcement
+
+Tools are **public by default**. Any authenticated user can access them.
+
+To make a tool private, add a `tool:<tool-name>` permission in your Auth0 API settings:
+
+1. Go to **Auth0 Dashboard** → **Applications** → **APIs** → Your API
+2. Go to **Permissions** tab
+3. Add permission: `tool:greet` (for a tool named "greet")
+4. Assign the permission to users who should have access
+
+The Auth0 xmcp plugin queries Auth0 Management API on each request:
+
+1. **Check if permission exists** → queries `read:resource_servers` to see if `tool:<name>` is defined
+2. **If permission exists** → queries `read:users` to verify the user has it assigned
+3. **If permission does not exist** → tool is public, any authenticated user can access
+
+> **Note**: If Management API calls fail, the secure default is to deny access. This ensures real-time permission verification rather than relying on potentially stale token claims.
 
 ## Running the Server
 

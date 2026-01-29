@@ -1,7 +1,7 @@
 {
   "name": "@auth0-ai-samples/xmcp-with-tokenvault",
   "version": "0.1.0",
-  "description": "Example MCP server using XMCP framework with Auth0 authentication and token vault",
+  "description": "Example MCP server using XMCP framework with official Auth0 plugin",
   "private": true,
   "scripts": {
     "build": "xmcp build",
@@ -9,13 +9,14 @@
     "start": "node dist/http.js"
   },
   "dependencies": {
-    "@auth0/auth0-api-js": "^1.2.1",
     "@modelcontextprotocol/sdk": "^1.17.4",
-    "xmcp": "^0.3.2",
-    "zod": "^3.25.76",
-    "googleapis": "^144.0.0"
+    "@xmcp-dev/auth0": "^0.1.0",
+    "googleapis": "^144.0.0",
+    "xmcp": "^0.6.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/node": "^25.0.10",
     "typescript": "^5.9.2"
   }
 }
