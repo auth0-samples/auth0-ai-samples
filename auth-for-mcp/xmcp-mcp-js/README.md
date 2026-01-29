@@ -41,7 +41,7 @@ Rename `.env.example` to `.env` and configure the following environment variable
 DOMAIN=example-tenant.us.auth0.com
 
 # API identifier URL (must match the API resource created in Auth0)
-AUDIENCE=http://localhost:3001/
+AUDIENCE=http://localhost:3001/mcp
 
 # MCP server base URL
 BASE_URL=http://localhost:3001
@@ -50,6 +50,25 @@ BASE_URL=http://localhost:3001
 CLIENT_ID=your_m2m_client_id
 CLIENT_SECRET=your_m2m_client_secret
 ```
+
+## Permission Enforcement
+
+Tools are **public by default**. Any authenticated user can access them.
+
+To make a tool private, add a `tool:<tool-name>` permission in your Auth0 API settings:
+
+1. Go to **Auth0 Dashboard** → **Applications** → **APIs** → Your API
+2. Go to **Permissions** tab
+3. Add permission: `tool:greet` (for a tool named "greet")
+4. Assign the permission to users who should have access
+
+The Auth0 xmcp plugin queries Auth0 Management API on each request:
+
+1. **Check if permission exists** → queries `read:resource_servers` to see if `tool:<name>` is defined
+2. **If permission exists** → queries `read:users` to verify the user has it assigned
+3. **If permission does not exist** → tool is public, any authenticated user can access
+
+> **Note**: If Management API calls fail, the secure default is to deny access. This ensures real-time permission verification rather than relying on potentially stale token claims.
 
 ## Running the Server
 
