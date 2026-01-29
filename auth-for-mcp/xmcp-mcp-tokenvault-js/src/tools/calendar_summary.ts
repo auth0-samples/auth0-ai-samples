@@ -28,7 +28,9 @@ export const metadata: ToolMetadata = {
 /**
  * Calendar summary tool with Auth0 authentication using official xmcp plugin.
  */
-export default async function calendarSummary(_params: InferSchema<typeof schema>) {
+export default async function calendarSummary(
+  _params: InferSchema<typeof schema>,
+) {
   const authInfo = getAuthInfo();
   const client = getClient();
 
@@ -68,7 +70,9 @@ export default async function calendarSummary(_params: InferSchema<typeof schema
     events.forEach((event, index) => {
       const start = event.start?.dateTime || event.start?.date;
       const end = event.end?.dateTime || event.end?.date;
-      const startTime = start ? new Date(start).toLocaleTimeString() : "All day";
+      const startTime = start
+        ? new Date(start).toLocaleTimeString()
+        : "All day";
       const endTime = end ? new Date(end).toLocaleTimeString() : "";
 
       summaryText += `${index + 1}. ${event.summary || "Untitled Event"}\n`;

@@ -3,6 +3,7 @@ export const DOMAIN = process.env.DOMAIN!;
 export const AUDIENCE = process.env.AUDIENCE!;
 export const CLIENT_ID = process.env.CLIENT_ID!;
 export const CLIENT_SECRET = process.env.CLIENT_SECRET!;
+export const SCOPES = String(process.env.SCOPES!).split(" ");
 
 // Server configuration
 export const PORT = parseInt(process.env.PORT! ?? "3001", 10);
