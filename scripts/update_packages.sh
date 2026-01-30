@@ -9,7 +9,7 @@ set -e
 AUTH0_SPA_JS_VERSION="^2.9.0"
 AUTH0_NEXTJS_VERSION="^4.13.0"
 AUTH0_AI_VERSION="^5.1.1"
-AUTH0_AI_VERCEL_VERSION="^4.1.0"
+AUTH0_AI_VERCEL_VERSION="^5.1.0"
 AUTH0_AI_LANGCHAIN_VERSION="^4.1.0"
 AUTH0_AI_LLAMAINDEX_VERSION="^4.1.0"
 
@@ -108,6 +108,17 @@ update_package_json() {
         if [ -n "$packages_to_reinstall" ]; then
             echo "    Reinstalling:$packages_to_reinstall"
             (cd "$dir" && npm install$packages_to_reinstall $REGISTRY)
+        fi
+
+        # Run build if build script exists
+        if grep -q '"build":' "$file"; then
+            echo "    Running build..."
+            # Set minimal env vars for build (some projects need these at build time)
+            if (cd "$dir" && AUTH0_DOMAIN="test.auth0.com" AUTH0_CLIENT_ID="test-client-id" DATABASE_URL="postgresql://test" npm run build 2>&1 | tail -20); then
+                echo "    ✓ Build successful"
+            else
+                echo "    ✗ Build failed (this may be expected for some project types)"
+            fi
         fi
     fi
 }

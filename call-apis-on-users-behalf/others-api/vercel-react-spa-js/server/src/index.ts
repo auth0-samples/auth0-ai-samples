@@ -97,7 +97,7 @@ export const app = new Hono()
     // note: you can see more examples of Hono API consumption with AI SDK here:
     // https://ai-sdk.dev/cookbook/api-servers/hono?utm_source=chatgpt.com#hono
 
-    const modelMessages = convertToModelMessages(requestMessages);
+    const modelMessages = await convertToModelMessages(requestMessages);
     const date = new Date().toISOString();
 
     const stream = createUIMessageStream({
