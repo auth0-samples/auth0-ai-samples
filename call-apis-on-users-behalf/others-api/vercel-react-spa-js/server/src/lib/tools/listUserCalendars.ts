@@ -11,14 +11,20 @@ import type { ToolWrapper } from "@auth0/ai-vercel";
  * Lists all calendars the user has access to.
  * Uses the enhanced @auth0/ai SDK for token exchange with Token Vault.
  */
+
+// Define the input schema (empty for this tool)
+const listUserCalendarsSchema = z.object({});
+
+// Infer the type from the schema
+type ListUserCalendarsInput = z.infer<typeof listUserCalendarsSchema>;
+
 export const createListUserCalendarsTool = (
   googleCalendarWrapper: ToolWrapper
-) =>
-  googleCalendarWrapper(
-    tool({
-      description: "List all calendars the user has access to",
-      inputSchema: z.object({}),
-      execute: async () => {
+) => {
+  const baseTool = tool({
+    description: "List all calendars the user has access to",
+    inputSchema: listUserCalendarsSchema as any,
+    execute: async (_input: ListUserCalendarsInput) => {
         // Get the access token from Token Vault using the enhanced SDK
         const token = getAccessTokenFromTokenVault();
 
@@ -37,5 +43,7 @@ export const createListUserCalendarsTool = (
 
         return calendars;
       },
-    })
-  );
+    });
+
+  return googleCalendarWrapper(baseTool as any);
+};

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     getCalendarEventsTool,
   };
 
-  const modelMessages = convertToModelMessages(messages);
+  const modelMessages = await convertToModelMessages(messages);
 
   const stream = createUIMessageStream({
     originalMessages: messages,
