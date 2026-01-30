@@ -11,19 +11,25 @@ import type { ToolWrapper } from "@auth0/ai-vercel";
  * Lists calendar events between a start and end time from a specified calendar.
  * Uses the enhanced @auth0/ai SDK for token exchange with Token Vault.
  */
+
+// Define the input schema
+const listNearbyEventsSchema = z.object({
+  start: z.coerce.date(),
+  end: z.coerce.date(),
+  calendarId: z.string().optional().default("primary"),
+});
+
+// Infer the type from the schema
+type ListNearbyEventsInput = z.infer<typeof listNearbyEventsSchema>;
+
 export const createListNearbyEventsTool = (
   googleCalendarWrapper: ToolWrapper
-) =>
-  googleCalendarWrapper(
-    tool({
-      description:
-        "List calendar events between a given start and end time from a user's calendar (personal or shared)",
-      inputSchema: z.object({
-        start: z.coerce.date(),
-        end: z.coerce.date(),
-        calendarId: z.string().optional().default("primary"),
-      }),
-      execute: async ({ start, end, calendarId }) => {
+) => {
+  const baseTool = tool({
+    description:
+      "List calendar events between a given start and end time from a user's calendar (personal or shared)",
+    inputSchema: listNearbyEventsSchema as any,
+    execute: async ({ start, end, calendarId }: ListNearbyEventsInput) => {
         try {
           // Fix truncated calendar IDs by appending the correct suffix
           let fullCalendarId = calendarId;
@@ -77,5 +83,7 @@ export const createListNearbyEventsTool = (
           };
         }
       },
-    })
-  );
+    });
+
+  return googleCalendarWrapper(baseTool as any);
+};
