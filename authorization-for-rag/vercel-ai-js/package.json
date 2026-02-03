@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@ai-sdk/openai": "2.0.24",
-    "@auth0/ai": "^5.1.1",
+    "@auth0/ai": "^6.0.0",
     "@openfga/sdk": "^0.8.0",
     "ai": "5.0.33",
     "dotenv": "^16.4.7",

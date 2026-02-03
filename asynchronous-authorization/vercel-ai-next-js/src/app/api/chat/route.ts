@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       const result = streamText({
         model: openai.chat('gpt-4o-mini'),
         system: AGENT_SYSTEM_TEMPLATE,
-        messages: convertToModelMessages(sanitizedMessages),
+        messages: await convertToModelMessages(sanitizedMessages),
         tools,
       });
 
