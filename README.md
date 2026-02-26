@@ -2,8 +2,6 @@
 
 Sample applications showcasing [Auth0's](https://www.auth0.ai/) authentication and authorization capabilities in the context of generative AI applications.
 
-You can find a [hosted demo here](https://demo.auth0.ai/).
-
 Samples are organized as below:
 
 - [**authenticate-users**](https://auth0.com/ai/docs/get-started/user-authentication): Easily implement login experiences, tailor made for AI agents. Whether for chatbots or background agents.
