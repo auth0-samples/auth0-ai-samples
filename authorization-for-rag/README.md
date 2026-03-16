@@ -19,7 +19,7 @@ Below is a high-level workflow:
 
 ### Examples
 
-Explore the following examples demonstrating the integration of **Auth0 FGA** with **LangChain** and **LlamaIndex** retrievers:
+Explore the following examples demonstrating the integration of **Auth0 FGA** with **LangChain** and **[LlamaIndex](https://www.llamaindex.ai/)** retrievers:
 
 - **LangChain with FGARetriever (JavaScript):**  
    An implementation showcasing how to wrap a LangChain retriever with FGARetriever to enforce authorization checks during document retrieval.  
