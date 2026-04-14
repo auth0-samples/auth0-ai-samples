@@ -46,9 +46,10 @@ auth0 tenants list
 
 ### Step 2: Configure Tenant Settings
 
-Next, enable tenant-level flags required for Dynamic Client Registration (DCR) and an improved user consent experience.
+Next, enable tenant-level flags required for Client ID Metadata Document (CIMD) and Dynamic Client Registration (DCR) registration for an improved user consent experience.
 
-- `enable_dynamic_client_registration`: Allows MCP tools to register themselves as applications automatically.
+- `client_id_metadata_document_supported`: Allows MCP tools to be accessed by CIMD clients. MCP Clients should prioritize pre-registered clients and CIMD clients prior to using DCR per the current [MCP specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization#client-registration-approaches).
+- `enable_dynamic_client_registration`: Allows MCP tools to register themselves as applications automatically via DCR.
   [Learn more](https://auth0.com/docs/get-started/applications/dynamic-client-registration#enable-dynamic-client-registration)
 - `use_scope_descriptions_for_consent`: Shows user-friendly descriptions for scopes on the consent screen.
   [Learn more](https://auth0.com/docs/customize/login-pages/customize-consent-prompts).
@@ -56,7 +57,7 @@ Next, enable tenant-level flags required for Dynamic Client Registration (DCR) a
 Execute the following command to enable the above mentioned flags through the tenant settings:
 
 ```
-auth0 tenant-settings update set flags.enable_dynamic_client_registration flags.use_scope_descriptions_for_consent
+auth0 tenant-settings update set client_id_metadata_document_supported flags.enable_dynamic_client_registration flags.use_scope_descriptions_for_consent
 ```
 
 ### Step 3: Promote Connections to Domain Level

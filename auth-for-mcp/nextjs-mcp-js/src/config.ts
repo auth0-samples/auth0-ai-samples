@@ -12,5 +12,6 @@ export const MCP_SERVER_URL =
  */
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*", // Adjust as needed for production
-  "Access-Control-Allow-Methods": "GET, OPTIONS"
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Content-Type": "application/json"
 };
