@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.0",
-    "@auth0/ai": "^6.0.0",
-    "@auth0/ai-vercel": "^5.1.0",
+    "@auth0/ai": "^6.0.2",
+    "@auth0/ai-vercel": "^5.1.1",
     "@auth0/auth0-ai-js-examples-react-hono-ai-sdk-shared": "*",
     "@hono/node-server": "^1.13.7",
     "ai": "^6.0.0",
