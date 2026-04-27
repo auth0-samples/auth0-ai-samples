@@ -38,7 +38,7 @@ starlette_app = Starlette(
     debug=config.debug,
     routes=[
         # Add discovery metadata route
-        Mount("/", app=auth0_mcp.auth_metadata_router()),
+        *auth0_mcp.auth_metadata_router().routes,
 
         # Main MCP app route with authentication middleware
         Mount(
