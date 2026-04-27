@@ -117,4 +117,35 @@ curl -X POST http://localhost:3001/mcp \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
+
+# Test greet tool (tool:greet permission required) - outputs Upstream API response when OBO flow succeeds
+curl -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "greet", "arguments": {}}}'
+
+# sample response from greet tool:
+event: message
+id: b79cc975-0b9a-4ad7-9f0b-60709f33dcaa_1777299634174_47cmz49v
+data:
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Hello, there (auth0|69d9483f2d2c4494f9de0d8c)!\n\
+          \n\
+          Upstream API Response:\n\
+          {\n\
+            \"msg\": \"Hello from upstream API\",\n\
+            \"sub\": \"auth0|69d9483f2d2c4494f9de0d8c\",\n\
+            \"scopes\": \"read:private\"\n\
+          }"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 2
+}
 ```
