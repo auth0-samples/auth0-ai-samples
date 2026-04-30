@@ -1,2 +1,0 @@
-# Override parent .gitignore to allow local .tgz for testing
-!*.tgz
