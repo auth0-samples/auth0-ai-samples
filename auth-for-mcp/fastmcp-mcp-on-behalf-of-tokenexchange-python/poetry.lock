@@ -100,23 +100,21 @@ files = [
 
 [[package]]
 name = "auth0-api-python"
-version = "1.0.0b8"
+version = "1.0.0b9"
 description = "SDK for verifying access tokens and securing APIs with Auth0, using Authlib."
 optional = false
-python-versions = "^3.9"
+python-versions = "<4.0,>=3.9"
 groups = ["main"]
-files = []
-develop = true
+files = [
+    {file = "auth0_api_python-1.0.0b9-py3-none-any.whl", hash = "sha256:4be52ad431c45a249c207c3ea86de966c33f682867d47d1719518939a7e151e8"},
+    {file = "auth0_api_python-1.0.0b9.tar.gz", hash = "sha256:3a39f2ed2f6ecf71605af111986120ab05e984135547ce77535360efe64a934b"},
+]
 
 [package.dependencies]
-ada-url = {version = "^1.30.0", markers = "python_version >= \"3.10\""}
-authlib = "^1.0"
-httpx = "^0.28.1"
-requests = "^2.31.0"
-
-[package.source]
-type = "directory"
-url = "auth0-api-python-obo"
+ada-url = {version = ">=1.30.0,<2.0.0", markers = "python_version >= \"3.10\""}
+authlib = ">=1.0,<2.0"
+httpx = ">=0.28.1,<0.29.0"
+requests = ">=2.31.0,<3.0.0"
 
 [[package]]
 name = "authlib"
@@ -1213,4 +1211,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "9afc39a01c6385409c0a06b1369299056c6e2e7c0bacd919a23ff935f3c3b019"
+content-hash = "81ed0e7efb389c861d1ea475793d1f24e2052b0c353411c1c8beebaf6c6bec93"

@@ -10,7 +10,7 @@ packages = [{include = "*", from = "src"}]
 python = "^3.10"
 python-dotenv = "^1.1.1"
 mcp = "^1.27.0"
-auth0-api-python = {path = "./auth0-api-python-obo", develop = true}
+auth0-api-python = "1.0.0b9"
 starlette = "^0.48.0"
 uvicorn = "^0.36.0"
 httpx = "^0.28.1"
