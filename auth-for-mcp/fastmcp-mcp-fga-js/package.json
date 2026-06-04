@@ -11,7 +11,7 @@
     "@modelcontextprotocol/sdk": "^1.17.2",
     "@openfga/sdk": "^0.9.1",
     "dotenv": "^17.2.1",
-    "fastmcp": "^3.12.0",
+    "fastmcp": "^3.35.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {

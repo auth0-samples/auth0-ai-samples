@@ -10,7 +10,7 @@
     "@auth0/auth0-api-js": "^1.2.1",
     "@modelcontextprotocol/sdk": "^1.17.2",
     "dotenv": "^17.2.1",
-    "fastmcp": "^3.12.0",
+    "fastmcp": "^3.35.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {
