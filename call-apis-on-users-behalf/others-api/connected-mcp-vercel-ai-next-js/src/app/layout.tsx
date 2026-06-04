@@ -24,15 +24,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" suppressHydrationWarning>
       <head>
         <title>{TITLE}</title>
-        <link rel="shortcut icon" type="image/svg+xml" href="/images/favicon.png" />
+        <link rel="shortcut icon" type="image/png" href="/images/favicon.png" />
         <meta name="description" content={DESCRIPTION} />
         <meta property="og:title" content={TITLE} />
         <meta property="og:description" content={DESCRIPTION} />
-        <meta property="og:image" content="/images/og-image.png" />
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={TITLE} />
         <meta name="twitter:description" content={DESCRIPTION} />
-        <meta name="twitter:image" content="/images/og-image.png" />
       </head>
       <body className={publicSans.className}>
         <NuqsAdapter>
@@ -59,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   </div>
                 )}
                 <Button asChild variant="header" size="default">
-                  <a href="https://github.com/oktadev/auth0-assistant0" target="_blank">
+                  <a href="https://github.com/auth0-samples/auth0-ai-samples" target="_blank">
                     <Github className="size-3" />
                     <span>Open in GitHub</span>
                   </a>
