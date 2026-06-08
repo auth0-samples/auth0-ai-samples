@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       mcp = await collectMcpTools(auth0);
 
       const result = streamText({
-        model: openai('gpt-4o-mini'),
+        model: openai.chat('gpt-4o-mini'),
         system: AGENT_SYSTEM_TEMPLATE,
         messages: modelMessages,
         tools: mcp.tools,
