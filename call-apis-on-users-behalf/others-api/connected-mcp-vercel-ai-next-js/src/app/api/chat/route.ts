@@ -5,8 +5,8 @@ import { openai } from '@ai-sdk/openai';
 import { Auth0Interrupt } from '@auth0/ai/interrupts';
 import { InterruptionPrefix } from '@auth0/ai-vercel/interrupts';
 
-import { auth0 } from '@/lib/auth0';
-import { collectMcpTools, type CollectedMcpTools } from '@/lib/mcp';
+import { auth0 } from '@/integrations/auth0';
+import { collectMcpTools, type CollectedMcpTools } from '@/integrations/mcp';
 
 const date = new Date().toISOString();
 

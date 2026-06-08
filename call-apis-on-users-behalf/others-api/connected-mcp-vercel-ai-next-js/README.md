@@ -13,7 +13,7 @@ federated Notion access token and presents it as a `Bearer` token to the MCP ser
 
 ### How it works
 
-1. The chat route collects tools from every configured MCP server (`src/lib/mcp/`).
+1. The chat route collects tools from every configured MCP server (`src/integrations/mcp/`).
 2. For each server, `getConnectionAccessToken` performs a **Token Vault exchange**
    (`getAccessTokenForConnection`) to obtain a Notion access token for the current user.
    - If the user hasn't connected their Notion account yet, this throws a
@@ -24,7 +24,7 @@ federated Notion access token and presents it as a `Bearer` token to the MCP ser
 4. The Vercel AI SDK calls those tools as part of the agent loop.
 
 Auth0 never learns the MCP server URL — it only mints a federated token for the
-Connection. The MCP endpoint lives in app config (`src/lib/mcp/servers.ts`), not in
+Connection. The MCP endpoint lives in app config (`src/integrations/mcp/servers.ts`), not in
 the tenant.
 
 ## 🚀 Getting started
@@ -71,7 +71,7 @@ on your behalf.
 | `NOTION_MCP_URL`  | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
-`src/lib/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection
+`src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection
 whose Token Vault tokens authorize it.
 
 ## 🧪 Tests

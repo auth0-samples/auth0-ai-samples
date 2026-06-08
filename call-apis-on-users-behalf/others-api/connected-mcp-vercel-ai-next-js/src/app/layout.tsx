@@ -7,7 +7,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { ActiveLink } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
-import { auth0 } from '@/lib/auth0';
+import { auth0 } from '@/integrations/auth0';
 import UserButton from '@/components/auth0/user-button';
 
 const robotoMono = Roboto_Mono({ weight: '400', subsets: ['latin'] });

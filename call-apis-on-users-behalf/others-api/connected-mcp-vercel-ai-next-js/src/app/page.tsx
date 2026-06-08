@@ -3,7 +3,7 @@ import { ChatWindow } from '@/components/chat-window';
 import { GuideInfoBox } from '@/components/guide/GuideInfoBox';
 import { Button } from '@/components/ui/button';
 
-import { auth0 } from '@/lib/auth0';
+import { auth0 } from '@/integrations/auth0';
 
 export default async function Home() {
   const session = await auth0.getSession();
@@ -50,7 +50,7 @@ export default async function Home() {
         <li className="hidden text-l md:block">
           🔐
           <span className="ml-2">
-            The Token Vault exchange and MCP connection live in <code>src/lib/mcp/</code>; the chat route is{' '}
+            The Token Vault exchange and MCP connection live in <code>src/integrations/mcp/</code>; the chat route is{' '}
             <code>app/api/chat/route.ts</code>.
           </span>
         </li>
