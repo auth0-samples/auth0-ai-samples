@@ -7,6 +7,7 @@ import { InterruptionPrefix } from '@auth0/ai-vercel/interrupts';
 
 import { auth0 } from '@/integrations/auth0';
 import { collectMcpTools, type CollectedMcpTools } from '@/integrations/mcp';
+import { logger } from '@/config/logger';
 
 const date = new Date().toISOString();
 
@@ -38,10 +39,18 @@ export async function POST(req: NextRequest) {
       mcp = await collectMcpTools(auth0);
 
       const result = streamText({
-        model: openai.chat('gpt-4o-mini'),
+        model: openai.chat('gpt-5'),
         system: AGENT_SYSTEM_TEMPLATE,
         messages: modelMessages,
         tools: mcp.tools,
+        onStepFinish: (step) => {
+          for (const call of step.toolCalls ?? []) {
+            logger.debug('[mcp] tool call', call.toolName, JSON.stringify(call.input, null, 2));
+          }
+          for (const res of step.toolResults ?? []) {
+            logger.debug('[mcp] tool result', res.toolName, JSON.stringify(res.output, null, 2));
+          }
+        },
         onFinish: () => {
           void mcp?.close();
         },
@@ -53,7 +62,7 @@ export async function POST(req: NextRequest) {
       if (Auth0Interrupt.isInterrupt(err)) {
         return serializeInterrupt(err as Auth0Interrupt);
       }
-      console.error('ai-sdk route: stream error', err);
+      logger.error('ai-sdk route: stream error', err);
       return 'Oops, an error occured!';
     },
   });
