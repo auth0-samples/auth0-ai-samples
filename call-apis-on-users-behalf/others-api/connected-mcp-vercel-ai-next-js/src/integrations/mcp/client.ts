@@ -34,7 +34,7 @@ function isUnauthorized(error: unknown): boolean {
  * or expired, so we surface a TokenVaultError to drive the connect-account flow.
  */
 export async function connectMcpServer({ url, connection, accessToken }: ConnectMcpServerParams): Promise<ConnectedMcpServer> {
-  let client: Awaited<ReturnType<typeof createMCPClient>>;
+  let client: McpClient | undefined;
   try {
     client = await createMCPClient({
       transport: {
@@ -43,13 +43,16 @@ export async function connectMcpServer({ url, connection, accessToken }: Connect
         headers: { Authorization: `Bearer ${accessToken}` },
       },
     });
+
+    // Some MCP servers authenticate lazily, only validating the token on the
+    // first real request, so tool discovery must share the same 401/403 guard.
+    const tools = await client.tools();
+    return { tools, close: () => client!.close() };
   } catch (error) {
+    await client?.close();
     if (isUnauthorized(error)) {
       throw new TokenVaultError(`Authorization required to access the "${connection}" MCP server`);
     }
     throw error;
   }
-
-  const tools = await client.tools();
-  return { tools, close: () => client.close() };
 }
