@@ -22,20 +22,26 @@ export async function collectMcpTools(auth0: Auth0Client): Promise<CollectedMcpT
   const closers: Array<() => Promise<void>> = [];
   let tools: McpToolSet = {};
 
-  for (const server of servers) {
-    const accessToken = await getConnectionAccessToken(auth0, {
-      connection: server.connection,
-      scopes: server.scopes,
-    });
+  try {
+    for (const server of servers) {
+      const accessToken = await getConnectionAccessToken(auth0, {
+        connection: server.connection,
+        scopes: server.scopes,
+      });
 
-    const connected = await connectMcpServer({
-      url: server.url,
-      connection: server.connection,
-      accessToken,
-    });
+      const connected = await connectMcpServer({
+        url: server.url,
+        connection: server.connection,
+        accessToken,
+      });
 
-    closers.push(connected.close);
-    tools = { ...tools, ...connected.tools };
+      closers.push(connected.close);
+      tools = { ...tools, ...connected.tools };
+    }
+  } catch (error) {
+    // A later server failing must not leak the connections already opened.
+    await Promise.all(closers.map((close) => close()));
+    throw error;
   }
 
   return {

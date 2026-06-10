@@ -74,4 +74,36 @@ describe('connectMcpServer', () => {
       }),
     ).rejects.toBe(boom);
   });
+
+  it('raises a TokenVaultError when the server rejects the token lazily during tool discovery', async () => {
+    const close = vi.fn();
+    const tools = vi.fn().mockRejectedValue(
+      Object.assign(new Error('Forbidden'), { statusCode: 403 }),
+    );
+    createMCPClient.mockResolvedValue({ tools, close });
+
+    await expect(
+      connectMcpServer({
+        url: 'https://mcp.notion.com/mcp',
+        connection: 'notion',
+        accessToken: 'expired-token',
+      }),
+    ).rejects.toBeInstanceOf(TokenVaultError);
+  });
+
+  it('closes the client when tool discovery fails so the connection does not leak', async () => {
+    const close = vi.fn();
+    const boom = new Error('discovery failed');
+    createMCPClient.mockResolvedValue({ tools: vi.fn().mockRejectedValue(boom), close });
+
+    await expect(
+      connectMcpServer({
+        url: 'https://mcp.notion.com/mcp',
+        connection: 'notion',
+        accessToken: 'vault-access-token',
+      }),
+    ).rejects.toBe(boom);
+
+    expect(close).toHaveBeenCalledTimes(1);
+  });
 });
