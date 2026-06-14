@@ -31,7 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "esbuild-plugin-tailwindcss": "^2.1.0",
     "framer-motion": "^12.23.22",
     "katex": "^0.16.23",
