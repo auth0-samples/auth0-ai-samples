@@ -1,22 +1,24 @@
 ## Connected MCP: Call a remote MCP server with Auth0 Token Vault
 
-This sample shows how an AI agent can call a **remote MCP server** (Notion's hosted
-[Model Context Protocol](https://modelcontextprotocol.io/) server) on the user's
-behalf — without the agent ever holding the user's Notion credentials.
+This sample shows how an AI agent can call **remote MCP servers** on the user's
+behalf — without the agent ever holding the user's credentials for those services.
 
-The agent authenticates to the MCP server with a short-lived access token that
+It ships with two pre-configured MCP servers: **Notion** and **GitHub**. The same
+pattern extends to any OAuth 2.0-protected MCP server.
+
+The agent authenticates to each MCP server with a short-lived access token that
 Auth0 mints from the user's **Connected Account** via
 [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the
-user invokes a Notion tool, they're prompted to connect their Notion account; after
-that, the agent transparently exchanges the user's Auth0 refresh token for a
-federated Notion access token and presents it as a `Bearer` token to the MCP server.
+user invokes a tool for a given service, they're prompted to connect that account;
+after that, the agent transparently exchanges the user's Auth0 refresh token for a
+federated access token and presents it as a `Bearer` token to the MCP server.
 
 ### How it works
 
 1. The chat route collects tools from every configured MCP server (`src/integrations/mcp/`).
 2. For each server, `getConnectionAccessToken` performs a **Token Vault exchange**
-   (`getAccessTokenForConnection`) to obtain a Notion access token for the current user.
-   - If the user hasn't connected their Notion account yet, this throws a
+   (`getAccessTokenForConnection`) to obtain an access token for the current user.
+   - If the user hasn't connected that account yet, this throws a
      `TokenVaultInterrupt`, which the chat route serializes to drive the
      connect-account consent popup.
 3. `connectMcpServer` opens the remote MCP server over Streamable HTTP, passing the
@@ -48,9 +50,9 @@ You'll need:
 - Auth0 application credentials (`AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`,
   `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `APP_BASE_URL`).
 
-Set up an Auth0 tenant with Token Vault enabled and add a **Notion** Connection,
-following the [Connected Accounts / Call other's APIs on user's behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
-guide.
+Set up an Auth0 tenant with Token Vault enabled, following the
+[Connected Accounts / Call other's APIs on user's behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
+guide, then add a Connection for each MCP server you want to use.
 
 #### Creating the Notion Connection
 
@@ -154,6 +156,62 @@ curl -s --request PATCH \
 The connection name (`notion`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
+#### Creating the GitHub Connection
+
+GitHub's MCP server (`https://api.githubcopilot.com/mcp`) uses Auth0's built-in
+`github` strategy. There are two important constraints specific to GitHub:
+
+- **GitHub Apps only — not OAuth Apps.** GitHub OAuth Apps never issue refresh
+  tokens. Auth0 Token Vault requires a refresh token to store the federated
+  connection. GitHub Apps with token expiration enabled issue both an access token
+  and a refresh token, making them compatible.
+- **Scopes are set on the GitHub App, not in Token Vault.** The `scopes` field on
+  the connection has no effect for the built-in `github` strategy. Grant the
+  permissions your use case needs when registering the GitHub App in
+  [GitHub Developer Settings](https://github.com/settings/apps).
+
+**1. Create a GitHub App** at [https://github.com/settings/apps/new](https://github.com/settings/apps/new):
+
+- **Callback URL:** `https://YOUR_TENANT.auth0.com/login/callback`
+- **Expire user authorization tokens:** ✓ enabled ← required for refresh token issuance
+- **Request user authorization (OAuth) during installation:** ✓ enabled
+- **Webhook:** disabled
+- Set repository and account permissions as needed for your use case
+
+Note the **Client ID** and generate a **Client Secret**.
+
+**2. Create the Auth0 connection** using the Management API (the dashboard Social
+Connections page may fail to load due to a marketplace service dependency):
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "github",
+    "strategy": "github",
+    "options": {
+      "client_id": "<GITHUB_APP_CLIENT_ID>",
+      "client_secret": "<GITHUB_APP_CLIENT_SECRET>"
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"]
+  }'
+```
+
+**3. Enable Token Vault on the connection:**
+
+```bash
+curl -s --request PATCH \
+  --url "https://$TENANT/api/v2/connections/<CONNECTION_ID>" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{"connected_accounts": {"active": true}}'
+```
+
+The connection name (`github`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
 Install dependencies and run the dev server:
 
 ```bash
@@ -171,6 +229,7 @@ on your behalf.
 | Variable          | Purpose                                                              |
 | ----------------- | -------------------------------------------------------------------- |
 | `NOTION_MCP_URL`  | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
+| `GITHUB_MCP_URL`  | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection

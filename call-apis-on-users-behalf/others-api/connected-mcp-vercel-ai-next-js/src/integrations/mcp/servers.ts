@@ -21,6 +21,12 @@ export const NOTION_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const GITHUB_MCP_SERVER: McpServerConfig = {
+  connection: 'github',
+  url: 'https://api.githubcopilot.com/mcp',
+  scopes: [],
+};
+
 type Env = Record<string, string | undefined>;
 
 export function loadMcpServers(env: Env): McpServerConfig[] {
@@ -28,6 +34,10 @@ export function loadMcpServers(env: Env): McpServerConfig[] {
     {
       ...NOTION_MCP_SERVER,
       url: env.NOTION_MCP_URL ?? NOTION_MCP_SERVER.url,
+    },
+    {
+      ...GITHUB_MCP_SERVER,
+      url: env.GITHUB_MCP_URL ?? GITHUB_MCP_SERVER.url,
     },
   ];
 }
