@@ -180,8 +180,7 @@ GitHub's MCP server (`https://api.githubcopilot.com/mcp`) uses Auth0's built-in
 
 Note the **Client ID** and generate a **Client Secret**.
 
-**2. Create the Auth0 connection** using the Management API (the dashboard Social
-Connections page may fail to load due to a marketplace service dependency):
+**2. Create the Auth0 connection** using the Management API:
 
 ```bash
 curl -s --request POST \
@@ -212,6 +211,75 @@ curl -s --request PATCH \
 The connection name (`github`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
+#### Creating the Linear Connection
+
+Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social
+connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`).
+Linear supports Dynamic Client Registration (DCR), so no Linear OAuth app needs to
+be created by hand.
+
+**1. Register an OAuth client with Linear via DCR:**
+
+```bash
+curl -s --request POST \
+  --url 'https://mcp.linear.app/register' \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_name": "Auth0 Connected MCP Sample",
+    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "response_types": ["code"],
+    "token_endpoint_auth_method": "none"
+  }'
+```
+
+Note the `client_id` from the response. `token_endpoint_auth_method: "none"` makes
+it a **public client** — PKCE secures the code exchange instead of a client secret.
+
+**2. Get a Management API access token** — see the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "linear",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<LINEAR_CLIENT_ID_FROM_STEP_1>",
+      "client_secret": "",
+      "authorizationURL": "https://mcp.linear.app/authorize",
+      "tokenURL": "https://mcp.linear.app/token",
+      "scope": "read",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"linear|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Notes on key fields:
+
+- **`strategy: "oauth2"`** — Custom OAuth2 connection.
+- **`pkce_enabled: true`** — required; Linear's endpoints expect PKCE.
+- **`client_secret: ""`** — empty because DCR issued a public client.
+- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
+- **`authentication: {"active": false}`** — this connection is only used to obtain a
+  connected-account token, not as a login identity.
+- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
+- **`fetchUserProfile`** — a stub that mints a synthetic `user_id`. No real profile
+  mapping is needed since the connection is not used for login.
+
+The connection name (`linear`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
 Install dependencies and run the dev server:
 
 ```bash
@@ -220,9 +288,9 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), log in, and ask the assistant
-something like `Search my Notion for meeting notes`. You'll be prompted to connect
-your Notion account the first time, then the agent will call the Notion MCP server
-on your behalf.
+something like `List my GitHub repositories` or `Search my Notion for meeting notes`.
+You'll be prompted to connect each account the first time it's needed, then the agent
+will call the respective MCP server on your behalf.
 
 ### Configuration
 
@@ -230,6 +298,7 @@ on your behalf.
 | ----------------- | -------------------------------------------------------------------- |
 | `NOTION_MCP_URL`  | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
 | `GITHUB_MCP_URL`  | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
+| `LINEAR_MCP_URL`  | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection

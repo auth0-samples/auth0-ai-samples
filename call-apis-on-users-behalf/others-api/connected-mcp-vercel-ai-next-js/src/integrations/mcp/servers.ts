@@ -27,6 +27,12 @@ export const GITHUB_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const LINEAR_MCP_SERVER: McpServerConfig = {
+  connection: 'linear',
+  url: 'https://mcp.linear.app/mcp',
+  scopes: ['read'],
+};
+
 type Env = Record<string, string | undefined>;
 
 export function loadMcpServers(env: Env): McpServerConfig[] {
@@ -38,6 +44,10 @@ export function loadMcpServers(env: Env): McpServerConfig[] {
     {
       ...GITHUB_MCP_SERVER,
       url: env.GITHUB_MCP_URL ?? GITHUB_MCP_SERVER.url,
+    },
+    {
+      ...LINEAR_MCP_SERVER,
+      url: env.LINEAR_MCP_URL ?? LINEAR_MCP_SERVER.url,
     },
   ];
 }
