@@ -39,6 +39,12 @@ export const ATLASSIAN_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
+  connection: 'cloudflare',
+  url: 'https://mcp.cloudflare.com/mcp',
+  scopes: [],
+};
+
 type Env = Record<string, string | undefined>;
 
 export function loadMcpServers(env: Env): McpServerConfig[] {
@@ -58,6 +64,10 @@ export function loadMcpServers(env: Env): McpServerConfig[] {
     {
       ...ATLASSIAN_MCP_SERVER,
       url: env.ATLASSIAN_MCP_URL ?? ATLASSIAN_MCP_SERVER.url,
+    },
+    {
+      ...CLOUDFLARE_MCP_SERVER,
+      url: env.CLOUDFLARE_MCP_URL ?? CLOUDFLARE_MCP_SERVER.url,
     },
   ];
 }
