@@ -45,29 +45,38 @@ export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
+  notion: NOTION_MCP_SERVER,
+  github: GITHUB_MCP_SERVER,
+  linear: LINEAR_MCP_SERVER,
+  atlassian: ATLASSIAN_MCP_SERVER,
+  cloudflare: CLOUDFLARE_MCP_SERVER,
+};
+
+const URL_OVERRIDES: Record<string, string> = {
+  notion: 'NOTION_MCP_URL',
+  github: 'GITHUB_MCP_URL',
+  linear: 'LINEAR_MCP_URL',
+  atlassian: 'ATLASSIAN_MCP_URL',
+  cloudflare: 'CLOUDFLARE_MCP_URL',
+};
+
 type Env = Record<string, string | undefined>;
 
+/**
+ * Returns the MCP servers to connect to, driven by the ENABLED_MCP_SERVERS
+ * environment variable (comma-separated connection names, e.g. "notion,github").
+ * Defaults to Notion only when the variable is not set.
+ */
 export function loadMcpServers(env: Env): McpServerConfig[] {
-  return [
-    {
-      ...NOTION_MCP_SERVER,
-      url: env.NOTION_MCP_URL ?? NOTION_MCP_SERVER.url,
-    },
-    {
-      ...GITHUB_MCP_SERVER,
-      url: env.GITHUB_MCP_URL ?? GITHUB_MCP_SERVER.url,
-    },
-    {
-      ...LINEAR_MCP_SERVER,
-      url: env.LINEAR_MCP_URL ?? LINEAR_MCP_SERVER.url,
-    },
-    {
-      ...ATLASSIAN_MCP_SERVER,
-      url: env.ATLASSIAN_MCP_URL ?? ATLASSIAN_MCP_SERVER.url,
-    },
-    {
-      ...CLOUDFLARE_MCP_SERVER,
-      url: env.CLOUDFLARE_MCP_URL ?? CLOUDFLARE_MCP_SERVER.url,
-    },
-  ];
+  const enabled = env.ENABLED_MCP_SERVERS
+    ? env.ENABLED_MCP_SERVERS.split(',').map((s) => s.trim())
+    : ['notion'];
+
+  return enabled
+    .filter((name) => ALL_MCP_SERVERS[name])
+    .map((name) => ({
+      ...ALL_MCP_SERVERS[name],
+      url: env[URL_OVERRIDES[name]] ?? ALL_MCP_SERVERS[name].url,
+    }));
 }

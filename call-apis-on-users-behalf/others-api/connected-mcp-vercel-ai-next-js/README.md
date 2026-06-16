@@ -444,13 +444,14 @@ will call the respective MCP server on your behalf.
 
 ### Configuration
 
-| Variable          | Purpose                                                              |
-| ----------------- | -------------------------------------------------------------------- |
-| `NOTION_MCP_URL`  | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
-| `GITHUB_MCP_URL`  | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
-| `LINEAR_MCP_URL`  | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
-| `ATLASSIAN_MCP_URL` | Optional override for the Atlassian MCP endpoint (defaults to the hosted server). |
-| `CLOUDFLARE_MCP_URL` | Optional override for the Cloudflare MCP endpoint (defaults to the hosted server). |
+| Variable               | Purpose                                                              |
+| ---------------------- | -------------------------------------------------------------------- |
+| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`. |
+| `NOTION_MCP_URL`       | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
+| `GITHUB_MCP_URL`       | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
+| `LINEAR_MCP_URL`       | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
+| `ATLASSIAN_MCP_URL`    | Optional override for the Atlassian MCP endpoint (defaults to the hosted server). |
+| `CLOUDFLARE_MCP_URL`   | Optional override for the Cloudflare MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection
