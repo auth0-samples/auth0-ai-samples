@@ -33,6 +33,12 @@ export const LINEAR_MCP_SERVER: McpServerConfig = {
   scopes: ['read'],
 };
 
+export const ATLASSIAN_MCP_SERVER: McpServerConfig = {
+  connection: 'atlassian',
+  url: 'https://mcp.atlassian.com/v1/mcp/authv2',
+  scopes: [],
+};
+
 type Env = Record<string, string | undefined>;
 
 export function loadMcpServers(env: Env): McpServerConfig[] {
@@ -48,6 +54,10 @@ export function loadMcpServers(env: Env): McpServerConfig[] {
     {
       ...LINEAR_MCP_SERVER,
       url: env.LINEAR_MCP_URL ?? LINEAR_MCP_SERVER.url,
+    },
+    {
+      ...ATLASSIAN_MCP_SERVER,
+      url: env.ATLASSIAN_MCP_URL ?? ATLASSIAN_MCP_SERVER.url,
     },
   ];
 }
