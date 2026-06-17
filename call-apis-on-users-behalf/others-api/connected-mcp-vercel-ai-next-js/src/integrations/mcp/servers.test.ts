@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER } from './servers';
+import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER } from './servers';
 
 describe('loadMcpServers', () => {
   it('defaults to Notion only when ENABLED_MCP_SERVERS is not set', () => {
@@ -17,18 +17,20 @@ describe('loadMcpServers', () => {
   });
 
   it('loads all servers when all connection names are listed', () => {
-    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare' });
-    expect(servers).toHaveLength(5);
+    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana' });
+    expect(servers).toHaveLength(7);
     expect(servers[0]).toEqual(NOTION_MCP_SERVER);
     expect(servers[1]).toEqual(GITHUB_MCP_SERVER);
     expect(servers[2]).toEqual(LINEAR_MCP_SERVER);
     expect(servers[3]).toEqual(ATLASSIAN_MCP_SERVER);
     expect(servers[4]).toEqual(CLOUDFLARE_MCP_SERVER);
+    expect(servers[5]).toEqual(SENTRY_MCP_SERVER);
+    expect(servers[6]).toEqual(ASANA_MCP_SERVER);
   });
 
   it('pairs each server with an Auth0 connection used for the Token Vault exchange', () => {
-    const [notion, github, linear, atlassian, cloudflare] = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare',
+    const [notion, github, linear, atlassian, cloudflare, sentry, asana] = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana',
     });
     expect(notion.connection).toBe('notion');
     expect(notion.url).toBe('https://mcp.notion.com/mcp');
@@ -40,6 +42,10 @@ describe('loadMcpServers', () => {
     expect(atlassian.url).toBe('https://mcp.atlassian.com/v1/mcp/authv2');
     expect(cloudflare.connection).toBe('cloudflare');
     expect(cloudflare.url).toBe('https://mcp.cloudflare.com/mcp');
+    expect(sentry.connection).toBe('sentry');
+    expect(sentry.url).toBe('https://mcp.sentry.dev/mcp');
+    expect(asana.connection).toBe('asana');
+    expect(asana.url).toBe('https://mcp.asana.com/v2/mcp');
   });
 
   it('lets the Notion server URL be overridden via env without touching the connection', () => {
@@ -82,5 +88,23 @@ describe('loadMcpServers', () => {
     });
     expect(servers[0].url).toBe('https://mcp.cloudflare.test/mcp');
     expect(servers[0].connection).toBe('cloudflare');
+  });
+
+  it('lets the Sentry server URL be overridden via env without touching the connection', () => {
+    const servers = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'sentry',
+      SENTRY_MCP_URL: 'https://mcp.sentry.test/mcp',
+    });
+    expect(servers[0].url).toBe('https://mcp.sentry.test/mcp');
+    expect(servers[0].connection).toBe('sentry');
+  });
+
+  it('lets the Asana server URL be overridden via env without touching the connection', () => {
+    const servers = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'asana',
+      ASANA_MCP_URL: 'https://mcp.asana.test/mcp',
+    });
+    expect(servers[0].url).toBe('https://mcp.asana.test/mcp');
+    expect(servers[0].connection).toBe('asana');
   });
 });

@@ -45,12 +45,26 @@ export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const SENTRY_MCP_SERVER: McpServerConfig = {
+  connection: 'sentry',
+  url: 'https://mcp.sentry.dev/mcp',
+  scopes: ['org:read', 'project:write', 'team:write', 'event:write'],
+};
+
+export const ASANA_MCP_SERVER: McpServerConfig = {
+  connection: 'asana',
+  url: 'https://mcp.asana.com/v2/mcp',
+  scopes: ['default'],
+};
+
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
   linear: LINEAR_MCP_SERVER,
   atlassian: ATLASSIAN_MCP_SERVER,
   cloudflare: CLOUDFLARE_MCP_SERVER,
+  sentry: SENTRY_MCP_SERVER,
+  asana: ASANA_MCP_SERVER,
 };
 
 const URL_OVERRIDES: Record<string, string> = {
@@ -59,6 +73,8 @@ const URL_OVERRIDES: Record<string, string> = {
   linear: 'LINEAR_MCP_URL',
   atlassian: 'ATLASSIAN_MCP_URL',
   cloudflare: 'CLOUDFLARE_MCP_URL',
+  sentry: 'SENTRY_MCP_URL',
+  asana: 'ASANA_MCP_URL',
 };
 
 type Env = Record<string, string | undefined>;

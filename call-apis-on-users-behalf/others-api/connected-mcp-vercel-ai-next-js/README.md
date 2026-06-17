@@ -3,9 +3,9 @@
 This sample shows how an AI agent can call **remote MCP servers** on the user's
 behalf — without the agent ever holding the user's credentials for those services.
 
-It ships with five pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
-**Atlassian** (Jira + Confluence), and **Cloudflare**. The same pattern extends to
-any OAuth 2.0-protected MCP server.
+It ships with seven pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
+**Atlassian** (Jira + Confluence), **Cloudflare**, **Sentry**, and **Asana**. The same
+pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that
 Auth0 mints from the user's **Connected Account** via
@@ -430,6 +430,132 @@ Notes on key fields:
 The connection name (`cloudflare`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
+#### Creating the Asana Connection
+
+Asana's MCP server (`https://mcp.asana.com/v2/mcp`) requires a manually-registered OAuth
+app. Asana's DCR endpoint only accepts `localhost` redirect URIs (designed for local MCP
+clients), so you must register an app by hand — the same pattern as GitHub.
+
+**1. Create an OAuth app in Asana:**
+
+Go to [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps) → **Create new app** →
+choose **MCP app**.
+
+Under the **OAuth** section of the app:
+- Add your Auth0 callback URL as a redirect URI: `https://YOUR_TENANT.auth0.com/login/callback`
+
+Note the **Client ID** and **Client Secret**.
+
+**2. Get a Management API access token** — see the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "asana",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<ASANA_CLIENT_ID_FROM_STEP_1>",
+      "client_secret": "<ASANA_CLIENT_SECRET_FROM_STEP_1>",
+      "authorizationURL": "https://app.asana.com/-/oauth_authorize",
+      "tokenURL": "https://app.asana.com/-/oauth_token",
+      "scope": "default",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"asana|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Notes on key fields:
+
+- **`strategy: "oauth2"`** — Custom OAuth2 connection.
+- **`authorizationURL` / `tokenURL`** — Use Asana's main OAuth endpoints (`app.asana.com`),
+  not the MCP server endpoints. The MCP server at `mcp.asana.com/v2/mcp` accepts tokens
+  issued by `app.asana.com`'s OAuth server.
+- **`pkce_enabled: true`** — required even with a client secret.
+- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
+- **`authentication: {"active": false}`** — this connection is only used to obtain a
+  connected-account token, not as a login identity.
+- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
+
+The connection name (`asana`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
+#### Creating the Sentry Connection
+
+Sentry's MCP server (`https://mcp.sentry.dev/mcp`) supports Dynamic Client Registration
+(DCR), so no Sentry app needs to be created by hand.
+
+**1. Register an OAuth client with Sentry via DCR:**
+
+```bash
+curl -s --request POST \
+  --url 'https://mcp.sentry.dev/oauth/register' \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_name": "Auth0 Connected MCP Sample",
+    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "response_types": ["code"],
+    "token_endpoint_auth_method": "none"
+  }'
+```
+
+Note the `client_id` from the response.
+
+**2. Get a Management API access token** — see the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "sentry",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<SENTRY_CLIENT_ID_FROM_STEP_1>",
+      "client_secret": "",
+      "authorizationURL": "https://mcp.sentry.dev/oauth/authorize",
+      "tokenURL": "https://mcp.sentry.dev/oauth/token",
+      "scope": "org:read project:write team:write event:write",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"sentry|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Notes on key fields:
+
+- **`strategy: "oauth2"`** — Custom OAuth2 connection.
+- **`pkce_enabled: true`** — required; Sentry's endpoints expect PKCE.
+- **`client_secret: ""`** — empty because DCR issued a public client.
+- **`scope`** — Sentry exposes these scopes: `org:read`, `project:write`, `team:write`,
+  `event:write`. Adjust to your use case.
+- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
+- **`authentication: {"active": false}`** — this connection is only used to obtain a
+  connected-account token, not as a login identity.
+- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
+
+The connection name (`sentry`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
 Install dependencies and run the dev server:
 
 ```bash
@@ -446,12 +572,14 @@ will call the respective MCP server on your behalf.
 
 | Variable               | Purpose                                                              |
 | ---------------------- | -------------------------------------------------------------------- |
-| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`. |
+| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`, `sentry`, `asana`. |
 | `NOTION_MCP_URL`       | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
 | `GITHUB_MCP_URL`       | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
 | `LINEAR_MCP_URL`       | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
 | `ATLASSIAN_MCP_URL`    | Optional override for the Atlassian MCP endpoint (defaults to the hosted server). |
 | `CLOUDFLARE_MCP_URL`   | Optional override for the Cloudflare MCP endpoint (defaults to the hosted server). |
+| `SENTRY_MCP_URL`       | Optional override for the Sentry MCP endpoint (defaults to the hosted server). |
+| `ASANA_MCP_URL`        | Optional override for the Asana MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection
