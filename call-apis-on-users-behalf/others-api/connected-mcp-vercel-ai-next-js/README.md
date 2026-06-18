@@ -3,8 +3,8 @@
 This sample shows how an AI agent can call **remote MCP servers** on the user's
 behalf — without the agent ever holding the user's credentials for those services.
 
-It ships with eight pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
-**Atlassian** (Jira + Confluence), **Cloudflare**, **Sentry**, **Asana**, and **Slack**. The same
+It ships with nine pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
+**Atlassian** (Jira + Confluence), **Cloudflare**, **Sentry**, **Asana**, **Slack**, and **Salesforce**. The same
 pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that
@@ -633,6 +633,97 @@ Notes on key fields:
 The connection name (`slack`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
+### Salesforce
+
+Salesforce's MCP server requires a manually-registered **External Client App** (the newer
+Connected App type used in Developer Edition orgs). No Dynamic Client Registration is
+available.
+
+**1. Create an External Client App in Salesforce:**
+
+Go to **Setup → App Manager → New External Client App** (or **Setup → External Client Apps → New**).
+
+Configure:
+- **Distribution State:** Local
+- **Redirect URI:** `https://YOUR_TENANT.auth0.com/login/callback`
+- Under **OAuth Settings**, add these OAuth scopes:
+  - Access and manage your data (`api`)
+  - Perform requests at any time (`refresh_token`)
+  - Access MCP services (`mcp_api`)
+  - Access Einstein GPT services (`sfap_api`)
+  - Access AI API resources (`einstein_gpt_api`)
+- Enable **Authorization Code and Credentials Flow**
+
+Note the **Consumer Key** (client ID) and **Consumer Secret**.
+
+**2. Enable JWT-based access tokens:**
+
+In the External Client App → **App Settings** tab, enable:
+- **Issue JSON Web Token (JWT)-based access tokens for named users**
+
+> This is required. The Salesforce Platform MCP server performs local JWT validation and
+> rejects opaque (non-JWT) access tokens with 401.
+
+**3. Activate the MCP server in Salesforce Setup:**
+
+Go to **Setup → MCP Servers**. Find the standard server you want to use (e.g. `sobject-reads`)
+and set its status to **Active**. Open the server's detail page and note the **Server URL**
+(e.g. `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads`).
+
+The default in `servers.ts` uses `sobject-reads`. To use a different server, override the URL
+via `SALESFORCE_MCP_URL` in `.env.local`.
+
+**4. Get a Management API access token** — see the Notion section above for instructions.
+
+**5. Create the Custom OAuth2 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "salesforce",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<SALESFORCE_CONSUMER_KEY>",
+      "client_secret": "<SALESFORCE_CONSUMER_SECRET>",
+      "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
+      "tokenURL": "https://login.salesforce.com/services/oauth2/token",
+      "scope": "api sfap_api einstein_gpt_api mcp_api",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"salesforce|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Notes on key fields:
+
+- **`strategy: "oauth2"`** — Custom OAuth2 connection.
+- **`pkce_enabled: true`** — required; Salesforce External Client Apps require PKCE even when
+  a `client_secret` is present.
+- **`client_secret`** — required; Salesforce does not support public (PKCE-only) clients.
+- **`authorizationURL` / `tokenURL`** — use `login.salesforce.com` for production orgs. For a
+  sandbox org, use `test.salesforce.com` instead.
+- **`scope`** — sets the connection-level scope. Note that `refresh_token` must **not** be here
+  (Auth0 treats it as a grant type and strips it from the IdP request). Instead, it is included
+  in `McpServerConfig.scopes` in `servers.ts`, which drives the `/auth/connect` authorization
+  URL that prompts the user — this is how Salesforce is told to issue a refresh token.
+- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
+- **`authentication: {"active": false}`** — this connection is only used to obtain a
+  connected-account token, not as a login identity.
+- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
+
+The connection name (`salesforce`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
+---
+
 Install dependencies and run the dev server:
 
 ```bash
@@ -649,7 +740,7 @@ will call the respective MCP server on your behalf.
 
 | Variable               | Purpose                                                              |
 | ---------------------- | -------------------------------------------------------------------- |
-| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`, `sentry`, `asana`, `slack`. |
+| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`, `sentry`, `asana`, `slack`, `salesforce`. |
 | `NOTION_MCP_URL`       | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
 | `GITHUB_MCP_URL`       | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
 | `LINEAR_MCP_URL`       | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
@@ -658,6 +749,7 @@ will call the respective MCP server on your behalf.
 | `SENTRY_MCP_URL`       | Optional override for the Sentry MCP endpoint (defaults to the hosted server). |
 | `ASANA_MCP_URL`        | Optional override for the Asana MCP endpoint (defaults to the hosted server). |
 | `SLACK_MCP_URL`        | Optional override for the Slack MCP endpoint (defaults to the hosted server). |
+| `SALESFORCE_MCP_URL`   | Optional override for the Salesforce MCP endpoint (defaults to the `sobject-reads` hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection

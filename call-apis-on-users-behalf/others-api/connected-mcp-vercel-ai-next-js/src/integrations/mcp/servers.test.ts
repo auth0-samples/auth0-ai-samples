@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER } from './servers';
+import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER, SALESFORCE_MCP_SERVER } from './servers';
 
 describe('loadMcpServers', () => {
   it('defaults to Notion only when ENABLED_MCP_SERVERS is not set', () => {
@@ -17,8 +17,8 @@ describe('loadMcpServers', () => {
   });
 
   it('loads all servers when all connection names are listed', () => {
-    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack' });
-    expect(servers).toHaveLength(8);
+    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce' });
+    expect(servers).toHaveLength(9);
     expect(servers).toContainEqual(NOTION_MCP_SERVER);
     expect(servers).toContainEqual(GITHUB_MCP_SERVER);
     expect(servers).toContainEqual(LINEAR_MCP_SERVER);
@@ -27,11 +27,12 @@ describe('loadMcpServers', () => {
     expect(servers).toContainEqual(SENTRY_MCP_SERVER);
     expect(servers).toContainEqual(ASANA_MCP_SERVER);
     expect(servers).toContainEqual(SLACK_MCP_SERVER);
+    expect(servers).toContainEqual(SALESFORCE_MCP_SERVER);
   });
 
   it('pairs each server with an Auth0 connection used for the Token Vault exchange', () => {
-    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack] = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack',
+    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack, salesforce] = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce',
     });
     expect(notion.connection).toBe('notion');
     expect(notion.url).toBe('https://mcp.notion.com/mcp');
@@ -49,6 +50,8 @@ describe('loadMcpServers', () => {
     expect(asana.url).toBe('https://mcp.asana.com/v2/mcp');
     expect(slack.connection).toBe('slack');
     expect(slack.url).toBe('https://mcp.slack.com/mcp');
+    expect(salesforce.connection).toBe('salesforce');
+    expect(salesforce.url).toBe('https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads');
   });
 
   it('lets the Notion server URL be overridden via env without touching the connection', () => {
@@ -118,5 +121,14 @@ describe('loadMcpServers', () => {
     });
     expect(servers[0].url).toBe('https://mcp.slack.test/mcp');
     expect(servers[0].connection).toBe('slack');
+  });
+
+  it('lets the Salesforce server URL be overridden via env without touching the connection', () => {
+    const servers = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'salesforce',
+      SALESFORCE_MCP_URL: 'https://api.salesforce.test/platform/mcp/v1/platform/sobject-reads',
+    });
+    expect(servers[0].url).toBe('https://api.salesforce.test/platform/mcp/v1/platform/sobject-reads');
+    expect(servers[0].connection).toBe('salesforce');
   });
 });

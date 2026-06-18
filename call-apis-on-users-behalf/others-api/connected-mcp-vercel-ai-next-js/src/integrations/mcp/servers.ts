@@ -63,6 +63,12 @@ export const SLACK_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const SALESFORCE_MCP_SERVER: McpServerConfig = {
+  connection: 'salesforce',
+  url: 'https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads',
+  scopes: ['api', 'sfap_api', 'einstein_gpt_api', 'mcp_api', 'refresh_token'],
+};
+
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
@@ -72,6 +78,7 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   sentry: SENTRY_MCP_SERVER,
   asana: ASANA_MCP_SERVER,
   slack: SLACK_MCP_SERVER,
+  salesforce: SALESFORCE_MCP_SERVER,
 };
 
 const URL_OVERRIDES: Record<string, string> = {
@@ -83,6 +90,7 @@ const URL_OVERRIDES: Record<string, string> = {
   sentry: 'SENTRY_MCP_URL',
   asana: 'ASANA_MCP_URL',
   slack: 'SLACK_MCP_URL',
+  salesforce: 'SALESFORCE_MCP_URL',
 };
 
 type Env = Record<string, string | undefined>;
