@@ -3,8 +3,8 @@
 This sample shows how an AI agent can call **remote MCP servers** on the user's
 behalf — without the agent ever holding the user's credentials for those services.
 
-It ships with seven pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
-**Atlassian** (Jira + Confluence), **Cloudflare**, **Sentry**, and **Asana**. The same
+It ships with eight pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
+**Atlassian** (Jira + Confluence), **Cloudflare**, **Sentry**, **Asana**, and **Slack**. The same
 pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that
@@ -55,7 +55,7 @@ Set up an Auth0 tenant with Token Vault enabled, following the
 [Connected Accounts / Call other's APIs on user's behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
 guide, then add a Connection for each MCP server you want to use.
 
-#### Creating the Notion Connection
+### Notion
 
 Notion's MCP server has no built-in Auth0 social connection, so it is added as a
 **Custom OAuth2 connection** (`strategy: "oauth2"`). The steps below use the
@@ -157,7 +157,7 @@ curl -s --request PATCH \
 The connection name (`notion`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the GitHub Connection
+### GitHub
 
 GitHub's MCP server (`https://api.githubcopilot.com/mcp`) uses Auth0's built-in
 `github` strategy. There are two important constraints specific to GitHub:
@@ -212,7 +212,7 @@ curl -s --request PATCH \
 The connection name (`github`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the Linear Connection
+### Linear
 
 Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social
 connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`).
@@ -281,7 +281,7 @@ Notes on key fields:
 The connection name (`linear`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the Atlassian Connection
+### Atlassian
 
 Atlassian's MCP server (`https://mcp.atlassian.com/v1/mcp/authv2`) covers both Jira
 and Confluence through a single connection. It supports Dynamic Client Registration
@@ -364,7 +364,7 @@ client can complete the authorization flow. Log in to
 The connection name (`atlassian`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the Cloudflare Connection
+### Cloudflare
 
 Cloudflare's MCP server (`https://mcp.cloudflare.com/mcp`) supports Dynamic Client
 Registration (DCR), so no Cloudflare app needs to be created by hand.
@@ -430,7 +430,7 @@ Notes on key fields:
 The connection name (`cloudflare`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the Asana Connection
+### Asana
 
 Asana's MCP server (`https://mcp.asana.com/v2/mcp`) requires a manually-registered OAuth
 app. Asana's DCR endpoint only accepts `localhost` redirect URIs (designed for local MCP
@@ -490,7 +490,7 @@ Notes on key fields:
 The connection name (`asana`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
-#### Creating the Sentry Connection
+### Sentry
 
 Sentry's MCP server (`https://mcp.sentry.dev/mcp`) supports Dynamic Client Registration
 (DCR), so no Sentry app needs to be created by hand.
@@ -556,6 +556,83 @@ Notes on key fields:
 The connection name (`sentry`) must match the `connection` value in
 `src/integrations/mcp/servers.ts`.
 
+### Slack
+
+Slack's MCP server (`https://mcp.slack.com/mcp`) requires a manually-registered OAuth app.
+Slack does not support Dynamic Client Registration, and its MCP flow uses dedicated
+user-token endpoints (`v2_user`) that differ from the standard Slack v2 bot flow.
+
+**1. Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**.
+
+Under **OAuth & Permissions**:
+- Add your Auth0 callback URL as a redirect URI: `https://YOUR_TENANT.auth0.com/login/callback`
+- Under **User Token Scopes** (not Bot Token Scopes), add:
+  `channels:read`, `channels:history`, `groups:read`, `groups:history`,
+  `chat:write`, `files:read`, `search:read.public`, `users:read`, `identify`
+
+Under **OAuth & Permissions** → **Token Rotation**:
+- Enable **Token Rotation** — this is required for Slack to issue a refresh token.
+  Without it, Auth0 Token Vault cannot store the connection.
+
+Under **Install App**:
+- Click **Install to Workspace** and complete the installation.
+  Slack requires the app to be installed before the user OAuth flow will show a consent screen.
+
+> **Note:** After installing, verify the redirect URI is still present under OAuth & Permissions →
+> Redirect URLs. Slack sometimes drops it during installation — re-add it if missing.
+
+Enable MCP server access:
+- Go to `https://api.slack.com/apps/<YOUR_APP_ID>/app-assistant` and enable MCP server access.
+
+Note the **Client ID** and **Client Secret** from the app's **Basic Information** page.
+
+**2. Get a Management API access token** — see the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$TENANT/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "slack",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<SLACK_CLIENT_ID>",
+      "client_secret": "<SLACK_CLIENT_SECRET>",
+      "authorizationURL": "https://slack.com/oauth/v2_user/authorize",
+      "tokenURL": "https://slack.com/api/oauth.v2.user.access",
+      "scope": "channels:read channels:history groups:read groups:history chat:write files:read search:read.public users:read identify",
+      "pkce_enabled": false,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"slack|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Notes on key fields:
+
+- **`authorizationURL` / `tokenURL`** — Use the MCP-specific user-token endpoints
+  (`oauth/v2_user/authorize` and `api/oauth.v2.user.access`), not the standard Slack v2 bot
+  endpoints. These return a user token (`xoxp-`) directly, which is what the Slack MCP server
+  requires.
+- **`scope`** — In the `v2_user` flow, the `scope` parameter is treated as user scopes.
+  The scopes listed determine which tools the Slack MCP server exposes.
+- **`pkce_enabled: false`** — Slack requires a `client_secret`; PKCE is not needed.
+- **`client_secret`** — Required; Slack does not support public (PKCE-only) clients for this flow.
+- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
+- **`authentication: {"active": false}`** — this connection is only used to obtain a
+  connected-account token, not as a login identity.
+- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
+
+The connection name (`slack`) must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
 Install dependencies and run the dev server:
 
 ```bash
@@ -564,7 +641,7 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), log in, and ask the assistant
-something like `List my GitHub repositories`, `Search my Notion for meeting notes`, or `List my Jira projects`.
+something like `List my GitHub repositories`, `Search my Notion for meeting notes`, `List my Jira projects`, or `List my Slack channels`.
 You'll be prompted to connect each account the first time it's needed, then the agent
 will call the respective MCP server on your behalf.
 
@@ -572,7 +649,7 @@ will call the respective MCP server on your behalf.
 
 | Variable               | Purpose                                                              |
 | ---------------------- | -------------------------------------------------------------------- |
-| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`, `sentry`, `asana`. |
+| `ENABLED_MCP_SERVERS`  | Comma-separated list of MCP servers to enable. Defaults to `notion`. Available: `notion`, `github`, `linear`, `atlassian`, `cloudflare`, `sentry`, `asana`, `slack`. |
 | `NOTION_MCP_URL`       | Optional override for the Notion MCP endpoint (defaults to the hosted server). |
 | `GITHUB_MCP_URL`       | Optional override for the GitHub MCP endpoint (defaults to the hosted server). |
 | `LINEAR_MCP_URL`       | Optional override for the Linear MCP endpoint (defaults to the hosted server). |
@@ -580,6 +657,7 @@ will call the respective MCP server on your behalf.
 | `CLOUDFLARE_MCP_URL`   | Optional override for the Cloudflare MCP endpoint (defaults to the hosted server). |
 | `SENTRY_MCP_URL`       | Optional override for the Sentry MCP endpoint (defaults to the hosted server). |
 | `ASANA_MCP_URL`        | Optional override for the Asana MCP endpoint (defaults to the hosted server). |
+| `SLACK_MCP_URL`        | Optional override for the Slack MCP endpoint (defaults to the hosted server). |
 
 To connect a different or additional remote MCP server, edit
 `src/integrations/mcp/servers.ts` — each entry pairs an MCP URL with the Auth0 Connection

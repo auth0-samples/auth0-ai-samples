@@ -57,6 +57,12 @@ export const ASANA_MCP_SERVER: McpServerConfig = {
   scopes: ['default'],
 };
 
+export const SLACK_MCP_SERVER: McpServerConfig = {
+  connection: 'slack',
+  url: 'https://mcp.slack.com/mcp',
+  scopes: [],
+};
+
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
@@ -65,6 +71,7 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   cloudflare: CLOUDFLARE_MCP_SERVER,
   sentry: SENTRY_MCP_SERVER,
   asana: ASANA_MCP_SERVER,
+  slack: SLACK_MCP_SERVER,
 };
 
 const URL_OVERRIDES: Record<string, string> = {
@@ -75,6 +82,7 @@ const URL_OVERRIDES: Record<string, string> = {
   cloudflare: 'CLOUDFLARE_MCP_URL',
   sentry: 'SENTRY_MCP_URL',
   asana: 'ASANA_MCP_URL',
+  slack: 'SLACK_MCP_URL',
 };
 
 type Env = Record<string, string | undefined>;

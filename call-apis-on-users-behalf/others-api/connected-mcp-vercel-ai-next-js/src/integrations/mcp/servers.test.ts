@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER } from './servers';
+import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER } from './servers';
 
 describe('loadMcpServers', () => {
   it('defaults to Notion only when ENABLED_MCP_SERVERS is not set', () => {
@@ -17,20 +17,21 @@ describe('loadMcpServers', () => {
   });
 
   it('loads all servers when all connection names are listed', () => {
-    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana' });
-    expect(servers).toHaveLength(7);
-    expect(servers[0]).toEqual(NOTION_MCP_SERVER);
-    expect(servers[1]).toEqual(GITHUB_MCP_SERVER);
-    expect(servers[2]).toEqual(LINEAR_MCP_SERVER);
-    expect(servers[3]).toEqual(ATLASSIAN_MCP_SERVER);
-    expect(servers[4]).toEqual(CLOUDFLARE_MCP_SERVER);
-    expect(servers[5]).toEqual(SENTRY_MCP_SERVER);
-    expect(servers[6]).toEqual(ASANA_MCP_SERVER);
+    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack' });
+    expect(servers).toHaveLength(8);
+    expect(servers).toContainEqual(NOTION_MCP_SERVER);
+    expect(servers).toContainEqual(GITHUB_MCP_SERVER);
+    expect(servers).toContainEqual(LINEAR_MCP_SERVER);
+    expect(servers).toContainEqual(ATLASSIAN_MCP_SERVER);
+    expect(servers).toContainEqual(CLOUDFLARE_MCP_SERVER);
+    expect(servers).toContainEqual(SENTRY_MCP_SERVER);
+    expect(servers).toContainEqual(ASANA_MCP_SERVER);
+    expect(servers).toContainEqual(SLACK_MCP_SERVER);
   });
 
   it('pairs each server with an Auth0 connection used for the Token Vault exchange', () => {
-    const [notion, github, linear, atlassian, cloudflare, sentry, asana] = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana',
+    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack] = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack',
     });
     expect(notion.connection).toBe('notion');
     expect(notion.url).toBe('https://mcp.notion.com/mcp');
@@ -46,6 +47,8 @@ describe('loadMcpServers', () => {
     expect(sentry.url).toBe('https://mcp.sentry.dev/mcp');
     expect(asana.connection).toBe('asana');
     expect(asana.url).toBe('https://mcp.asana.com/v2/mcp');
+    expect(slack.connection).toBe('slack');
+    expect(slack.url).toBe('https://mcp.slack.com/mcp');
   });
 
   it('lets the Notion server URL be overridden via env without touching the connection', () => {
@@ -106,5 +109,14 @@ describe('loadMcpServers', () => {
     });
     expect(servers[0].url).toBe('https://mcp.asana.test/mcp');
     expect(servers[0].connection).toBe('asana');
+  });
+
+  it('lets the Slack server URL be overridden via env without touching the connection', () => {
+    const servers = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'slack',
+      SLACK_MCP_URL: 'https://mcp.slack.test/mcp',
+    });
+    expect(servers[0].url).toBe('https://mcp.slack.test/mcp');
+    expect(servers[0].connection).toBe('slack');
   });
 });
