@@ -1,6 +1,6 @@
 ## Connected MCP: Call a remote MCP server with Auth0 Token Vault
 
-This sample shows how an AI agent can call **remote MCP servers** on the user's
+This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's
 behalf — without the agent ever holding the user's credentials for those services.
 
 It ships with nine pre-configured MCP servers: **Notion**, **GitHub**, **Linear**,
@@ -55,6 +55,9 @@ Set up an Auth0 tenant with Token Vault enabled, following the
 [Connected Accounts / Call other's APIs on user's behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf)
 guide, then add a Connection for each MCP server you want to use.
 
+In each section below, the connection name must match the `connection` value in
+`src/integrations/mcp/servers.ts`.
+
 ### Notion
 
 Notion's MCP server has no built-in Auth0 social connection, so it is added as a
@@ -64,7 +67,7 @@ dashboard UI for this strategy.
 
 **1. Register an OAuth client with Notion via Dynamic Client Registration (DCR).**
 Notion's MCP server supports DCR, so no Notion app needs to be created by hand.
-Replace `YOUR_TENANT` with your Auth0 domain:
+Replace `YOUR_AUTH0_DOMAIN` with your Auth0 domain (the value of `AUTH0_DOMAIN` in `.env.local`):
 
 ```bash
 curl -s --request POST \
@@ -72,7 +75,7 @@ curl -s --request POST \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_TENANT.us.auth0.com/login/callback"],
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "token_endpoint_auth_method": "none"
@@ -90,7 +93,7 @@ with your tenant domain:
 
 ```bash
 export TOKEN="<MANAGEMENT_API_TOKEN>"
-export TENANT="YOUR_TENANT.us.auth0.com"
+export DOMAIN="YOUR_AUTH0_DOMAIN"
 ```
 
 > The dashboard token is short-lived (24h) — fine for this one-time setup. For a
@@ -102,7 +105,7 @@ sample app's Auth0 client id in `enabled_clients`:
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -126,14 +129,9 @@ curl -s --request POST \
 Notes on the key fields:
 
 - **`strategy: "oauth2"`** — this is what makes it a Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Notion's `/authorize` and `/token` endpoints
-  expect PKCE.
 - **`client_secret: ""`** — empty because DCR issued a public client; for a server
   that does _not_ support DCR (e.g. GitHub), create an OAuth app manually and paste
   in the `client_id` and `client_secret` instead.
-- **`fetchUserProfile`** — a stub that mints a synthetic `user_id`. The connection is
-  only used to obtain a connected-account token, not as a login identity, so no real
-  profile mapping is needed.
 
 The response includes the connection `id` (e.g. `con_…`); save it for the next step.
 
@@ -142,50 +140,40 @@ authentication, since the connection is not used to log users in:
 
 ```bash
 curl -s --request PATCH \
-  --url "https://$TENANT/api/v2/connections/<CONNECTION_ID>" \
+  --url "https://$DOMAIN/api/v2/connections/<CONNECTION_ID>" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{"connected_accounts":{"active":true}}'
 
 curl -s --request PATCH \
-  --url "https://$TENANT/api/v2/connections/<CONNECTION_ID>" \
+  --url "https://$DOMAIN/api/v2/connections/<CONNECTION_ID>" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{"authentication":{"active":false}}'
 ```
 
-The connection name (`notion`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### GitHub
 
-GitHub's MCP server (`https://api.githubcopilot.com/mcp`) uses Auth0's built-in
-`github` strategy. There are two important constraints specific to GitHub:
-
-- **GitHub Apps only — not OAuth Apps.** GitHub OAuth Apps never issue refresh
-  tokens. Auth0 Token Vault requires a refresh token to store the federated
-  connection. GitHub Apps with token expiration enabled issue both an access token
-  and a refresh token, making them compatible.
-- **Scopes are set on the GitHub App, not in Token Vault.** The `scopes` field on
-  the connection has no effect for the built-in `github` strategy. Grant the
-  permissions your use case needs when registering the GitHub App in
-  [GitHub Developer Settings](https://github.com/settings/apps).
+> Use a **GitHub App**, not an OAuth App — only GitHub Apps with token expiration enabled issue refresh tokens. Permissions are set on the GitHub App, not in the Auth0 connection.
 
 **1. Create a GitHub App** at [https://github.com/settings/apps/new](https://github.com/settings/apps/new):
 
-- **Callback URL:** `https://YOUR_TENANT.auth0.com/login/callback`
+- **Callback URL:** `https://YOUR_AUTH0_DOMAIN/login/callback`
 - **Expire user authorization tokens:** ✓ enabled ← required for refresh token issuance
 - **Request user authorization (OAuth) during installation:** ✓ enabled
-- **Webhook:** disabled
+- **Webhook:** disabled (not needed)
 - Set repository and account permissions as needed for your use case
 
 Note the **Client ID** and generate a **Client Secret**.
 
-**2. Create the Auth0 connection** using the Management API:
+**2. Get a Management API access token** — see the Notion section above for instructions.
+
+**3. Create the Auth0 connection** using the Management API:
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -195,22 +183,12 @@ curl -s --request POST \
       "client_id": "<GITHUB_APP_CLIENT_ID>",
       "client_secret": "<GITHUB_APP_CLIENT_SECRET>"
     },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"]
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
   }'
 ```
 
-**3. Enable Token Vault on the connection:**
-
-```bash
-curl -s --request PATCH \
-  --url "https://$TENANT/api/v2/connections/<CONNECTION_ID>" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{"connected_accounts": {"active": true}}'
-```
-
-The connection name (`github`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Linear
 
@@ -227,7 +205,7 @@ curl -s --request POST \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "token_endpoint_auth_method": "none"
@@ -243,7 +221,7 @@ it a **public client** — PKCE secures the code exchange instead of a client se
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -266,20 +244,6 @@ curl -s --request POST \
   }'
 ```
 
-Notes on key fields:
-
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Linear's endpoints expect PKCE.
-- **`client_secret: ""`** — empty because DCR issued a public client.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
-- **`fetchUserProfile`** — a stub that mints a synthetic `user_id`. No real profile
-  mapping is needed since the connection is not used for login.
-
-The connection name (`linear`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Atlassian
 
@@ -287,9 +251,10 @@ Atlassian's MCP server (`https://mcp.atlassian.com/v1/mcp/authv2`) covers both J
 and Confluence through a single connection. It supports Dynamic Client Registration
 (DCR), so no Atlassian OAuth app needs to be created by hand.
 
-**Before you start:** The Atlassian Rovo MCP Server requires your Auth0 tenant's
-callback domain to be allowlisted. Complete step 4 below before attempting the OAuth
-flow, or you will see a "Your organization admin must authorize access from this
+**Before you start:** You need an Atlassian account with at least one Jira or
+Confluence site. The Rovo MCP Server requires site access to authorize. Also, your
+Auth0 callback URL must be allowlisted — complete step 4 below before attempting the
+OAuth flow, or you will see a "Your organization admin must authorize access from this
 redirect URL" error.
 
 **1. Register an OAuth client with Atlassian via DCR:**
@@ -300,7 +265,7 @@ curl -s --request POST \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "token_endpoint_auth_method": "none"
@@ -315,7 +280,7 @@ Note the `client_id` from the response.
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -340,29 +305,19 @@ curl -s --request POST \
 
 Notes on key fields:
 
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Atlassian's endpoints expect PKCE.
-- **`client_secret: ""`** — empty because DCR issued a public client.
 - **`scope: ""`** — Atlassian's MCP server manages scopes automatically for
   DCR-registered clients; no scopes need to be specified.
 - **`authorizationURL` / `tokenURL`** — Atlassian uses split hosting: the
   authorization endpoint is on `mcp.atlassian.com` while the token endpoint is on
   `cf.mcp.atlassian.com`. Use each URL as-is.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
 
 **4. Allowlist your Auth0 callback domain in Atlassian:**
 
 The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth
 client can complete the authorization flow. Log in to
 [admin.atlassian.com](https://admin.atlassian.com), navigate to your site's
-**Rovo MCP Server settings**, and add your Auth0 callback URL (e.g.
-`https://YOUR_TENANT.auth0.com/login/callback`) to the allowed domains list.
+**Rovo MCP Server settings** → **Your domains**, and add `https://YOUR_AUTH0_DOMAIN/login/callback`.
 
-The connection name (`atlassian`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Cloudflare
 
@@ -377,7 +332,7 @@ curl -s --request POST \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "token_endpoint_auth_method": "none"
@@ -392,7 +347,7 @@ Note the `client_id` from the response.
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -415,20 +370,9 @@ curl -s --request POST \
   }'
 ```
 
-Notes on key fields:
-
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Cloudflare's endpoints expect PKCE.
-- **`client_secret: ""`** — empty because DCR issued a public client.
-- **`scope: ""`** — Cloudflare's MCP server manages scopes automatically for
+- Note on **`scope: ""`** — Cloudflare's MCP server manages scopes automatically for
   DCR-registered clients; no scopes need to be specified.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
 
-The connection name (`cloudflare`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Asana
 
@@ -442,7 +386,7 @@ Go to [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps) → **Create ne
 choose **MCP app**.
 
 Under the **OAuth** section of the app:
-- Add your Auth0 callback URL as a redirect URI: `https://YOUR_TENANT.auth0.com/login/callback`
+- Add your Auth0 callback URL as a redirect URI: `https://YOUR_AUTH0_DOMAIN/login/callback`
 
 Note the **Client ID** and **Client Secret**.
 
@@ -452,7 +396,7 @@ Note the **Client ID** and **Client Secret**.
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -477,18 +421,11 @@ curl -s --request POST \
 
 Notes on key fields:
 
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
 - **`authorizationURL` / `tokenURL`** — Use Asana's main OAuth endpoints (`app.asana.com`),
   not the MCP server endpoints. The MCP server at `mcp.asana.com/v2/mcp` accepts tokens
   issued by `app.asana.com`'s OAuth server.
 - **`pkce_enabled: true`** — required even with a client secret.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
 
-The connection name (`asana`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Sentry
 
@@ -503,7 +440,7 @@ curl -s --request POST \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_TENANT.auth0.com/login/callback"],
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "token_endpoint_auth_method": "none"
@@ -518,7 +455,7 @@ Note the `client_id` from the response.
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -529,7 +466,7 @@ curl -s --request POST \
       "client_secret": "",
       "authorizationURL": "https://mcp.sentry.dev/oauth/authorize",
       "tokenURL": "https://mcp.sentry.dev/oauth/token",
-      "scope": "org:read project:write team:write event:write",
+      "scope": "<space-separated scopes for your use case, e.g. org:read project:write team:write event:write>",
       "pkce_enabled": true,
       "scripts": {
         "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"sentry|\" + (context.user_id || Date.now()) }); }"
@@ -541,20 +478,6 @@ curl -s --request POST \
   }'
 ```
 
-Notes on key fields:
-
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Sentry's endpoints expect PKCE.
-- **`client_secret: ""`** — empty because DCR issued a public client.
-- **`scope`** — Sentry exposes these scopes: `org:read`, `project:write`, `team:write`,
-  `event:write`. Adjust to your use case.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
-
-The connection name (`sentry`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Slack
 
@@ -564,11 +487,12 @@ user-token endpoints (`v2_user`) that differ from the standard Slack v2 bot flow
 
 **1. Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**.
 
+Enable MCP server access:
+- Go to **Agents** in the left sidebar of your app settings and enable **Model Context Protocol (MCP) Server** access.
+
 Under **OAuth & Permissions**:
-- Add your Auth0 callback URL as a redirect URI: `https://YOUR_TENANT.auth0.com/login/callback`
-- Under **User Token Scopes** (not Bot Token Scopes), add:
-  `channels:read`, `channels:history`, `groups:read`, `groups:history`,
-  `chat:write`, `files:read`, `search:read.public`, `users:read`, `identify`
+- Add your Auth0 callback URL as a redirect URI: `https://YOUR_AUTH0_DOMAIN/login/callback`
+- Under **User Token Scopes** (not Bot Token Scopes), review the scopes listed and ensure they cover your use case.
 
 Under **OAuth & Permissions** → **Token Rotation**:
 - Enable **Token Rotation** — this is required for Slack to issue a refresh token.
@@ -578,21 +502,15 @@ Under **Install App**:
 - Click **Install to Workspace** and complete the installation.
   Slack requires the app to be installed before the user OAuth flow will show a consent screen.
 
-> **Note:** After installing, verify the redirect URI is still present under OAuth & Permissions →
-> Redirect URLs. Slack sometimes drops it during installation — re-add it if missing.
-
-Enable MCP server access:
-- Go to `https://api.slack.com/apps/<YOUR_APP_ID>/app-assistant` and enable MCP server access.
-
 Note the **Client ID** and **Client Secret** from the app's **Basic Information** page.
 
 **2. Get a Management API access token** — see the Notion section above for instructions.
 
-**3. Create the Custom OAuth2 connection:**
+**3. Create the Custom OAuth2 connection** — set `scope` to match the User Token Scopes you added in step 1:
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -603,8 +521,8 @@ curl -s --request POST \
       "client_secret": "<SLACK_CLIENT_SECRET>",
       "authorizationURL": "https://slack.com/oauth/v2_user/authorize",
       "tokenURL": "https://slack.com/api/oauth.v2.user.access",
-      "scope": "channels:read channels:history groups:read groups:history chat:write files:read search:read.public users:read identify",
-      "pkce_enabled": false,
+      "scope": "<space-separated list of your User Token Scopes>",
+      "pkce_enabled": true,
       "scripts": {
         "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"slack|\" + (context.user_id || Date.now()) }); }"
       }
@@ -615,71 +533,39 @@ curl -s --request POST \
   }'
 ```
 
-Notes on key fields:
 
-- **`authorizationURL` / `tokenURL`** — Use the MCP-specific user-token endpoints
-  (`oauth/v2_user/authorize` and `api/oauth.v2.user.access`), not the standard Slack v2 bot
-  endpoints. These return a user token (`xoxp-`) directly, which is what the Slack MCP server
-  requires.
-- **`scope`** — In the `v2_user` flow, the `scope` parameter is treated as user scopes.
-  The scopes listed determine which tools the Slack MCP server exposes.
-- **`pkce_enabled: false`** — Slack requires a `client_secret`; PKCE is not needed.
-- **`client_secret`** — Required; Slack does not support public (PKCE-only) clients for this flow.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
-
-The connection name (`slack`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ### Salesforce
 
-Salesforce's MCP server requires a manually-registered **External Client App** (the newer
-Connected App type used in Developer Edition orgs). No Dynamic Client Registration is
-available.
+**Before you start:** You need a [Salesforce Developer Edition org](https://developer.salesforce.com/signup).
 
 **1. Create an External Client App in Salesforce:**
 
 Go to **Setup → App Manager → New External Client App** (or **Setup → External Client Apps → New**).
 
 Configure:
-- **Distribution State:** Local
-- **Redirect URI:** `https://YOUR_TENANT.auth0.com/login/callback`
+- **Redirect URI:** `https://YOUR_AUTH0_DOMAIN/login/callback`
 - Under **OAuth Settings**, add these OAuth scopes:
-  - Access and manage your data (`api`)
-  - Perform requests at any time (`refresh_token`)
-  - Access MCP services (`mcp_api`)
-  - Access Einstein GPT services (`sfap_api`)
-  - Access AI API resources (`einstein_gpt_api`)
+  - Perform requests at any time (`refresh_token, offline_access`)
+  - Access Salesforce hosted MCP servers (`mcp_api`)
 - Enable **Authorization Code and Credentials Flow**
+- Under **App Settings**, enable **Issue JSON Web Token (JWT)-based access tokens for named users**
 
 Note the **Consumer Key** (client ID) and **Consumer Secret**.
 
-**2. Enable JWT-based access tokens:**
+**2. Activate the MCP server in Salesforce Setup:**
 
-In the External Client App → **App Settings** tab, enable:
-- **Issue JSON Web Token (JWT)-based access tokens for named users**
+In Setup, search for **MCP Servers** (listed under **Integrations > API Catalog**). On the MCP
+Servers page, switch to the **Salesforce Servers** tab. Find the server you want to use (e.g.
+`sobject-reads`) and set its status to **Active**.
 
-> This is required. The Salesforce Platform MCP server performs local JWT validation and
-> rejects opaque (non-JWT) access tokens with 401.
+**3. Get a Management API access token** — see the Notion section above for instructions.
 
-**3. Activate the MCP server in Salesforce Setup:**
-
-Go to **Setup → MCP Servers**. Find the standard server you want to use (e.g. `sobject-reads`)
-and set its status to **Active**. Open the server's detail page and note the **Server URL**
-(e.g. `https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads`).
-
-The default in `servers.ts` uses `sobject-reads`. To use a different server, override the URL
-via `SALESFORCE_MCP_URL` in `.env.local`.
-
-**4. Get a Management API access token** — see the Notion section above for instructions.
-
-**5. Create the Custom OAuth2 connection:**
+**4. Create the Custom OAuth2 connection:**
 
 ```bash
 curl -s --request POST \
-  --url "https://$TENANT/api/v2/connections" \
+  --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
@@ -690,7 +576,7 @@ curl -s --request POST \
       "client_secret": "<SALESFORCE_CONSUMER_SECRET>",
       "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
       "tokenURL": "https://login.salesforce.com/services/oauth2/token",
-      "scope": "api sfap_api einstein_gpt_api mcp_api",
+      "scope": "mcp_api",
       "pkce_enabled": true,
       "scripts": {
         "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"salesforce|\" + (context.user_id || Date.now()) }); }"
@@ -701,26 +587,6 @@ curl -s --request POST \
     "authentication": {"active": false}
   }'
 ```
-
-Notes on key fields:
-
-- **`strategy: "oauth2"`** — Custom OAuth2 connection.
-- **`pkce_enabled: true`** — required; Salesforce External Client Apps require PKCE even when
-  a `client_secret` is present.
-- **`client_secret`** — required; Salesforce does not support public (PKCE-only) clients.
-- **`authorizationURL` / `tokenURL`** — use `login.salesforce.com` for production orgs. For a
-  sandbox org, use `test.salesforce.com` instead.
-- **`scope`** — sets the connection-level scope. Note that `refresh_token` must **not** be here
-  (Auth0 treats it as a grant type and strips it from the IdP request). Instead, it is included
-  in `McpServerConfig.scopes` in `servers.ts`, which drives the `/auth/connect` authorization
-  URL that prompts the user — this is how Salesforce is told to issue a refresh token.
-- **`connected_accounts: {"active": true}`** — enables Token Vault for this connection.
-- **`authentication: {"active": false}`** — this connection is only used to obtain a
-  connected-account token, not as a login identity.
-- **`enabled_clients`** — must be set in the initial POST; it cannot be added via PATCH.
-
-The connection name (`salesforce`) must match the `connection` value in
-`src/integrations/mcp/servers.ts`.
 
 ---
 

@@ -66,7 +66,7 @@ export const SLACK_MCP_SERVER: McpServerConfig = {
 export const SALESFORCE_MCP_SERVER: McpServerConfig = {
   connection: 'salesforce',
   url: 'https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads',
-  scopes: ['api', 'sfap_api', 'einstein_gpt_api', 'mcp_api', 'refresh_token'],
+  scopes: ['mcp_api', 'refresh_token'],
 };
 
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
