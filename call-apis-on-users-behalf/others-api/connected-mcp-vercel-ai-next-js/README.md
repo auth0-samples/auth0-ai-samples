@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with ten pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, and **Snowflake**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with eleven pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, **Snowflake**, and **HubSpot**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -65,6 +65,7 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
 | `salesforce`  | `SALESFORCE_MCP_URL`  | [Salesforce](#salesforce)   |
 | `snowflake`   | `SNOWFLAKE_MCP_URL`   | [Snowflake](#snowflake)     |
+| `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
 
 To connect a different or additional remote MCP server, edit `src/integrations/mcp/servers.ts`. Each entry pairs an MCP URL with the Auth0 Connection whose Token Vault tokens authorize it.
 
@@ -499,6 +500,44 @@ curl -s --request POST \
   }'
 ```
 
+
+### HubSpot
+
+**1. Create an MCP auth app in HubSpot** by following the [HubSpot MCP server integration guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server). Set the redirect URL to `https://YOUR_AUTH0_DOMAIN/login/callback`. Note the **Client ID** and **Client Secret**.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Auth0 connection:**
+
+```bash
+curl -s --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "hubspot",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<HUBSPOT_CLIENT_ID>",
+      "client_secret": "<HUBSPOT_CLIENT_SECRET>",
+      "authorizationURL": "https://mcp.hubspot.com/oauth/authorize/user",
+      "tokenURL": "https://mcp.hubspot.com/oauth/v3/token",
+      "scope": "",
+      "token_endpoint_auth_method": "client_secret_post",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"hubspot|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+Note on **`scope: ""`** — HubSpot determines scopes automatically from the MCP server tools and the permissions the user grants during installation.
+
+Note on **`token_endpoint_auth_method: "client_secret_post"`** — HubSpot's token endpoint only supports `client_secret_post`; the Auth0 default of `client_secret_basic` will fail.
 
 
 ### Salesforce

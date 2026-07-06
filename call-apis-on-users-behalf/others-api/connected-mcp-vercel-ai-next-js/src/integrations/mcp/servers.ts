@@ -76,6 +76,12 @@ export const SNOWFLAKE_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const HUBSPOT_MCP_SERVER: McpServerConfig = {
+  connection: 'hubspot',
+  url: 'https://mcp.hubspot.com',
+  scopes: [],
+};
+
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
@@ -87,6 +93,7 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   slack: SLACK_MCP_SERVER,
   salesforce: SALESFORCE_MCP_SERVER,
   snowflake: SNOWFLAKE_MCP_SERVER,
+  hubspot: HUBSPOT_MCP_SERVER,
 };
 
 const URL_OVERRIDES: Record<string, string> = {
@@ -100,6 +107,7 @@ const URL_OVERRIDES: Record<string, string> = {
   slack: 'SLACK_MCP_URL',
   salesforce: 'SALESFORCE_MCP_URL',
   snowflake: 'SNOWFLAKE_MCP_URL',
+  hubspot: 'HUBSPOT_MCP_URL',
 };
 
 type Env = Record<string, string | undefined>;
