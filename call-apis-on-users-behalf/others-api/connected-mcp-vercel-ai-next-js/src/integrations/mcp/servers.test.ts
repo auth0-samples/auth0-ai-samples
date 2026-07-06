@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER, SALESFORCE_MCP_SERVER } from './servers';
+import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER, SALESFORCE_MCP_SERVER, SNOWFLAKE_MCP_SERVER } from './servers';
 
 describe('loadMcpServers', () => {
   it('defaults to Notion only when ENABLED_MCP_SERVERS is not set', () => {
@@ -17,8 +17,11 @@ describe('loadMcpServers', () => {
   });
 
   it('loads all servers when all connection names are listed', () => {
-    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce' });
-    expect(servers).toHaveLength(9);
+    const servers = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake',
+      SNOWFLAKE_MCP_URL: 'https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/DB/schemas/PUBLIC/mcp-servers/MY_MCP',
+    });
+    expect(servers).toHaveLength(10);
     expect(servers).toContainEqual(NOTION_MCP_SERVER);
     expect(servers).toContainEqual(GITHUB_MCP_SERVER);
     expect(servers).toContainEqual(LINEAR_MCP_SERVER);
@@ -31,8 +34,10 @@ describe('loadMcpServers', () => {
   });
 
   it('pairs each server with an Auth0 connection used for the Token Vault exchange', () => {
-    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack, salesforce] = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce',
+    const snowflakeUrl = 'https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/DB/schemas/PUBLIC/mcp-servers/MY_MCP';
+    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack, salesforce, snowflake] = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake',
+      SNOWFLAKE_MCP_URL: snowflakeUrl,
     });
     expect(notion.connection).toBe('notion');
     expect(notion.url).toBe('https://mcp.notion.com/mcp');
@@ -52,6 +57,8 @@ describe('loadMcpServers', () => {
     expect(slack.url).toBe('https://mcp.slack.com/mcp');
     expect(salesforce.connection).toBe('salesforce');
     expect(salesforce.url).toBe('https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads');
+    expect(snowflake.connection).toBe('snowflake');
+    expect(snowflake.url).toBe(snowflakeUrl);
   });
 
   it('lets the Notion server URL be overridden via env without touching the connection', () => {
@@ -130,5 +137,12 @@ describe('loadMcpServers', () => {
     });
     expect(servers[0].url).toBe('https://api.salesforce.test/platform/mcp/v1/platform/sobject-reads');
     expect(servers[0].connection).toBe('salesforce');
+  });
+
+  it('requires SNOWFLAKE_MCP_URL since Snowflake has no default URL', () => {
+    const url = 'https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/DB/schemas/PUBLIC/mcp-servers/MY_MCP';
+    const servers = loadMcpServers({ ENABLED_MCP_SERVERS: 'snowflake', SNOWFLAKE_MCP_URL: url });
+    expect(servers[0].connection).toBe('snowflake');
+    expect(servers[0].url).toBe(url);
   });
 });

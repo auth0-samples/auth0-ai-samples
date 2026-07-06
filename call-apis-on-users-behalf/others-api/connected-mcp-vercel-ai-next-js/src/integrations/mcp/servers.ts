@@ -69,6 +69,13 @@ export const SALESFORCE_MCP_SERVER: McpServerConfig = {
   scopes: ['mcp_api', 'refresh_token'],
 };
 
+export const SNOWFLAKE_MCP_SERVER: McpServerConfig = {
+  connection: 'snowflake',
+  // Account-specific URL - must be set via SNOWFLAKE_MCP_URL.
+  url: '',
+  scopes: [],
+};
+
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
@@ -79,6 +86,7 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   asana: ASANA_MCP_SERVER,
   slack: SLACK_MCP_SERVER,
   salesforce: SALESFORCE_MCP_SERVER,
+  snowflake: SNOWFLAKE_MCP_SERVER,
 };
 
 const URL_OVERRIDES: Record<string, string> = {
@@ -91,6 +99,7 @@ const URL_OVERRIDES: Record<string, string> = {
   asana: 'ASANA_MCP_URL',
   slack: 'SLACK_MCP_URL',
   salesforce: 'SALESFORCE_MCP_URL',
+  snowflake: 'SNOWFLAKE_MCP_URL',
 };
 
 type Env = Record<string, string | undefined>;

@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with nine pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, and **Salesforce**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with ten pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, and **Snowflake**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -64,6 +64,7 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | `asana`       | `ASANA_MCP_URL`       | [Asana](#asana)             |
 | `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
 | `salesforce`  | `SALESFORCE_MCP_URL`  | [Salesforce](#salesforce)   |
+| `snowflake`   | `SNOWFLAKE_MCP_URL`   | [Snowflake](#snowflake)     |
 
 To connect a different or additional remote MCP server, edit `src/integrations/mcp/servers.ts`. Each entry pairs an MCP URL with the Auth0 Connection whose Token Vault tokens authorize it.
 
@@ -549,6 +550,49 @@ curl -s --request POST \
     "connected_accounts": {"active": true},
     "authentication": {"active": false}
   }'
+```
+
+
+
+### Snowflake
+
+Snowflake's MCP server is account-specific: the MCP server object, OAuth endpoints, and MCP server URL all depend on your Snowflake account identifier.
+
+**1. Complete the Snowflake-side setup** by following the [Snowflake-managed MCP server](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-agents-mcp) guide. When creating the OAuth security integration, set `OAUTH_REDIRECT_URI` to `https://YOUR_AUTH0_DOMAIN/login/callback`. Note the `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` from `SYSTEM$SHOW_OAUTH_CLIENT_SECRETS`.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Auth0 connection** (replace `<SNOWFLAKE_ACCOUNT_URL>` with your account URL, e.g. `myorg-myaccount.snowflakecomputing.com`):
+
+```bash
+curl -s --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "snowflake",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<SNOWFLAKE_CLIENT_ID>",
+      "client_secret": "<SNOWFLAKE_CLIENT_SECRET>",
+      "authorizationURL": "https://<SNOWFLAKE_ACCOUNT_URL>/oauth/authorize",
+      "tokenURL": "https://<SNOWFLAKE_ACCOUNT_URL>/oauth/token-request",
+      "scope": "",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"snowflake|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+**4. Set `SNOWFLAKE_MCP_URL` in `.env.local`** using the database, schema, and MCP server name from step 1:
+
+```
+SNOWFLAKE_MCP_URL=https://<SNOWFLAKE_ACCOUNT_URL>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<server_name>
 ```
 
 
