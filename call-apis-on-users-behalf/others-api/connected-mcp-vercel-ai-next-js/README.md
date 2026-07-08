@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with eleven pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, **Snowflake**, and **HubSpot**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with fourteen pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, **Snowflake**, **HubSpot**, **Gmail**, **Google Calendar**, and **Google Drive**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -60,12 +60,15 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | `linear`      | `LINEAR_MCP_URL`      | [Linear](#linear)           |
 | `atlassian`   | `ATLASSIAN_MCP_URL`   | [Atlassian](#atlassian)     |
 | `cloudflare`  | `CLOUDFLARE_MCP_URL`  | [Cloudflare](#cloudflare)   |
-| `sentry`      | `SENTRY_MCP_URL`      | [Sentry](#sentry)           |
 | `asana`       | `ASANA_MCP_URL`       | [Asana](#asana)             |
+| `sentry`      | `SENTRY_MCP_URL`      | [Sentry](#sentry)           |
 | `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
+| `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
+| `gmail`       | `GMAIL_MCP_URL`       | [Google Workspace](#google-workspace-gmail-calendar-drive) |
+| `gcalendar`   | `GCALENDAR_MCP_URL`   | [Google Workspace](#google-workspace-gmail-calendar-drive) |
+| `gdrive`      | `GDRIVE_MCP_URL`      | [Google Workspace](#google-workspace-gmail-calendar-drive) |
 | `salesforce`  | `SALESFORCE_MCP_URL`  | [Salesforce](#salesforce)   |
 | `snowflake`   | `SNOWFLAKE_MCP_URL`   | [Snowflake](#snowflake)     |
-| `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
 
 To connect a different or additional remote MCP server, edit `src/integrations/mcp/servers.ts`. Each entry pairs an MCP URL with the Auth0 Connection whose Token Vault tokens authorize it.
 
@@ -76,7 +79,7 @@ Notion's MCP server has no built-in Auth0 social connection, so it is added as a
 **1. Register an OAuth client with Notion via Dynamic Client Registration (DCR).** Notion's MCP server supports DCR, so no Notion app needs to be created by hand. Replace `YOUR_AUTH0_DOMAIN` with your Auth0 domain (the value of `AUTH0_DOMAIN` in `.env.local`):
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url 'https://mcp.notion.com/register' \
   --header 'content-type: application/json' \
   --data '{
@@ -102,7 +105,7 @@ export DOMAIN="YOUR_AUTH0_DOMAIN"
 **3. Create the Custom OAuth2 connection.** Use the `client_id` from step 1 and your sample app's Auth0 client id in `enabled_clients`:
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -120,7 +123,9 @@ curl -s --request POST \
         "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"notion|\" + (context.user_id || Date.now()) }); }"
       }
     },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"]
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
   }'
 ```
 
@@ -128,24 +133,6 @@ Notes on the key fields:
 
 - **`strategy: "oauth2"`** — this is what makes it a Custom OAuth2 connection.
 - **`client_secret: ""`** — empty because DCR issued a public client; for a server that does _not_ support DCR (e.g. GitHub), create an OAuth app manually and paste in the `client_id` and `client_secret` instead.
-
-The response includes the connection `id` (e.g. `con_…`); save it for the next step.
-
-**4. Enable Token Vault (connected accounts) on the connection** and turn off authentication, since the connection is not used to log users in:
-
-```bash
-curl -s --request PATCH \
-  --url "https://$DOMAIN/api/v2/connections/<CONNECTION_ID>" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{"connected_accounts":{"active":true}}'
-
-curl -s --request PATCH \
-  --url "https://$DOMAIN/api/v2/connections/<CONNECTION_ID>" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{"authentication":{"active":false}}'
-```
 
 
 ### GitHub
@@ -167,7 +154,7 @@ Note the **Client ID** and generate a **Client Secret**.
 **3. Create the Auth0 connection** using the Management API:
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -192,7 +179,7 @@ Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social 
 **1. Register an OAuth client with Linear via DCR:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url 'https://mcp.linear.app/register' \
   --header 'content-type: application/json' \
   --data '{
@@ -211,7 +198,7 @@ Note the `client_id` from the response. `token_endpoint_auth_method: "none"` mak
 **3. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -245,7 +232,7 @@ Atlassian's MCP server (`https://mcp.atlassian.com/v1/mcp/authv2`) covers both J
 **1. Register an OAuth client with Atlassian via DCR:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url 'https://cf.mcp.atlassian.com/v1/register' \
   --header 'content-type: application/json' \
   --data '{
@@ -264,7 +251,7 @@ Note the `client_id` from the response.
 **3. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -305,7 +292,7 @@ Cloudflare's MCP server (`https://mcp.cloudflare.com/mcp`) supports Dynamic Clie
 **1. Register an OAuth client with Cloudflare via DCR:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url 'https://mcp.cloudflare.com/register' \
   --header 'content-type: application/json' \
   --data '{
@@ -324,7 +311,7 @@ Note the `client_id` from the response.
 **3. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -369,7 +356,7 @@ Note the **Client ID** and **Client Secret**.
 **3. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -406,7 +393,7 @@ Sentry's MCP server (`https://mcp.sentry.dev/mcp`) supports Dynamic Client Regis
 **1. Register an OAuth client with Sentry via DCR:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url 'https://mcp.sentry.dev/oauth/register' \
   --header 'content-type: application/json' \
   --data '{
@@ -425,7 +412,7 @@ Note the `client_id` from the response.
 **3. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -476,7 +463,7 @@ Note the **Client ID** and **Client Secret** from the app's **Basic Information*
 **3. Create the Custom OAuth2 connection**, setting `scope` to match the User Token Scopes from step 1:
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -510,7 +497,7 @@ curl -s --request POST \
 **3. Create the Auth0 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -540,6 +527,55 @@ Note on **`scope: ""`** — HubSpot determines scopes automatically from the MCP
 Note on **`token_endpoint_auth_method: "client_secret_post"`** — HubSpot's token endpoint only supports `client_secret_post`; the Auth0 default of `client_secret_basic` will fail.
 
 
+### Google Workspace (Gmail, Calendar, Drive)
+
+Gmail, Google Calendar, and Google Drive each have their own MCP server but share a single OAuth client and Auth0 connection.
+
+**1. Complete the GCP setup** by following the [Google Workspace MCP server setup guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
+
+- Enable the **Workspace MCP API** and the individual **Gmail MCP API**, **Google Drive MCP API**, and **Google Calendar MCP API** in your GCP project.
+- Configure the OAuth consent screen and add any test users who will connect.
+- Create an **OAuth 2.0 client ID** (Web application type) with `https://YOUR_AUTH0_DOMAIN/login/callback` as an authorized redirect URI.
+
+Note the **Client ID** and **Client Secret**.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Auth0 connection:**
+
+```bash
+curl --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "google-workspace",
+    "strategy": "google-oauth2",
+    "options": {
+      "client_id": "<GOOGLE_CLIENT_ID>",
+      "client_secret": "<GOOGLE_CLIENT_SECRET>",
+      "email": true,
+      "profile": true,
+      "gmail_readonly": true,
+      "drive_readonly": true,
+      "calendar_read": true,
+      "calendar_events_readonly": true
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+**4. Enable the servers in `.env.local`:**
+
+```
+ENABLED_MCP_SERVERS=gmail,gcalendar,gdrive
+```
+
+The MCP URLs default to the standard Google endpoints. Override them with `GMAIL_MCP_URL`, `GCALENDAR_MCP_URL`, or `GDRIVE_MCP_URL` only if needed.
+
+
 ### Salesforce
 
 **Before you start:** You need a [Salesforce Developer Edition org](https://developer.salesforce.com/signup).
@@ -567,7 +603,7 @@ In Setup, search for **MCP Servers** (listed under **Integrations > API Catalog*
 **4. Create the Custom OAuth2 connection:**
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
@@ -604,7 +640,7 @@ Snowflake's MCP server is account-specific: the MCP server object, OAuth endpoin
 **3. Create the Auth0 connection** (replace `<SNOWFLAKE_ACCOUNT_URL>` with your account URL, e.g. `myorg-myaccount.snowflakecomputing.com`):
 
 ```bash
-curl -s --request POST \
+curl --request POST \
   --url "https://$DOMAIN/api/v2/connections" \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
