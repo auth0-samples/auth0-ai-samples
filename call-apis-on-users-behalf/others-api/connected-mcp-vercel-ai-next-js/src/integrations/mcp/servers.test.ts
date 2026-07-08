@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER, SALESFORCE_MCP_SERVER, SNOWFLAKE_MCP_SERVER, HUBSPOT_MCP_SERVER, DATADOG_MCP_SERVER, GMAIL_MCP_SERVER, GCALENDAR_MCP_SERVER, GDRIVE_MCP_SERVER } from './servers';
+import { loadMcpServers, NOTION_MCP_SERVER, GITHUB_MCP_SERVER, LINEAR_MCP_SERVER, ATLASSIAN_MCP_SERVER, CLOUDFLARE_MCP_SERVER, SENTRY_MCP_SERVER, ASANA_MCP_SERVER, SLACK_MCP_SERVER, SALESFORCE_MCP_SERVER, SNOWFLAKE_MCP_SERVER, HUBSPOT_MCP_SERVER, GMAIL_MCP_SERVER, GCALENDAR_MCP_SERVER, GDRIVE_MCP_SERVER } from './servers';
 
 describe('loadMcpServers', () => {
   it('defaults to Notion only when ENABLED_MCP_SERVERS is not set', () => {
@@ -18,11 +18,10 @@ describe('loadMcpServers', () => {
 
   it('loads all servers when all connection names are listed', () => {
     const servers = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake,hubspot,datadog,gmail,gcalendar,gdrive',
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake,hubspot,gmail,gcalendar,gdrive',
       SNOWFLAKE_MCP_URL: 'https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/DB/schemas/PUBLIC/mcp-servers/MY_MCP',
-      DATADOG_MCP_URL: 'https://mcp.us5.datadoghq.com/v1/mcp',
     });
-    expect(servers).toHaveLength(15);
+    expect(servers).toHaveLength(14);
     expect(servers).toContainEqual(NOTION_MCP_SERVER);
     expect(servers).toContainEqual(GITHUB_MCP_SERVER);
     expect(servers).toContainEqual(LINEAR_MCP_SERVER);
@@ -36,16 +35,13 @@ describe('loadMcpServers', () => {
     expect(servers).toContainEqual(GMAIL_MCP_SERVER);
     expect(servers).toContainEqual(GCALENDAR_MCP_SERVER);
     expect(servers).toContainEqual(GDRIVE_MCP_SERVER);
-    expect(servers.find(s => s.connection === 'datadog')).toBeDefined();
   });
 
   it('pairs each server with an Auth0 connection used for the Token Vault exchange', () => {
     const snowflakeUrl = 'https://myorg-myaccount.snowflakecomputing.com/api/v2/databases/DB/schemas/PUBLIC/mcp-servers/MY_MCP';
-    const datadogUrl = 'https://mcp.us5.datadoghq.com/v1/mcp';
-    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack, salesforce, snowflake, hubspot, datadog, gmail, gcalendar, gdrive] = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake,hubspot,datadog,gmail,gcalendar,gdrive',
+    const [notion, github, linear, atlassian, cloudflare, sentry, asana, slack, salesforce, snowflake, hubspot, gmail, gcalendar, gdrive] = loadMcpServers({
+      ENABLED_MCP_SERVERS: 'notion,github,linear,atlassian,cloudflare,sentry,asana,slack,salesforce,snowflake,hubspot,gmail,gcalendar,gdrive',
       SNOWFLAKE_MCP_URL: snowflakeUrl,
-      DATADOG_MCP_URL: datadogUrl,
     });
     expect(notion.connection).toBe('notion');
     expect(notion.url).toBe('https://mcp.notion.com/mcp');
@@ -69,8 +65,6 @@ describe('loadMcpServers', () => {
     expect(snowflake.url).toBe(snowflakeUrl);
     expect(hubspot.connection).toBe('hubspot');
     expect(hubspot.url).toBe('https://mcp.hubspot.com');
-    expect(datadog.connection).toBe('datadog');
-    expect(datadog.url).toBe(datadogUrl);
     expect(gmail.connection).toBe('google-workspace');
     expect(gmail.url).toBe('https://gmailmcp.googleapis.com/mcp/v1');
     expect(gcalendar.connection).toBe('google-workspace');
@@ -164,15 +158,6 @@ describe('loadMcpServers', () => {
     });
     expect(servers[0].url).toBe('https://mcp.hubspot.test');
     expect(servers[0].connection).toBe('hubspot');
-  });
-
-  it('lets the Datadog server URL be overridden via env without touching the connection', () => {
-    const servers = loadMcpServers({
-      ENABLED_MCP_SERVERS: 'datadog',
-      DATADOG_MCP_URL: 'https://mcp.datadoghq.com/v1/mcp?toolsets=all',
-    });
-    expect(servers[0].url).toBe('https://mcp.datadoghq.com/v1/mcp?toolsets=all');
-    expect(servers[0].connection).toBe('datadog');
   });
 
   it('lets the Gmail server URL be overridden via env without touching the connection', () => {

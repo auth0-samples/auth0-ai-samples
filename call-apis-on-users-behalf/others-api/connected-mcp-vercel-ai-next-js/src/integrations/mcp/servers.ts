@@ -82,13 +82,6 @@ export const HUBSPOT_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
-export const DATADOG_MCP_SERVER: McpServerConfig = {
-  connection: 'datadog',
-  // No default URL — region-specific. Must be set via DATADOG_MCP_URL.
-  url: '',
-  scopes: [],
-};
-
 export const GMAIL_MCP_SERVER: McpServerConfig = {
   connection: 'google-workspace',
   url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -119,7 +112,6 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   salesforce: SALESFORCE_MCP_SERVER,
   snowflake: SNOWFLAKE_MCP_SERVER,
   hubspot: HUBSPOT_MCP_SERVER,
-  datadog: DATADOG_MCP_SERVER,
   gmail: GMAIL_MCP_SERVER,
   gcalendar: GCALENDAR_MCP_SERVER,
   gdrive: GDRIVE_MCP_SERVER,
@@ -137,7 +129,6 @@ const URL_OVERRIDES: Record<string, string> = {
   salesforce: 'SALESFORCE_MCP_URL',
   snowflake: 'SNOWFLAKE_MCP_URL',
   hubspot: 'HUBSPOT_MCP_URL',
-  datadog: 'DATADOG_MCP_URL',
   gmail: 'GMAIL_MCP_URL',
   gcalendar: 'GCALENDAR_MCP_URL',
   gdrive: 'GDRIVE_MCP_URL',

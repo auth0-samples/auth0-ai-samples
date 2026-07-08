@@ -97,7 +97,7 @@ The response contains a `client_id`. `token_endpoint_auth_method: "none"` makes 
 
 ```bash
 export TOKEN="<MANAGEMENT_API_TOKEN>"
-export DOMAIN="YOUR_AUTH0_DOMAIN"
+export DOMAIN="your-tenant.us.auth0.com"
 ```
 
 > The dashboard token is short-lived (24h), which is fine for this one-time setup. For a repeatable script, request one via the client-credentials grant from a Machine-to-Machine app authorized for the Management API instead.
