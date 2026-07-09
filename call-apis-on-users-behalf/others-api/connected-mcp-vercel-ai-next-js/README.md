@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with fourteen pre-configured MCP servers: **Notion**, **GitHub**, **Linear**, **Atlassian**, **Cloudflare**, **Sentry**, **Asana**, **Slack**, **Salesforce**, **Snowflake**, **HubSpot**, **Gmail**, **Google Calendar**, and **Google Drive**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with fourteen pre-configured MCP servers: **Notion**, **GitHub**, **Gmail**, **Google Calendar**, **Google Drive**, **Slack**, **Atlassian**, **HubSpot**, **Asana**, **Linear**, **Salesforce**, **Snowflake**, **Sentry**, and **Cloudflare**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -57,18 +57,18 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | ------------- | --------------------- | --------------------------- |
 | `notion`      | `NOTION_MCP_URL`      | [Notion](#notion)           |
 | `github`      | `GITHUB_MCP_URL`      | [GitHub](#github)           |
-| `linear`      | `LINEAR_MCP_URL`      | [Linear](#linear)           |
-| `atlassian`   | `ATLASSIAN_MCP_URL`   | [Atlassian](#atlassian)     |
-| `cloudflare`  | `CLOUDFLARE_MCP_URL`  | [Cloudflare](#cloudflare)   |
-| `asana`       | `ASANA_MCP_URL`       | [Asana](#asana)             |
-| `sentry`      | `SENTRY_MCP_URL`      | [Sentry](#sentry)           |
-| `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
-| `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
 | `gmail`       | `GMAIL_MCP_URL`       | [Google Workspace](#google-workspace-gmail-calendar-drive) |
 | `gcalendar`   | `GCALENDAR_MCP_URL`   | [Google Workspace](#google-workspace-gmail-calendar-drive) |
 | `gdrive`      | `GDRIVE_MCP_URL`      | [Google Workspace](#google-workspace-gmail-calendar-drive) |
+| `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
+| `atlassian`   | `ATLASSIAN_MCP_URL`   | [Atlassian](#atlassian)     |
+| `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
+| `asana`       | `ASANA_MCP_URL`       | [Asana](#asana)             |
+| `linear`      | `LINEAR_MCP_URL`      | [Linear](#linear)           |
 | `salesforce`  | `SALESFORCE_MCP_URL`  | [Salesforce](#salesforce)   |
 | `snowflake`   | `SNOWFLAKE_MCP_URL`   | [Snowflake](#snowflake)     |
+| `sentry`      | `SENTRY_MCP_URL`      | [Sentry](#sentry)           |
+| `cloudflare`  | `CLOUDFLARE_MCP_URL`  | [Cloudflare](#cloudflare)   |
 
 To connect a different or additional remote MCP server, edit `src/integrations/mcp/servers.ts`. Each entry pairs an MCP URL with the Auth0 Connection whose Token Vault tokens authorize it.
 
@@ -172,30 +172,21 @@ curl --request POST \
 ```
 
 
-### Linear
+### Google Workspace (Gmail, Calendar, Drive)
 
-Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`). Linear supports Dynamic Client Registration (DCR), so no Linear OAuth app needs to be created by hand.
+Gmail, Google Calendar, and Google Drive each have their own MCP server but share a single OAuth client and Auth0 connection.
 
-**1. Register an OAuth client with Linear via DCR:**
+**1. Complete the GCP setup** by following the [Google Workspace MCP server setup guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
 
-```bash
-curl --request POST \
-  --url 'https://mcp.linear.app/register' \
-  --header 'content-type: application/json' \
-  --data '{
-    "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
-    "grant_types": ["authorization_code", "refresh_token"],
-    "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
-  }'
-```
+- Enable the **Workspace MCP API** and the individual **Gmail MCP API**, **Google Drive MCP API**, and **Google Calendar MCP API** in your GCP project.
+- Configure the OAuth consent screen and add any test users who will connect.
+- Create an **OAuth 2.0 client ID** (Web application type) with `https://YOUR_AUTH0_DOMAIN/login/callback` as an authorized redirect URI.
 
-Note the `client_id` from the response. `token_endpoint_auth_method: "none"` makes it a **public client**. PKCE secures the code exchange instead of a client secret.
+Note the **Client ID** and **Client Secret**.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Custom OAuth2 connection:**
+**3. Create the Auth0 connection:**
 
 ```bash
 curl --request POST \
@@ -203,17 +194,75 @@ curl --request POST \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
-    "name": "linear",
+    "name": "google-workspace",
+    "strategy": "google-oauth2",
+    "options": {
+      "client_id": "<GOOGLE_CLIENT_ID>",
+      "client_secret": "<GOOGLE_CLIENT_SECRET>",
+      "email": true,
+      "profile": true,
+      "gmail_readonly": true,
+      "drive_readonly": true,
+      "calendar_read": true,
+      "calendar_events_readonly": true
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+**4. Enable the servers in `.env.local`:**
+
+```
+ENABLED_MCP_SERVERS=gmail,gcalendar,gdrive
+```
+
+The MCP URLs default to the standard Google endpoints. Override them with `GMAIL_MCP_URL`, `GCALENDAR_MCP_URL`, or `GDRIVE_MCP_URL` only if needed.
+
+
+### Slack
+
+Slack's MCP server (`https://mcp.slack.com/mcp`) requires a manually-registered OAuth app. Slack does not support Dynamic Client Registration, and its MCP flow uses dedicated user-token endpoints (`v2_user`) that differ from the standard Slack v2 bot flow.
+
+**1. Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**.
+
+Enable MCP server access:
+- Go to **Agents** in the left sidebar of your app settings and enable **Model Context Protocol (MCP) Server** access.
+
+Under **OAuth & Permissions**:
+- Add your Auth0 callback URL as a redirect URI: `https://YOUR_AUTH0_DOMAIN/login/callback`
+- Under **User Token Scopes** (not Bot Token Scopes), review the scopes listed and ensure they cover your use case.
+
+Under **OAuth & Permissions** → **Token Rotation**:
+- Enable **Token Rotation**. This is required for Slack to issue a refresh token. Without it, Auth0 Token Vault cannot store the connection.
+
+Under **Install App**:
+- Click **Install to Workspace** and complete the installation. Slack requires the app to be installed before the user OAuth flow will show a consent screen.
+
+Note the **Client ID** and **Client Secret** from the app's **Basic Information** page.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection**, setting `scope` to match the User Token Scopes from step 1:
+
+```bash
+curl --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "slack",
     "strategy": "oauth2",
     "options": {
-      "client_id": "<LINEAR_CLIENT_ID_FROM_STEP_1>",
-      "client_secret": "",
-      "authorizationURL": "https://mcp.linear.app/authorize",
-      "tokenURL": "https://mcp.linear.app/token",
-      "scope": "read",
+      "client_id": "<SLACK_CLIENT_ID>",
+      "client_secret": "<SLACK_CLIENT_SECRET>",
+      "authorizationURL": "https://slack.com/oauth/v2_user/authorize",
+      "tokenURL": "https://slack.com/api/oauth.v2.user.access",
+      "scope": "<space-separated list of your User Token Scopes>",
       "pkce_enabled": true,
       "scripts": {
-        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"linear|\" + (context.user_id || Date.now()) }); }"
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"slack|\" + (context.user_id || Date.now()) }); }"
       }
     },
     "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
@@ -285,30 +334,13 @@ Notes on key fields:
 The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth client can complete the authorization flow. Log in to [admin.atlassian.com](https://admin.atlassian.com), navigate to your site's **Rovo MCP Server settings** → **Your domains**, and add `https://YOUR_AUTH0_DOMAIN/login/callback`.
 
 
-### Cloudflare
+### HubSpot
 
-Cloudflare's MCP server (`https://mcp.cloudflare.com/mcp`) supports Dynamic Client Registration (DCR), so no Cloudflare app needs to be created by hand.
-
-**1. Register an OAuth client with Cloudflare via DCR:**
-
-```bash
-curl --request POST \
-  --url 'https://mcp.cloudflare.com/register' \
-  --header 'content-type: application/json' \
-  --data '{
-    "client_name": "Auth0 Connected MCP Sample",
-    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
-    "grant_types": ["authorization_code", "refresh_token"],
-    "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
-  }'
-```
-
-Note the `client_id` from the response.
+**1. Create an MCP auth app in HubSpot** by following the [HubSpot MCP server integration guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server). Set the redirect URL to `https://YOUR_AUTH0_DOMAIN/login/callback`. Note the **Client ID** and **Client Secret**.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Custom OAuth2 connection:**
+**3. Create the Auth0 connection:**
 
 ```bash
 curl --request POST \
@@ -316,17 +348,18 @@ curl --request POST \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
-    "name": "cloudflare",
+    "name": "hubspot",
     "strategy": "oauth2",
     "options": {
-      "client_id": "<CLOUDFLARE_CLIENT_ID_FROM_STEP_1>",
-      "client_secret": "",
-      "authorizationURL": "https://mcp.cloudflare.com/authorize",
-      "tokenURL": "https://mcp.cloudflare.com/token",
+      "client_id": "<HUBSPOT_CLIENT_ID>",
+      "client_secret": "<HUBSPOT_CLIENT_SECRET>",
+      "authorizationURL": "https://mcp.hubspot.com/oauth/authorize/user",
+      "tokenURL": "https://mcp.hubspot.com/oauth/v3/token",
       "scope": "",
+      "token_endpoint_auth_method": "client_secret_post",
       "pkce_enabled": true,
       "scripts": {
-        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"cloudflare|\" + (context.user_id || Date.now()) }); }"
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"hubspot|\" + (context.user_id || Date.now()) }); }"
       }
     },
     "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
@@ -335,12 +368,14 @@ curl --request POST \
   }'
 ```
 
-- Note on **`scope: ""`** — Cloudflare's MCP server manages scopes automatically for DCR-registered clients; no scopes need to be specified.
+Note on **`scope: ""`** — HubSpot determines scopes automatically from the MCP server tools and the permissions the user grants during installation.
+
+Note on **`token_endpoint_auth_method: "client_secret_post"`** — HubSpot's token endpoint only supports `client_secret_post`; the Auth0 default of `client_secret_basic` will fail.
 
 
 ### Asana
 
-Asana's MCP server (`https://mcp.asana.com/v2/mcp`) requires a manually-registered OAuth app. Asana's DCR endpoint only accepts `localhost` redirect URIs (designed for local MCP clients), so you must register an app by hand (the same pattern as GitHub).
+Asana's MCP server (`https://mcp.asana.com/v2/mcp`) requires a manually-registered OAuth app. Asana does not support Dynamic Client Registration for non-localhost redirect URIs, so you must register an app by hand.
 
 **1. Create an OAuth app in Asana:**
 
@@ -386,15 +421,15 @@ Notes on key fields:
 - **`pkce_enabled: true`** — required even with a client secret.
 
 
-### Sentry
+### Linear
 
-Sentry's MCP server (`https://mcp.sentry.dev/mcp`) supports Dynamic Client Registration (DCR), so no Sentry app needs to be created by hand.
+Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`). Linear supports Dynamic Client Registration (DCR), so no Linear OAuth app needs to be created by hand.
 
-**1. Register an OAuth client with Sentry via DCR:**
+**1. Register an OAuth client with Linear via DCR:**
 
 ```bash
 curl --request POST \
-  --url 'https://mcp.sentry.dev/oauth/register' \
+  --url 'https://mcp.linear.app/register' \
   --header 'content-type: application/json' \
   --data '{
     "client_name": "Auth0 Connected MCP Sample",
@@ -405,7 +440,7 @@ curl --request POST \
   }'
 ```
 
-Note the `client_id` from the response.
+Note the `client_id` from the response. `token_endpoint_auth_method: "none"` makes it a **public client**. PKCE secures the code exchange instead of a client secret.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
@@ -417,17 +452,17 @@ curl --request POST \
   --header "authorization: Bearer $TOKEN" \
   --header 'content-type: application/json' \
   --data '{
-    "name": "sentry",
+    "name": "linear",
     "strategy": "oauth2",
     "options": {
-      "client_id": "<SENTRY_CLIENT_ID_FROM_STEP_1>",
+      "client_id": "<LINEAR_CLIENT_ID_FROM_STEP_1>",
       "client_secret": "",
-      "authorizationURL": "https://mcp.sentry.dev/oauth/authorize",
-      "tokenURL": "https://mcp.sentry.dev/oauth/token",
-      "scope": "<space-separated scopes for your use case, e.g. org:read project:write team:write event:write>",
+      "authorizationURL": "https://mcp.linear.app/authorize",
+      "tokenURL": "https://mcp.linear.app/token",
+      "scope": "read",
       "pkce_enabled": true,
       "scripts": {
-        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"sentry|\" + (context.user_id || Date.now()) }); }"
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"linear|\" + (context.user_id || Date.now()) }); }"
       }
     },
     "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
@@ -435,145 +470,6 @@ curl --request POST \
     "authentication": {"active": false}
   }'
 ```
-
-
-### Slack
-
-Slack's MCP server (`https://mcp.slack.com/mcp`) requires a manually-registered OAuth app. Slack does not support Dynamic Client Registration, and its MCP flow uses dedicated user-token endpoints (`v2_user`) that differ from the standard Slack v2 bot flow.
-
-**1. Create a Slack app** at [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**.
-
-Enable MCP server access:
-- Go to **Agents** in the left sidebar of your app settings and enable **Model Context Protocol (MCP) Server** access.
-
-Under **OAuth & Permissions**:
-- Add your Auth0 callback URL as a redirect URI: `https://YOUR_AUTH0_DOMAIN/login/callback`
-- Under **User Token Scopes** (not Bot Token Scopes), review the scopes listed and ensure they cover your use case.
-
-Under **OAuth & Permissions** → **Token Rotation**:
-- Enable **Token Rotation**. This is required for Slack to issue a refresh token. Without it, Auth0 Token Vault cannot store the connection.
-
-Under **Install App**:
-- Click **Install to Workspace** and complete the installation. Slack requires the app to be installed before the user OAuth flow will show a consent screen.
-
-Note the **Client ID** and **Client Secret** from the app's **Basic Information** page.
-
-**2. Get a Management API access token**. See the Notion section above for instructions.
-
-**3. Create the Custom OAuth2 connection**, setting `scope` to match the User Token Scopes from step 1:
-
-```bash
-curl --request POST \
-  --url "https://$DOMAIN/api/v2/connections" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{
-    "name": "slack",
-    "strategy": "oauth2",
-    "options": {
-      "client_id": "<SLACK_CLIENT_ID>",
-      "client_secret": "<SLACK_CLIENT_SECRET>",
-      "authorizationURL": "https://slack.com/oauth/v2_user/authorize",
-      "tokenURL": "https://slack.com/api/oauth.v2.user.access",
-      "scope": "<space-separated list of your User Token Scopes>",
-      "pkce_enabled": true,
-      "scripts": {
-        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"slack|\" + (context.user_id || Date.now()) }); }"
-      }
-    },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
-    "connected_accounts": {"active": true},
-    "authentication": {"active": false}
-  }'
-```
-
-
-### HubSpot
-
-**1. Create an MCP auth app in HubSpot** by following the [HubSpot MCP server integration guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server). Set the redirect URL to `https://YOUR_AUTH0_DOMAIN/login/callback`. Note the **Client ID** and **Client Secret**.
-
-**2. Get a Management API access token**. See the Notion section above for instructions.
-
-**3. Create the Auth0 connection:**
-
-```bash
-curl --request POST \
-  --url "https://$DOMAIN/api/v2/connections" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{
-    "name": "hubspot",
-    "strategy": "oauth2",
-    "options": {
-      "client_id": "<HUBSPOT_CLIENT_ID>",
-      "client_secret": "<HUBSPOT_CLIENT_SECRET>",
-      "authorizationURL": "https://mcp.hubspot.com/oauth/authorize/user",
-      "tokenURL": "https://mcp.hubspot.com/oauth/v3/token",
-      "scope": "",
-      "token_endpoint_auth_method": "client_secret_post",
-      "pkce_enabled": true,
-      "scripts": {
-        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"hubspot|\" + (context.user_id || Date.now()) }); }"
-      }
-    },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
-    "connected_accounts": {"active": true},
-    "authentication": {"active": false}
-  }'
-```
-
-Note on **`scope: ""`** — HubSpot determines scopes automatically from the MCP server tools and the permissions the user grants during installation.
-
-Note on **`token_endpoint_auth_method: "client_secret_post"`** — HubSpot's token endpoint only supports `client_secret_post`; the Auth0 default of `client_secret_basic` will fail.
-
-
-### Google Workspace (Gmail, Calendar, Drive)
-
-Gmail, Google Calendar, and Google Drive each have their own MCP server but share a single OAuth client and Auth0 connection.
-
-**1. Complete the GCP setup** by following the [Google Workspace MCP server setup guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
-
-- Enable the **Workspace MCP API** and the individual **Gmail MCP API**, **Google Drive MCP API**, and **Google Calendar MCP API** in your GCP project.
-- Configure the OAuth consent screen and add any test users who will connect.
-- Create an **OAuth 2.0 client ID** (Web application type) with `https://YOUR_AUTH0_DOMAIN/login/callback` as an authorized redirect URI.
-
-Note the **Client ID** and **Client Secret**.
-
-**2. Get a Management API access token**. See the Notion section above for instructions.
-
-**3. Create the Auth0 connection:**
-
-```bash
-curl --request POST \
-  --url "https://$DOMAIN/api/v2/connections" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{
-    "name": "google-workspace",
-    "strategy": "google-oauth2",
-    "options": {
-      "client_id": "<GOOGLE_CLIENT_ID>",
-      "client_secret": "<GOOGLE_CLIENT_SECRET>",
-      "email": true,
-      "profile": true,
-      "gmail_readonly": true,
-      "drive_readonly": true,
-      "calendar_read": true,
-      "calendar_events_readonly": true
-    },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
-    "connected_accounts": {"active": true},
-    "authentication": {"active": false}
-  }'
-```
-
-**4. Enable the servers in `.env.local`:**
-
-```
-ENABLED_MCP_SERVERS=gmail,gcalendar,gdrive
-```
-
-The MCP URLs default to the standard Google endpoints. Override them with `GMAIL_MCP_URL`, `GCALENDAR_MCP_URL`, or `GDRIVE_MCP_URL` only if needed.
 
 
 ### Salesforce
@@ -628,7 +524,6 @@ curl --request POST \
 ```
 
 
-
 ### Snowflake
 
 Snowflake's MCP server is account-specific: the MCP server object, OAuth endpoints, and MCP server URL all depend on your Snowflake account identifier.
@@ -669,6 +564,110 @@ curl --request POST \
 ```
 SNOWFLAKE_MCP_URL=https://<SNOWFLAKE_ACCOUNT_URL>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<server_name>
 ```
+
+
+### Sentry
+
+Sentry's MCP server (`https://mcp.sentry.dev/mcp`) supports Dynamic Client Registration (DCR), so no Sentry app needs to be created by hand.
+
+**1. Register an OAuth client with Sentry via DCR:**
+
+```bash
+curl --request POST \
+  --url 'https://mcp.sentry.dev/oauth/register' \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_name": "Auth0 Connected MCP Sample",
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "response_types": ["code"],
+    "token_endpoint_auth_method": "none"
+  }'
+```
+
+Note the `client_id` from the response.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "sentry",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<SENTRY_CLIENT_ID_FROM_STEP_1>",
+      "client_secret": "",
+      "authorizationURL": "https://mcp.sentry.dev/oauth/authorize",
+      "tokenURL": "https://mcp.sentry.dev/oauth/token",
+      "scope": "<space-separated scopes for your use case, e.g. org:read project:write team:write event:write>",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"sentry|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+
+### Cloudflare
+
+Cloudflare's MCP server (`https://mcp.cloudflare.com/mcp`) supports Dynamic Client Registration (DCR), so no Cloudflare app needs to be created by hand.
+
+**1. Register an OAuth client with Cloudflare via DCR:**
+
+```bash
+curl --request POST \
+  --url 'https://mcp.cloudflare.com/register' \
+  --header 'content-type: application/json' \
+  --data '{
+    "client_name": "Auth0 Connected MCP Sample",
+    "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "response_types": ["code"],
+    "token_endpoint_auth_method": "none"
+  }'
+```
+
+Note the `client_id` from the response.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Custom OAuth2 connection:**
+
+```bash
+curl --request POST \
+  --url "https://$DOMAIN/api/v2/connections" \
+  --header "authorization: Bearer $TOKEN" \
+  --header 'content-type: application/json' \
+  --data '{
+    "name": "cloudflare",
+    "strategy": "oauth2",
+    "options": {
+      "client_id": "<CLOUDFLARE_CLIENT_ID_FROM_STEP_1>",
+      "client_secret": "",
+      "authorizationURL": "https://mcp.cloudflare.com/authorize",
+      "tokenURL": "https://mcp.cloudflare.com/token",
+      "scope": "",
+      "pkce_enabled": true,
+      "scripts": {
+        "fetchUserProfile": "function fetchUserProfile(accessToken, context, callback) { callback(null, { user_id: \"cloudflare|\" + (context.user_id || Date.now()) }); }"
+      }
+    },
+    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
+    "connected_accounts": {"active": true},
+    "authentication": {"active": false}
+  }'
+```
+
+- Note on **`scope: ""`** — Cloudflare's MCP server manages scopes automatically for DCR-registered clients; no scopes need to be specified.
 
 
 ## 🧪 Tests
