@@ -174,6 +174,8 @@ curl --request POST \
 
 ### Google Workspace (Gmail, Calendar, Drive)
 
+> **Developer Preview:** The Google Workspace MCP servers are currently available only through the [Google Workspace Developer Preview Program](https://developers.google.com/workspace/preview). You must apply and be accepted into the program before you can enable the MCP APIs in your GCP project.
+
 Gmail, Google Calendar, and Google Drive each have their own MCP server but share a single OAuth client and Auth0 connection.
 
 **1. Complete the GCP setup** by following the [Google Workspace MCP server setup guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
