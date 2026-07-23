@@ -13,7 +13,7 @@
     "@auth0/auth0-api-js": "^1.2.1",
     "@modelcontextprotocol/sdk": "^1.17.4",
     "fetch-to-node": "^2.1.0",
-    "hono": "^4.9.6",
+    "hono": "^4.12.27",
     "zod": "^3.25.76"
   },
   "devDependencies": {
