@@ -38,7 +38,9 @@ You'll need:
 
 Set up an Auth0 tenant with Token Vault enabled, following the [Connected Accounts / Call other's APIs on user's behalf](https://auth0.com/ai/docs/get-started/call-others-apis-on-users-behalf) guide, then add a Connection for each MCP server you want to use.
 
-### Quick path: Auth0 Dashboard MCP Connections (recommended)
+### Quick path: Auth0 Dashboard MCP Connections (recommended, Beta)
+
+> **Beta feature:** The Agents → MCP Servers dashboard feature is currently in Beta. For production use or if you encounter issues, use the manual setup path below.
 
 Auth0 now provides pre-configured MCP API templates in the dashboard. The recommended way to set up a connection:
 
