@@ -105,11 +105,11 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-The response contains a `client_id`. `token_endpoint_auth_method: "none"` makes it a **public client** (no secret). PKCE secures the code exchange instead.
+The response contains a `client_id` and a `client_secret` which can use when creating the Notion connection with Auth0.
 
 **2. Get a Management API access token.** The quickest way is to copy a token from the [API Explorer](https://manage.auth0.com/#/apis/management/explorer) in the Auth0 dashboard (**Applications → APIs → Auth0 Management API → API Explorer**); it needs at least the `create:connections` and `update:connections` scopes. Export it along with your tenant domain:
 
@@ -120,7 +120,7 @@ export DOMAIN="your-tenant.us.auth0.com"
 
 > The dashboard token is short-lived (24h), which is fine for this one-time setup. For a repeatable script, request one via the client-credentials grant from a Machine-to-Machine app authorized for the Management API instead.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -150,7 +150,7 @@ Note the **Client ID** and generate a **Client Secret**.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with your GitHub App credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with your GitHub App credentials. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -178,7 +178,7 @@ Note the **Client ID** and **Client Secret**.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with your Google OAuth credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with your Google OAuth credentials. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -236,7 +236,7 @@ Note the **Client ID** and **Client Secret** from the app's **Basic Information*
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with your Slack credentials, setting the scope to match the User Token Scopes from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with your Slack credentials, setting the scope to match the User Token Scopes from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -275,7 +275,7 @@ Note the `client_id` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -319,7 +319,7 @@ Note the `client_id` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -344,7 +344,7 @@ The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with your HubSpot credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with your HubSpot credentials. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -376,7 +376,7 @@ Note the **Client ID** and **Client Secret**.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with your Asana credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with your Asana credentials. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -416,7 +416,7 @@ Note the `client_id` from the response. `token_endpoint_auth_method: "none"` mak
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -453,7 +453,7 @@ Note the `client_id` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1, setting the scope to match your use case (e.g. `org:read project:write team:write event:write`). The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1, setting the scope to match your use case (e.g. `org:read project:write team:write event:write`). The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -490,7 +490,7 @@ Note the `client_id` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can also be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
