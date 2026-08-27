@@ -123,6 +123,17 @@ export DOMAIN="your-tenant.us.auth0.com"
 
 **3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `NOTION_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Notion MCP connection's name, example:
+
+```
+export const NOTION_MCP_SERVER: McpServerConfig = {
+  connection: 'my-notion-mcp-connection',
+  url: process.env.NOTION_MCP_URL || 'https://mcp.notion.com/mcp',
+  scopes: [],
+};
+```
 
 ### GitHub
 
@@ -142,6 +153,17 @@ Note the **Client ID** and generate a **Client Secret**.
 
 **3. Create the Auth0 connection** using the Management API with your GitHub App credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `GITHUB_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 GitHub MCP connection's name, example:
+
+```
+export const GITHUB_MCP_SERVER: McpServerConfig = {
+  connection: 'my-github-mcp-connection',
+  url: process.env.GITHUB_MCP_URL || 'https://api.githubcopilot.com/mcp',
+  scopes: [],
+};
+```
 
 ### Google Workspace (Gmail, Calendar, Drive)
 
@@ -158,6 +180,18 @@ Note the **Client ID** and **Client Secret**.
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
 **3. Create the Auth0 connection** using the Management API with your Google OAuth credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `GMAIL_MCP_SERVER`, `GCALENDAR_MCP_SERVER`, and `GDRIVE_MCP_SERVER` connection values in `src/integrations/mcp/servers.ts` match your Auth0 Google Workspace MCP connection's name, example:
+
+```
+export const GMAIL_MCP_SERVER: McpServerConfig = {
+  connection: 'my-google-workspace-mcp-connection',
+  url: process.env.GMAIL_MCP_URL || 'https://mcp.googleapis.com/gmail',
+  scopes: [],
+};
+```
 
 **4. Enable the servers in `.env.local`:**
 
@@ -193,6 +227,17 @@ Note the **Client ID** and **Client Secret** from the app's **Basic Information*
 
 **3. Create the Auth0 connection** using the Management API with your Slack credentials, setting the scope to match the User Token Scopes from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `SLACK_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Slack MCP connection's name, example:
+
+```
+export const SLACK_MCP_SERVER: McpServerConfig = {
+  connection: 'my-slack-mcp-connection',
+  url: process.env.SLACK_MCP_URL || 'https://mcp.slack.com/mcp',
+  scopes: [],
+};
+```
 
 ### Atlassian
 
@@ -221,6 +266,18 @@ Note the `client_id` from the response.
 
 **3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `ATLASSIAN_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Atlassian MCP connection's name, example:
+
+```
+export const ATLASSIAN_MCP_SERVER: McpServerConfig = {
+  connection: 'my-atlassian-mcp-connection',
+  url: process.env.ATLASSIAN_MCP_URL || 'https://mcp.atlassian.com/v1/mcp/authv2',
+  scopes: [],
+};
+```
+
 **4. Allowlist your Auth0 callback domain in Atlassian:**
 
 The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth client can complete the authorization flow. Log in to [admin.atlassian.com](https://admin.atlassian.com), navigate to your site's **Rovo MCP Server settings** → **Your domains**, and add `https://YOUR_AUTH0_DOMAIN/login/callback`.
@@ -233,6 +290,18 @@ The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
 **3. Create the Auth0 connection** using the Management API with your HubSpot credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `HUBSPOT_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 HubSpot MCP connection's name, example:
+
+```
+export const HUBSPOT_MCP_SERVER: McpServerConfig = {
+  connection: 'my-hubspot-mcp-connection',
+  url: process.env.HUBSPOT_MCP_URL || 'https://mcp.hubapi.com/mcp',
+  scopes: [],
+};
+```
 
 Note: HubSpot's token endpoint requires `token_endpoint_auth_method: "client_secret_post"` — the Auth0 default of `client_secret_basic` will fail.
 
@@ -253,6 +322,18 @@ Note the **Client ID** and **Client Secret**.
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
 **3. Create the Auth0 connection** using the Management API with your Asana credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `ASANA_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Asana MCP connection's name, example:
+
+```
+export const ASANA_MCP_SERVER: McpServerConfig = {
+  connection: 'my-asana-mcp-connection',
+  url: process.env.ASANA_MCP_URL || 'https://mcp.asana.com/v2/mcp',
+  scopes: [],
+};
+```
 
 Note: PKCE must be enabled even with a client secret. Use Asana's main OAuth endpoints (`app.asana.com`), not the MCP server endpoints (`mcp.asana.com`).
 
@@ -282,6 +363,17 @@ Note the `client_id` from the response. `token_endpoint_auth_method: "none"` mak
 
 **3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `LINEAR_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Linear MCP connection's name, example:
+
+```
+export const LINEAR_MCP_SERVER: McpServerConfig = {
+  connection: 'my-linear-mcp-connection',
+  url: process.env.LINEAR_MCP_URL || 'https://mcp.linear.app/mcp',
+  scopes: [],
+};
+```
 
 ### Salesforce
 
@@ -309,6 +401,17 @@ In Setup, search for **MCP Servers** (listed under **Integrations > API Catalog*
 
 **4. Create the Auth0 connection** using the Management API with your Salesforce Consumer Key and Secret. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `SALESFORCE_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Salesforce MCP connection's name, example:
+
+```
+export const SALESFORCE_MCP_SERVER: McpServerConfig = {
+  connection: 'my-salesforce-mcp-connection',
+  url: process.env.SALESFORCE_MCP_URL || 'https://mcp.salesforce.com/mcp',
+  scopes: [],
+};
+```
 
 ### Snowflake
 
@@ -319,6 +422,18 @@ Snowflake's MCP server is account-specific: the MCP server object, OAuth endpoin
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
 **3. Create the Auth0 connection** using the Management API with your Snowflake credentials (replace `<SNOWFLAKE_ACCOUNT_URL>` with your account URL, e.g. `myorg-myaccount.snowflakecomputing.com`). The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `SNOWFLAKE_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Snowflake MCP connection's name, example:
+
+```
+export const SNOWFLAKE_MCP_SERVER: McpServerConfig = {
+  connection: 'my-snowflake-mcp-connection',
+  url: process.env.SNOWFLAKE_MCP_URL || 'https://<SNOWFLAKE_ACCOUNT_URL>/api/v2/databases/<database>/schemas/<schema>/mcp-servers/<server_name>',
+  scopes: [],
+};
+```
 
 **4. Set `SNOWFLAKE_MCP_URL` in `.env.local`** using the database, schema, and MCP server name from step 1:
 
@@ -352,6 +467,17 @@ Note the `client_id` from the response.
 
 **3. Create the Auth0 connection** using the Management API with the `client_id` from step 1, setting the scope to match your use case (e.g. `org:read project:write team:write event:write`). The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `SENTRY_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Sentry MCP connection's name, example:
+
+```
+export const SENTRY_MCP_SERVER: McpServerConfig = {
+  connection: 'my-sentry-mcp-connection',
+  url: process.env.SENTRY_MCP_URL || 'https://mcp.sentry.dev/mcp',
+  scopes: [],
+};
+```
 
 ### Cloudflare
 
@@ -378,6 +504,17 @@ Note the `client_id` from the response.
 
 **3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `CLOUDFLARE_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 Cloudflare MCP connection's name, example:
+
+```
+export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
+  connection: 'my-cloudflare-mcp-connection',
+  url: process.env.CLOUDFLARE_MCP_URL || 'https://mcp.cloudflare.com/mcp',
+  scopes: [],
+};
+```
 
 ## 🧪 Tests
 
