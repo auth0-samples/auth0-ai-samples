@@ -33,8 +33,14 @@ export const LINEAR_MCP_SERVER: McpServerConfig = {
   scopes: ['read'],
 };
 
-export const ATLASSIAN_MCP_SERVER: McpServerConfig = {
-  connection: 'atlassian',
+export const ATLASSIAN_JIRA_MCP_SERVER: McpServerConfig = {
+  connection: 'jira',
+  url: 'https://mcp.atlassian.com/v1/mcp/authv2',
+  scopes: [],
+};
+
+export const ATLASSIAN_CONFLUENCE_MCP_SERVER: McpServerConfig = {
+  connection: 'confluence',
   url: 'https://mcp.atlassian.com/v1/mcp/authv2',
   scopes: [],
 };
@@ -63,18 +69,7 @@ export const SLACK_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
-export const SALESFORCE_MCP_SERVER: McpServerConfig = {
-  connection: 'salesforce',
-  url: 'https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads',
-  scopes: ['mcp_api', 'refresh_token'],
-};
 
-export const SNOWFLAKE_MCP_SERVER: McpServerConfig = {
-  connection: 'snowflake',
-  // Account-specific URL - must be set via SNOWFLAKE_MCP_URL.
-  url: '',
-  scopes: [],
-};
 
 export const HUBSPOT_MCP_SERVER: McpServerConfig = {
   connection: 'hubspot',
@@ -83,19 +78,19 @@ export const HUBSPOT_MCP_SERVER: McpServerConfig = {
 };
 
 export const GMAIL_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'gmail',
   url: 'https://gmailmcp.googleapis.com/mcp/v1',
   scopes: [],
 };
 
 export const GCALENDAR_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'google-calendar',
   url: 'https://calendarmcp.googleapis.com/mcp/v1',
   scopes: [],
 };
 
 export const GDRIVE_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'google-drive',
   url: 'https://drivemcp.googleapis.com/mcp/v1',
   scopes: [],
 };
