@@ -10,7 +10,7 @@
   "dependencies": {
     "@auth0/auth0-api-js": "^1.2.1",
     "@auth0/auth0-fastify-api": "^1.1.0",
-    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "dotenv": "^17.2.1",
     "fastify": "^5.6.1",
     "fastmcp": "^3.35.0",
