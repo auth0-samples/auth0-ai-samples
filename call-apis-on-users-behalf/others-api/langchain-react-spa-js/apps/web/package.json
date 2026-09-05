@@ -43,7 +43,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.9.3",
+    "react-router-dom": "^7.16.0",
     "react-syntax-highlighter": "^15.6.6",
     "recharts": "^3.2.1",
     "rehype-katex": "^7.0.1",
