@@ -1,5 +1,5 @@
 ---
-name: auth0-vercel-integration
+name: auth0-v0-integration
 description: >
   Use when installing or managing the Auth0 native integration in Vercel
   Marketplace, connecting Auth0 to a Vercel project, or syncing Auth0
@@ -10,9 +10,6 @@ description: >
 license: Apache-2.0
 metadata:
   author: Auth0 <support@auth0.com>
-  openclaw:
-    emoji: "\U0001F510"
-    homepage: https://github.com/auth0-samples/auth0-ai-samples
 ---
 
 # Auth0 Vercel native integration
