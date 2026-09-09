@@ -10,9 +10,6 @@ description: >
 license: Apache-2.0
 metadata:
   author: Auth0 <support@auth0.com>
-  openclaw:
-    emoji: "\U0001F510"
-    homepage: https://github.com/auth0-samples/auth0-ai-samples
 ---
 
 # Auth0 Vercel native integration
