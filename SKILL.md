@@ -1,5 +1,5 @@
 ---
-name: auth0-vercel-integration
+name: auth0-v0-integration
 description: >
   Use when installing or managing the Auth0 native integration in Vercel
   Marketplace, connecting Auth0 to a Vercel project, or syncing Auth0
