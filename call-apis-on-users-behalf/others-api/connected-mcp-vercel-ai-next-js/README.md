@@ -14,7 +14,7 @@ The agent authenticates to each MCP server with a short-lived access token that 
 3. `connectMcpServer` opens the remote MCP server over Streamable HTTP, passing the token as `Authorization: Bearer <token>`, and returns the discovered tools.
 4. The Vercel AI SDK calls those tools as part of the agent loop.
 
-Auth0 never learns the MCP server URL; it only mints a federated token for the Connection. The MCP endpoint lives in app config (`src/integrations/mcp/servers.ts`), not in the tenant.
+Auth0 never accesses the MCP server URL; it only mints a federated token for the Connection. The MCP endpoint lives in app config (`src/integrations/mcp/servers.ts`), not in the tenant.
 
 ## 🚀 Getting started
 
@@ -55,7 +55,7 @@ Connections created via the dashboard can also be retrieved and managed via the 
 
 ### Reference: Manual setup via Management API
 
-The sections below provide reference information for manual connection creation. Most users should use the **Dashboard MCP Connections** path above.
+The sections below provide reference information for MCP connection creation.
 
 In each section, the connection name must match the `connection` value in `src/integrations/mcp/servers.ts`.
 
@@ -92,7 +92,7 @@ To connect a different or additional remote MCP server, edit `src/integrations/m
 
 ### Notion
 
-Notion's MCP server has no built-in Auth0 social connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`). The steps below use the [Management API](https://auth0.com/docs/api/management/v2) directly; there is no dashboard UI for this strategy.
+Use the steps below to register a Notion client that can be used by your agent to access the Notion MCP Server (`https://mcp.notion.com/mcp`).
 
 **1. Register an OAuth client with Notion via Dynamic Client Registration (DCR).** Notion's MCP server supports DCR, so no Notion app needs to be created by hand. Replace `YOUR_AUTH0_DOMAIN` with your Auth0 domain (the value of `AUTH0_DOMAIN` in `.env.local`):
 
@@ -135,6 +135,8 @@ export const NOTION_MCP_SERVER: McpServerConfig = {
 ```
 
 ### GitHub
+
+Use the steps below to register a Github client that can be used by your agent to access the Github MCP Server (`https://api.githubcopilot.com/mcp`).
 
 > Use a **GitHub App**, not an OAuth App. Only GitHub Apps with token expiration enabled issue refresh tokens. Permissions are set on the GitHub App, not in the Auth0 connection.
 
@@ -267,15 +269,15 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-Note the `client_id` from the response.
+Note the `client_id` and `client_secret` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -311,15 +313,15 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-Note the `client_id` from the response.
+Note the `client_id` and `client_secret` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -339,6 +341,8 @@ The Atlassian Rovo MCP Server requires explicit domain approval before any OAuth
 
 
 ### HubSpot
+
+Use the steps below to register a HubSpot client that can be used by your agent to access the HubSpot MCP Server (`https://mcp.hubspot.com`).
 
 **1. Create an MCP auth app in HubSpot** by following the [HubSpot MCP server integration guide](https://developers.hubspot.com/docs/apps/developer-platform/build-apps/integrate-with-the-remote-hubspot-mcp-server). Set the redirect URL to `https://YOUR_AUTH0_DOMAIN/login/callback`. Note the **Client ID** and **Client Secret**.
 
@@ -395,7 +399,7 @@ Note: PKCE must be enabled even with a client secret. Use Asana's main OAuth end
 
 ### Linear
 
-Linear's MCP server (`https://mcp.linear.app/mcp`) has no built-in Auth0 social connection, so it is added as a **Custom OAuth2 connection** (`strategy: "oauth2"`). Linear supports Dynamic Client Registration (DCR), so no Linear OAuth app needs to be created by hand.
+Use the steps below to register a Linear client that can be used by your agent to access the Linear MCP Server (`https://mcp.linear.app/mcp`). Linear supports Dynamic Client Registration (DCR), so no Linear OAuth app needs to be created by hand.
 
 **1. Register an OAuth client with Linear via DCR:**
 
@@ -408,15 +412,15 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-Note the `client_id` from the response. `token_endpoint_auth_method: "none"` makes it a **public client**. PKCE secures the code exchange instead of a client secret.
+Note the `client_id` and `client_secret` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -445,15 +449,15 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-Note the `client_id` from the response.
+Note the `client_id` and the `client_secret` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1, setting the scope to match your use case (e.g. `org:read project:write team:write event:write`). The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1, setting the scope to match your use case (e.g. `org:read project:write team:write event:write`). The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
@@ -482,15 +486,15 @@ curl --request POST \
     "redirect_uris": ["https://YOUR_AUTH0_DOMAIN/login/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "token_endpoint_auth_method": "none"
+    "token_endpoint_auth_method": "client_secret_basic"
   }'
 ```
 
-Note the `client_id` from the response.
+Note the `client_id` and `client_secret` from the response.
 
 **2. Get a Management API access token**. See the Notion section above for instructions.
 
-**3. Create the Auth0 connection** using the Management API with the `client_id` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+**3. Create the Auth0 connection** using the Management API with the `client_id` and `client_secret` from step 1. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
 
 After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
 
