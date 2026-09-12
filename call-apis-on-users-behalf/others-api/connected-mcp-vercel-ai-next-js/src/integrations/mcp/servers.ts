@@ -51,6 +51,12 @@ export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
+export const GITLAB_MCP_SERVER: McpServerConfig = {
+  connection: 'gitlab',
+  url: 'https://gitlab.com/api/v4/mcp',
+  scopes: ['mcp'],
+};
+
 export const SENTRY_MCP_SERVER: McpServerConfig = {
   connection: 'sentry',
   url: 'https://mcp.sentry.dev/mcp',
@@ -98,6 +104,7 @@ export const GDRIVE_MCP_SERVER: McpServerConfig = {
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
+  gitlab: GITLAB_MCP_SERVER,
   linear: LINEAR_MCP_SERVER,
   jira: ATLASSIAN_JIRA_MCP_SERVER,
   confluence: ATLASSIAN_CONFLUENCE_MCP_SERVER,
@@ -114,6 +121,7 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
 const URL_OVERRIDES: Record<string, string> = {
   notion: 'NOTION_MCP_URL',
   github: 'GITHUB_MCP_URL',
+  gitlab: 'GITLAB_MCP_URL',
   linear: 'LINEAR_MCP_URL',
   jira: 'JIRA_MCP_URL',
   confluence: 'CONFLUENCE_MCP_URL',

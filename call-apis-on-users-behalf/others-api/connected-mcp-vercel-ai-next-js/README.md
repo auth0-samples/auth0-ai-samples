@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with twelve pre-configured MCP servers: **Notion**, **GitHub**, **Gmail**, **Google Calendar**, **Google Drive**, **Slack**, **Jira**, **Confluence**, **HubSpot**, **Asana**, **Linear**, **Sentry**, and **Cloudflare**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with fourteen pre-configured MCP servers: **Notion**, **GitHub**, **GitLab**, **Gmail**, **Google Calendar**, **Google Drive**, **Slack**, **Jira**, **Confluence**, **HubSpot**, **Asana**, **Linear**, **Sentry**, and **Cloudflare**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -87,6 +87,7 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | `linear`      | `LINEAR_MCP_URL`      | [Linear](#linear)           |
 | `sentry`      | `SENTRY_MCP_URL`      | [Sentry](#sentry)           |
 | `cloudflare`  | `CLOUDFLARE_MCP_URL`  | [Cloudflare](#cloudflare)   |
+| `gitlab`      | `GITLAB_MCP_URL`      | [GitLab](#gitlab)           |
 
 To connect a different or additional remote MCP server, edit `src/integrations/mcp/servers.ts`. Each entry pairs an MCP URL with the Auth0 Connection whose Token Vault tokens authorize it.
 
@@ -505,6 +506,37 @@ export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
   connection: 'cloudflare',
   url: 'https://mcp.cloudflare.com/mcp',
   scopes: [],
+};
+```
+
+### GitLab
+
+Use the steps below to register a GitLab OAuth application that can be used by your agent to access the [GitLab MCP Server](https://docs.gitlab.com/user/model_context_protocol/mcp_server/) (`https://gitlab.com/api/v4/mcp`).
+
+> GitLab's MCP Server requires the **`mcp`** scope on the access token. Before starting, enable the MCP feature in your GitLab group: **Settings → General → Permissions and group features → Allow use of Model Context Protocol (MCP) in this group**.
+
+**1. Create a GitLab OAuth application** at [https://gitlab.com/-/profile/applications](https://gitlab.com/-/profile/applications):
+
+- **Name:** Auth0 Connected MCP Sample
+- **Redirect URI:** `https://YOUR_AUTH0_DOMAIN/login/callback`
+- **Scopes:** check `mcp`
+- **Confidential:** ✓ enabled
+
+Note the **Application ID** and **Secret**.
+
+**2. Get a Management API access token**. See the Notion section above for instructions.
+
+**3. Create the Auth0 connection** using the Management API with your GitLab application credentials. The connection can be created via the dashboard Agents → MCP Servers feature or programmatically with the Management API `/api/v2/connections` endpoint.
+
+After the Auth0 MCP connection has been created, navigate to the connection's settings view and select the Applications tab. Make sure to enable the Auth0 application that you created in the [Getting started](#-getting-started) section.
+
+Ensure the `GITLAB_MCP_SERVER` connection value in `src/integrations/mcp/servers.ts` matches your Auth0 GitLab MCP connection's name, example:
+
+```
+export const GITLAB_MCP_SERVER: McpServerConfig = {
+  connection: 'gitlab',
+  url: 'https://gitlab.com/api/v4/mcp',
+  scopes: ['mcp'],
 };
 ```
 
