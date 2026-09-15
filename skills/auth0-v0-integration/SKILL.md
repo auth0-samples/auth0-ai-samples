@@ -14,10 +14,6 @@ metadata:
 
 # Auth0 Vercel native integration
 
-Use this reference when the developer wants to install or manage Auth0 through
-the Vercel Marketplace, connect an Auth0 integration to a Vercel project, or
-sync Auth0 configuration into a Vercel-hosted Next.js application.
-
 The native integration provisions a **new Auth0 tenant environment and
 application** for the Vercel project, then preloads the Auth0 configuration in
 Vercel. It does not connect an existing Auth0 account. For an existing tenant,
@@ -25,19 +21,22 @@ use the standard Auth0 application setup instead of installing this integration.
 
 ## Get the full Auth0 skill for anything beyond installation
 
-This file covers the Vercel Marketplace integration only: provisioning,
-credential handling, and v0 preview troubleshooting. For the Auth0 SDK
-integration itself (Next.js routes, middleware, session handling), tenant
-configuration beyond callback/logout URLs, or any other Auth0 feature, install
-the full `auth0` skill and let its router load what the task needs:
+**Install the full `auth0` skill for the greatest guidance on setting up
+Auth0** — this file only covers the Vercel Marketplace integration:
+provisioning, credential handling, and v0 preview troubleshooting. For the
+Auth0 SDK integration itself (Next.js routes, middleware, session handling),
+tenant configuration beyond callback/logout URLs, Universal Login branding,
+or any other Auth0 feature, install it and let its router load what the task
+needs:
 
 ```bash
-npx skills add https://github.com/auth0/agent-skills --skill auth0
+npx skills add auth0/agent-skills
 ```
 
-The sections below that touch tenant configuration state the CLI command and
-move on — the full skill's `tooling-cli` reference has the complete command
-set, flag reference, and agent-mode output conventions.
+Do this early, not as a last resort after something breaks — the sections
+below that touch tenant configuration or branding intentionally state the CLI
+command and move on; the full skill's `tooling-cli` reference has the
+complete command set, flag reference, and agent-mode output conventions.
 
 ## Confirm before provisioning
 
@@ -102,6 +101,17 @@ only after the developer confirms the target team and project.
 
 ## Configure the tenant with the Auth0 CLI
 
+**Before touching tenant config, verify:** decode the running app's login
+`redirect_uri` to confirm which tenant/client it uses → confirm that
+`client_id` matches the credentials in hand → mint a Management API token
+(below) to prove the M2M credentials actually work → only then make changes.
+Skipping this and configuring the wrong tenant, or configuring correctly but
+with M2M credentials that don't actually work (placeholder values, wrong
+environment), is the most common failure mode here.
+Reconnecting the integration is destructive to prior tenant config — it
+provisions a **new** tenant and application client, so treat any reconnect as
+"redo tenant setup," not "resume it."
+
 Once the integration completes, an M2M grant lets you configure the
 provisioned tenant directly instead of routing every change through the Auth0
 dashboard. **Prefer the CLI for tenant configuration** — callback/logout URLs,
@@ -109,7 +119,7 @@ iframe embedding, application settings — and fall back to the dashboard only
 where noted below.
 
 ```bash
-auth0 login --domain <tenant>.auth0.com --client-id <id> --client-secret "$AUTH0_CLIENT_SECRET"
+auth0 login --domain <tenant>.auth0.com --client-id "$AUTH0_MANAGEMENT_API_CLIENT_ID" --client-secret "$AUTH0_MANAGEMENT_API_CLIENT_SECRET"
 ```
 
 Use the M2M client ID/secret the integration provisioned (do not print or log
@@ -119,6 +129,74 @@ reference for every command and flag.
 
 If no M2M grant is available yet, fall back to `auth0 login` (interactive
 device-code) or the dashboard steps in the sections below.
+
+### The M2M credentials are named after the Management API
+
+The integration provisions a Management API M2M client and exposes it under
+these exact Vercel env var names:
+
+- `AUTH0_MANAGEMENT_API_CLIENT_ID`
+- `AUTH0_MANAGEMENT_API_CLIENT_SECRET`
+
+Use them verbatim. Do not invent or assume `AUTH0_CLIENT_M2M_ID` /
+`AUTH0_CLIENT_M2M_SECRET` — those names don't exist in what the integration
+provisions, and guessing at them wastes a round-trip discovering `env pull`
+never populated them. Confirm the token actually mints before doing anything
+else; the audience must be the tenant's own Management API:
+
+```bash
+curl -s --request POST \
+  --url "https://$AUTH0_DOMAIN/oauth/token" \
+  --data grant_type=client_credentials \
+  --data "client_id=$AUTH0_MANAGEMENT_API_CLIENT_ID" \
+  --data "client_secret=$AUTH0_MANAGEMENT_API_CLIENT_SECRET" \
+  --data "audience=https://$AUTH0_DOMAIN/api/v2/"
+```
+
+A successful response returns an `access_token`. Anything else — including
+`access_denied` — means the credentials, the audience, or the environment
+they came from is wrong; see the next two sections before assuming it's a bad
+secret.
+
+### Only the development environment has working M2M credentials
+
+Each Vercel environment (Production/Preview/Development) gets its own Auth0
+**tenant** and application client. Development additionally gets a real,
+authorized M2M client for the Management API. **Production and Staging only
+get placeholder `AUTH0_MANAGEMENT_API_CLIENT_ID`/`_SECRET` values** — dummy
+strings, not a provisioned-but-unauthorized client. Always verify with the
+token-mint `curl` above rather than assuming either way.
+
+For CLI or Management API work against the running v0 preview: pull the
+Development environment's values (`vercel env pull .env.local
+--environment=development`), verify the token mints, then configure the
+tenant/application client that Development points at — that's what the v0
+preview actually runs against.
+
+### If you need CLI/Management API access for Production or Staging
+
+If the token-mint check fails, don't guess at a fix — walk through creating a
+real M2M client for that environment and wiring it in:
+
+1. In the Auth0 dashboard, switch to the Production/Staging tenant (top-left
+   tenant switcher).
+2. Go to **Applications → Applications → Create Application**, choose
+   **Machine to Machine Applications**, name it (e.g. `v0-management-prod`),
+   and authorize it against the **Auth0 Management API** with the scopes you
+   need — at minimum `read:clients`, `update:clients`, `read:branding`,
+   `update:branding`.
+3. Open the new application's **Settings** tab and copy its **Client ID** and
+   **Client Secret**.
+4. Set those two values as `AUTH0_MANAGEMENT_API_CLIENT_ID` and
+   `AUTH0_MANAGEMENT_API_CLIENT_SECRET` on the Vercel project, scoped to that
+   specific environment, replacing the placeholder values. Do this either:
+   - directly in the Vercel project's environment variable settings
+     yourself, or
+   - by pasting the Client ID/Secret into the v0 chat and having the agent
+     save them as env vars on that environment through its own tooling —
+     don't have the agent print, log, or echo the secret back once saved.
+5. Re-run the token-mint `curl` against that environment to confirm before
+   relying on it.
 
 ## Use the generated configuration safely
 
@@ -148,10 +226,23 @@ fi
 
 # Link the local checkout to the intended Vercel project, then pull local-only values.
 vercel link
-# The native integration stores credentials in Production; pull that environment
-# explicitly (env pull defaults to Development, which has no credentials).
-vercel env pull .env.local --environment=production
+# For the v0 preview, pull DEVELOPMENT (see "Only the development environment
+# has working M2M credentials" above). For a deployed Production app, pull
+# --environment=production.
+vercel env pull .env.local --environment=development
 ```
+
+> **The v0 preview runtime does NOT auto-inject the project's Vercel env
+> vars** — the dev server only sees `.env.local`. If `process.env.AUTH0_DOMAIN`
+> is undefined at request time, the SDK falls back to a header-based domain
+> resolver that throws `DomainResolutionError` on every route. `vercel env ls`
+> showing the vars proves nothing about the runtime; only a request that
+> actually reads `process.env` proves it.
+
+> **Confirm which Vercel project the chat actually runs on.** Connecting the
+> integration to a differently named project than the one the chat
+> builds/deploys against is a common cause of "the vars exist but the app
+> can't see them."
 
 For local development the current Next.js SDK also needs `APP_BASE_URL`; set it
 to your local URL (e.g. `http://localhost:3000`) in `.env.local`, and keep the
@@ -159,10 +250,10 @@ canonical production URL configured for the deployed environment. The SDK can
 infer `APP_BASE_URL` from the request on Vercel previews, but do not derive it
 from an untrusted request header in code.
 
-The native-integration quickstart only configures Auth0 environment variables
-for the Production environment. Do not assume Preview or Development deployments
-have the credentials; inspect the Vercel project settings and deliberately add
-or scope variables before testing those environments.
+The native-integration quickstart's own walkthrough only wires up the
+Production environment. Preview and Development are provisioned automatically
+too, but may still need non-Auth0 variables added or scoped manually before
+testing.
 
 ## Deploy and verify
 
@@ -180,12 +271,21 @@ or scope variables before testing those environments.
 
 3. Deploy to the selected Vercel Production environment and complete login,
    callback, session, protected-route, and logout checks on the deployed URL.
-4. If login fails in Vercel's embedded experience, enable iframe embedding in
-   the Auth0 tenant — but first restrict the allowed iframe origins to the
-   intended Vercel URLs, then enable the setting. Check this before changing
-   callback URLs or SDK code. Iframe embedding is a tenant flag not yet exposed
-   as a CLI flag; set it from **Auth0 Dashboard → Settings → Advanced →
-   Allow Cross-Origin Authentication** (dashboard fallback).
+4. Match Universal Login branding to the app being secured — don't leave the
+   default Auth0 branding on a login page that's supposed to look like part
+   of the app. At minimum, set the logo, primary/page background color, and
+   button/input border radius to match the app; pull the values from the
+   app's own theme/CSS rather than guessing. Use the full `auth0` skill's
+   branding guidance for the exact CLI/Management API calls (`auth0 branding
+   ...`, or `PATCH /api/v2/branding` and `PUT
+   /api/v2/branding/themes/default`); this file only calls out that the step
+   exists. Re-check branding after any tenant reconnect — see
+   "Callback mismatch / login fails after reconnecting the integration" in
+   Troubleshoot.
+5. If login fails in Vercel's embedded experience, enable iframe embedding —
+   see "Login page won't frame" under "Auth0 in the v0 preview" for the
+   tenant setting, origin scoping, and dashboard path (not yet a CLI flag).
+   Check this before changing callback URLs or SDK code.
 
 ## Manage the integration
 
@@ -210,11 +310,15 @@ that login works before removing the old secret from dependent systems.
 |---|---|---|
 | Marketplace flow creates a different tenant than expected | Native-integration behavior | Expected: it creates a dedicated new Auth0 tenant environment. Use standard Auth0 setup for an existing tenant. |
 | Local app has missing Auth0 variables | Vercel project link and environment selection | Run `vercel link` for the intended project, then `vercel env pull .env.local`; keep the file out of Git. |
-| Production works but Preview fails | Variable scope | Add or scope the required variables deliberately; the generated quickstart configures Auth0 variables only for Production. |
-| Callback mismatch after deploy | Canonical URL and Auth0 application URLs | Set `APP_BASE_URL` to the canonical URL and run `auth0 apps update <client-id> --callbacks ... --logout-urls ...` to match the SDK's configured routes exactly. |
-| Login does not render in Vercel's embedded experience | Iframe embedding | Enable iframe embedding in the Auth0 tenant (dashboard), then retry before changing application code. |
+| Production works but Preview fails | Variable scope | Add or scope the required non-Auth0 variables deliberately; the generated quickstart's walkthrough only covers wiring up Production, even though Preview/Development are each provisioned automatically. |
+| Callback mismatch after deploy | Canonical URL and Auth0 application URLs | See "Deploy and verify" step 2 — update callback/logout URLs with `auth0 apps update` to match `APP_BASE_URL` exactly. |
+| Login does not render in Vercel's embedded experience | Iframe embedding | See "Deploy and verify" step 5 — enable iframe embedding, scoped to the intended origins, before changing application code. |
 | Integration removal has unexpected account impact | Removal warning | Stop and confirm the removal: deleting the integration removes the connected Auth0 account and downgrades the Vercel installation. |
 | No M2M grant available yet | Integration provisioning stage | Fall back to `auth0 login` (interactive) or the dashboard steps in this file until the grant is issued. |
+| `DomainResolutionError` on every route | `process.env.AUTH0_DOMAIN` missing at request time | The preview runtime doesn't auto-inject project env vars; pull into `.env.local` (Development environment) and confirm the value is present. Harden `middleware.ts` to skip Auth0 handling when config is absent so the site degrades instead of 500ing. |
+| Token request returns `access_denied` (or fails to mint) for the Management API | Using Production/Staging's placeholder M2M values, which aren't a real client | Use the Development environment's M2M credentials for preview work, or create a real M2M client for that environment and wire in its Client ID/Secret (see "If you need CLI/Management API access for Production or Staging"). Don't assume it's a wrong secret — verify with a token-mint request first. |
+| Login/signup click does nothing; server log shows only `GET /` | Auth button uses `window.open()`, blocked by the sandboxed iframe | Use a real `<a target="_blank">` anchor (via base-ui's `render` prop, not `asChild`). |
+| Callback mismatch / login fails after reconnecting the integration | Reconnect provisioned a NEW tenant + application client | Re-register callback/logout/web-origin URLs and re-apply branding on the CURRENT client. Decode the live login `redirect_uri` and `client_id` to confirm which client is actually in use. |
 
 ## Auth0 in the v0 preview
 
@@ -248,13 +352,36 @@ HTTP.
 ### 3. Login page won't frame ("This content is blocked")
 
 Hosted login pages may send frame-busting headers when iframe embedding is not
-enabled. For supported generative UI integrations, configure Auth0's iframe
-embedding setting and Allowed iframe URLs; otherwise open authentication in a
-top-level context. Enabling iframe embedding relaxes clickjacking protection.
-Make the login (and logout) navigation break out of the iframe: detect when
-running framed and open the auth route in a new top-level tab; otherwise
-navigate normally. After login completes in the top-level context, the framed
-preview needs a refresh to pick up the new session cookie.
+enabled. First restrict the allowed iframe origins to the intended Vercel
+URLs, then enable the setting — it's a tenant flag not yet exposed as a CLI
+flag: **Auth0 Dashboard → Settings → Advanced → Allow Cross-Origin
+Authentication**. Enabling it relaxes clickjacking protection, so scope the
+origins first. If embedding isn't viable, open authentication in a top-level
+context instead.
+
+Make the login (and logout) navigation break out of the iframe using a real
+anchor, not a programmatic `window.open(...)`. The v0 preview iframe is
+sandboxed, so a script-initiated `window.open` is silently swallowed by the
+popup blocker — the click appears to do nothing, and the server log shows only
+`GET /` with no `/auth/*` request ever arriving. A real `<a target="_blank">`
+click is a user-initiated navigation, so the sandbox and popup blocker let it
+through:
+
+```jsx
+<a href="/auth/login" target="_blank" rel="noopener noreferrer">Log in</a>
+<a href="/auth/logout" target="_blank" rel="noopener noreferrer">Log out</a>
+```
+
+v0's default `Button` is `base-ui`, which composes via a `render` prop, not
+Radix's `asChild` — passing `asChild` throws `"React does not recognize the
+asChild prop"`:
+
+```jsx
+<Button render={<a href="/auth/login" target="_blank" rel="noopener noreferrer" />}>Log in</Button>
+```
+
+After login completes in the top-level context, the framed preview needs a
+refresh to pick up the new session cookie.
 
 ### Configuration lives outside the code
 
