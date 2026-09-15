@@ -33,8 +33,14 @@ export const LINEAR_MCP_SERVER: McpServerConfig = {
   scopes: ['read'],
 };
 
-export const ATLASSIAN_MCP_SERVER: McpServerConfig = {
-  connection: 'atlassian',
+export const ATLASSIAN_JIRA_MCP_SERVER: McpServerConfig = {
+  connection: 'jira',
+  url: 'https://mcp.atlassian.com/v1/mcp/authv2',
+  scopes: [],
+};
+
+export const ATLASSIAN_CONFLUENCE_MCP_SERVER: McpServerConfig = {
+  connection: 'confluence',
   url: 'https://mcp.atlassian.com/v1/mcp/authv2',
   scopes: [],
 };
@@ -43,6 +49,12 @@ export const CLOUDFLARE_MCP_SERVER: McpServerConfig = {
   connection: 'cloudflare',
   url: 'https://mcp.cloudflare.com/mcp',
   scopes: [],
+};
+
+export const GITLAB_MCP_SERVER: McpServerConfig = {
+  connection: 'gitlab',
+  url: 'https://gitlab.com/api/v4/mcp',
+  scopes: ['mcp'],
 };
 
 export const SENTRY_MCP_SERVER: McpServerConfig = {
@@ -63,18 +75,7 @@ export const SLACK_MCP_SERVER: McpServerConfig = {
   scopes: [],
 };
 
-export const SALESFORCE_MCP_SERVER: McpServerConfig = {
-  connection: 'salesforce',
-  url: 'https://api.salesforce.com/platform/mcp/v1/platform/sobject-reads',
-  scopes: ['mcp_api', 'refresh_token'],
-};
 
-export const SNOWFLAKE_MCP_SERVER: McpServerConfig = {
-  connection: 'snowflake',
-  // Account-specific URL - must be set via SNOWFLAKE_MCP_URL.
-  url: '',
-  scopes: [],
-};
 
 export const HUBSPOT_MCP_SERVER: McpServerConfig = {
   connection: 'hubspot',
@@ -83,19 +84,19 @@ export const HUBSPOT_MCP_SERVER: McpServerConfig = {
 };
 
 export const GMAIL_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'gmail',
   url: 'https://gmailmcp.googleapis.com/mcp/v1',
   scopes: [],
 };
 
 export const GCALENDAR_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'google-calendar',
   url: 'https://calendarmcp.googleapis.com/mcp/v1',
   scopes: [],
 };
 
 export const GDRIVE_MCP_SERVER: McpServerConfig = {
-  connection: 'google-workspace',
+  connection: 'google-drive',
   url: 'https://drivemcp.googleapis.com/mcp/v1',
   scopes: [],
 };
@@ -103,14 +104,14 @@ export const GDRIVE_MCP_SERVER: McpServerConfig = {
 const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
   notion: NOTION_MCP_SERVER,
   github: GITHUB_MCP_SERVER,
+  gitlab: GITLAB_MCP_SERVER,
   linear: LINEAR_MCP_SERVER,
-  atlassian: ATLASSIAN_MCP_SERVER,
+  jira: ATLASSIAN_JIRA_MCP_SERVER,
+  confluence: ATLASSIAN_CONFLUENCE_MCP_SERVER,
   cloudflare: CLOUDFLARE_MCP_SERVER,
   sentry: SENTRY_MCP_SERVER,
   asana: ASANA_MCP_SERVER,
   slack: SLACK_MCP_SERVER,
-  salesforce: SALESFORCE_MCP_SERVER,
-  snowflake: SNOWFLAKE_MCP_SERVER,
   hubspot: HUBSPOT_MCP_SERVER,
   gmail: GMAIL_MCP_SERVER,
   gcalendar: GCALENDAR_MCP_SERVER,
@@ -120,14 +121,14 @@ const ALL_MCP_SERVERS: Record<string, McpServerConfig> = {
 const URL_OVERRIDES: Record<string, string> = {
   notion: 'NOTION_MCP_URL',
   github: 'GITHUB_MCP_URL',
+  gitlab: 'GITLAB_MCP_URL',
   linear: 'LINEAR_MCP_URL',
-  atlassian: 'ATLASSIAN_MCP_URL',
+  jira: 'JIRA_MCP_URL',
+  confluence: 'CONFLUENCE_MCP_URL',
   cloudflare: 'CLOUDFLARE_MCP_URL',
   sentry: 'SENTRY_MCP_URL',
   asana: 'ASANA_MCP_URL',
   slack: 'SLACK_MCP_URL',
-  salesforce: 'SALESFORCE_MCP_URL',
-  snowflake: 'SNOWFLAKE_MCP_URL',
   hubspot: 'HUBSPOT_MCP_URL',
   gmail: 'GMAIL_MCP_URL',
   gcalendar: 'GCALENDAR_MCP_URL',
