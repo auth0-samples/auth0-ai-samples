@@ -21,8 +21,8 @@ use the standard Auth0 application setup instead of installing this integration.
 
 ## Get the full Auth0 skill for anything beyond installation
 
-**Install the full `auth0` skill for the greatest guidance on setting up
-Auth0** — this file only covers the Vercel Marketplace integration:
+**You MUST install the full `auth0` skill for the greatest guidance on
+setting up Auth0** — this file only covers the Vercel Marketplace integration:
 provisioning, credential handling, and v0 preview troubleshooting. For the
 Auth0 SDK integration itself (Next.js routes, middleware, session handling),
 tenant configuration beyond callback/logout URLs, Universal Login branding,
