@@ -127,8 +127,14 @@ the secret). This is the same machine-login pattern the CLI uses for any
 non-interactive environment — see the full `auth0` skill's `tooling-cli`
 reference for every command and flag.
 
-If no M2M grant is available yet, fall back to `auth0 login` (interactive
-device-code) or the dashboard steps in the sections below.
+If `vercel env pull` isn't returning the `AUTH0_*` values, check project
+linking before assuming the M2M grant isn't available — see "Getting
+`AUTH0_*` into the chat's shell" below; it's almost always the wrong Vercel
+project, not a missing grant. If no M2M grant is available yet, try
+`auth0 login` (interactive device-code) next. As a last resort, only if you
+try and cannot get M2M, the CLI, or correct project linking working in the
+v0 VM/preview, register/configure by hand in the Auth0 dashboard — see
+"Register callback and logout URLs" below.
 
 ### The M2M credentials are named after the Management API
 
@@ -157,6 +163,46 @@ A successful response returns an `access_token`. Anything else — including
 `access_denied` — means the credentials, the audience, or the environment
 they came from is wrong; see the next two sections before assuming it's a bad
 secret.
+
+### Getting `AUTH0_*` into the chat's shell: it's project linking, not a hard limitation
+
+Management tasks (callback/logout URLs, branding, tenant/client config) can
+and should be done with the `auth0` CLI in the shell. If `vercel env pull`
+only returns `VERCEL_OIDC_TOKEN` and none of the `AUTH0_*` values
+it is likely the shell is linked to the wrong Vercel project.
+
+Verified working sequence (Development environment):
+
+1. Confirm `.env.local` is gitignored and untracked before pulling (fail
+   closed if not — see the check above).
+2. Install the `auth0` CLI if it isn't already present in the sandbox (not
+   preinstalled).
+3. `vercel link` to the integration's actual project. Verify by project ID
+   (`prj_...`), not name alone — there may be 2-3 near-identical project
+   names.
+4. `vercel env pull .env.local --environment=development`, then load the
+   values into the shell (`source`/`export`).
+5. Optionally confirm with the token-mint `curl` above.
+6. `auth0 login --domain "$AUTH0_DOMAIN" --client-id "$AUTH0_MANAGEMENT_API_CLIENT_ID" --client-secret "$AUTH0_MANAGEMENT_API_CLIENT_SECRET"` —
+   the CLI does its own client-credentials exchange; don't pass it a
+   pre-minted token. Confirm with `auth0 tenants list`.
+
+Gotchas:
+
+- A "Could not store to keyring" / `dbus-launch not found` warning on login
+  is harmless in a headless sandbox — the token stays in-session; re-login
+  when it expires.
+- `.env.local` now holds real client secrets. Keep it gitignored/untracked,
+  and delete it when the management session is done if you don't want
+  secrets at rest.
+- A newly-added env var needs a dev-server restart to reach `process.env` in
+  the running app — and it must exist on the right project **and** the right
+  environment (a Production-only var won't reach the Development preview).
+
+Default to this CLI path. If `vercel link` truly cannot reach the
+integration's project (not just "env pull looked empty" — verify the project
+ID first), the last resort is the dashboard, not app code — see "Register
+callback and logout URLs" for the manual steps.
 
 ### Only the development environment has working M2M credentials
 
@@ -239,16 +285,33 @@ vercel env pull .env.local --environment=development
 > showing the vars proves nothing about the runtime; only a request that
 > actually reads `process.env` proves it.
 
-> **Confirm which Vercel project the chat actually runs on.** Connecting the
-> integration to a differently named project than the one the chat
-> builds/deploys against is a common cause of "the vars exist but the app
-> can't see them."
+> **Confirm which Vercel project the chat actually runs on** — see "Getting
+> `AUTH0_*` into the chat's shell" below for why a differently-named or
+> similarly-named sibling project is the most common cause of "the vars
+> exist but the app can't see them."
 
 For local development the current Next.js SDK also needs `APP_BASE_URL`; set it
 to your local URL (e.g. `http://localhost:3000`) in `.env.local`, and keep the
-canonical production URL configured for the deployed environment. The SDK can
-infer `APP_BASE_URL` from the request on Vercel previews, but do not derive it
-from an untrusted request header in code.
+canonical production URL configured for the deployed environment.
+
+**In the v0 preview, set `appBaseUrl` explicitly to `V0_RUNTIME_URL` — never
+rely on the SDK inferring it from the request.** Behind the preview's proxy,
+the inbound request's host header is the internal dev-server host, not the
+public preview origin, so header-based inference produces a `redirect_uri`
+that never matches what's registered on the tenant. This is the single
+biggest cause of `"redirect_uri is not in the list of allowed callback URLs"`.
+
+```ts
+const auth0 = new Auth0Client({
+  appBaseUrl: process.env.V0_RUNTIME_URL ?? process.env.APP_BASE_URL,
+});
+```
+
+`V0_RUNTIME_URL` is only set inside the v0 preview; it's absent in
+Production, where the SDK's own inference (or an explicit `APP_BASE_URL`) is
+correct. Verify by inspecting the actual `redirect_uri` on the login
+redirect, not just that the page compiles — see "Redirect goes to localhost"
+below for the same check applied to the localhost-fallback failure mode.
 
 The native-integration quickstart's own walkthrough only wires up the
 Production environment. Preview and Development are provisioned automatically
@@ -271,17 +334,24 @@ testing.
 
 3. Deploy to the selected Vercel Production environment and complete login,
    callback, session, protected-route, and logout checks on the deployed URL.
-4. Match Universal Login branding to the app being secured — don't leave the
-   default Auth0 branding on a login page that's supposed to look like part
-   of the app. At minimum, set the logo, primary/page background color, and
-   button/input border radius to match the app; pull the values from the
-   app's own theme/CSS rather than guessing. Use the full `auth0` skill's
-   branding guidance for the exact CLI/Management API calls (`auth0 branding
-   ...`, or `PATCH /api/v2/branding` and `PUT
-   /api/v2/branding/themes/default`); this file only calls out that the step
-   exists. Re-check branding after any tenant reconnect — see
-   "Callback mismatch / login fails after reconnecting the integration" in
-   Troubleshoot.
+4. **You MUST match Universal Login branding to the app being secured before
+   calling this done.** This step is frequently skipped — it is not optional
+   polish. Do not leave the default Auth0 branding on a login page that's
+   supposed to look like part of the app. At minimum, set the primary/page
+   background color and button/input border radius to match the app; pull
+   the values from the app's own theme/CSS rather than guessing. Use the full
+   `auth0` skill's branding guidance for the exact CLI/Management API calls
+   (`auth0 branding ...`, or `PATCH /api/v2/branding` and `PUT
+   /api/v2/branding/themes/default`) — see "Getting `AUTH0_*` into the
+   chat's shell" above; fall back to the dashboard only if project linking
+   genuinely isn't possible.
+   **`logo_url` must be a URL Auth0's servers can fetch publicly** — the v0
+   preview origin is session-gated, so pointing `logo_url` at it is a silent
+   no-op (Auth0 fails to fetch it and the request otherwise succeeds). Host
+   the logo somewhere public first, or skip the logo in preview and set it
+   once deployed to a public production URL. Re-check all branding after any
+   tenant reconnect — see "Callback mismatch / login fails after reconnecting
+   the integration" in Troubleshoot.
 5. If login fails in Vercel's embedded experience, enable iframe embedding —
    see "Login page won't frame" under "Auth0 in the v0 preview" for the
    tenant setting, origin scoping, and dashboard path (not yet a CLI flag).
@@ -309,16 +379,17 @@ that login works before removing the old secret from dependent systems.
 | Symptom | Check | Resolution |
 |---|---|---|
 | Marketplace flow creates a different tenant than expected | Native-integration behavior | Expected: it creates a dedicated new Auth0 tenant environment. Use standard Auth0 setup for an existing tenant. |
-| Local app has missing Auth0 variables | Vercel project link and environment selection | Run `vercel link` for the intended project, then `vercel env pull .env.local`; keep the file out of Git. |
+| Local app has missing Auth0 variables, or `vercel env pull` only returns `VERCEL_OIDC_TOKEN` | Vercel project link and environment selection | Verify you're linked to the integration's own dedicated project by ID (`prj_...`), not a similarly-named sibling or the default v0 project. Run `vercel link` for that project, then `vercel env pull .env.local --environment=development`; keep the file out of Git. See "Getting `AUTH0_*` into the chat's shell." |
 | Production works but Preview fails | Variable scope | Add or scope the required non-Auth0 variables deliberately; the generated quickstart's walkthrough only covers wiring up Production, even though Preview/Development are each provisioned automatically. |
 | Callback mismatch after deploy | Canonical URL and Auth0 application URLs | See "Deploy and verify" step 2 — update callback/logout URLs with `auth0 apps update` to match `APP_BASE_URL` exactly. |
 | Login does not render in Vercel's embedded experience | Iframe embedding | See "Deploy and verify" step 5 — enable iframe embedding, scoped to the intended origins, before changing application code. |
 | Integration removal has unexpected account impact | Removal warning | Stop and confirm the removal: deleting the integration removes the connected Auth0 account and downgrades the Vercel installation. |
-| No M2M grant available yet | Integration provisioning stage | Fall back to `auth0 login` (interactive) or the dashboard steps in this file until the grant is issued. |
+| No M2M grant available yet | Integration provisioning stage, or wrong Vercel project linked | Check project linking first — see "Getting `AUTH0_*` into the chat's shell." If genuinely no grant, try `auth0 login` (interactive) next. Only as a last resort hand-edit the dashboard; see "Register callback and logout URLs." |
 | `DomainResolutionError` on every route | `process.env.AUTH0_DOMAIN` missing at request time | The preview runtime doesn't auto-inject project env vars; pull into `.env.local` (Development environment) and confirm the value is present. Harden `middleware.ts` to skip Auth0 handling when config is absent so the site degrades instead of 500ing. |
 | Token request returns `access_denied` (or fails to mint) for the Management API | Using Production/Staging's placeholder M2M values, which aren't a real client | Use the Development environment's M2M credentials for preview work, or create a real M2M client for that environment and wire in its Client ID/Secret (see "If you need CLI/Management API access for Production or Staging"). Don't assume it's a wrong secret — verify with a token-mint request first. |
 | Login/signup click does nothing; server log shows only `GET /` | Auth button uses `window.open()`, blocked by the sandboxed iframe | Use a real `<a target="_blank">` anchor (via base-ui's `render` prop, not `asChild`). |
 | Callback mismatch / login fails after reconnecting the integration | Reconnect provisioned a NEW tenant + application client | Re-register callback/logout/web-origin URLs and re-apply branding on the CURRENT client. Decode the live login `redirect_uri` and `client_id` to confirm which client is actually in use. |
+| Every route returns a blank/empty 200 body with no console output, unrelated to Auth0 | Dev server wedged by a burst of rapid file writes | Restart the dev server before debugging further — this is a stuck process, not a code bug, and is common right after a round of rapid edits during setup. |
 
 ## Auth0 in the v0 preview
 
@@ -331,10 +402,10 @@ back to that fact. Keep these in mind and the flow works the first time.
 The SDK builds its login/callback redirect from a base-URL setting that
 defaults to `localhost`. In the preview, `VERCEL_URL` and
 `VERCEL_PROJECT_PRODUCTION_URL` are unset, so anything relying on them falls
-back to localhost. Resolve the app's base URL from the runtime origin and
-include the v0 preview origin (`V0_RUNTIME_URL`) in the fallback chain, ahead of
-the localhost default. Verify by inspecting the actual `redirect_uri` on the
-login redirect, not just that the page compiles.
+back to localhost. Set `appBaseUrl` explicitly to `V0_RUNTIME_URL` — see
+"Use the generated configuration safely" above for why inference is a trap
+here and the exact snippet. Verify by inspecting the actual `redirect_uri` on
+the login redirect, not just that the page compiles.
 
 ### 2. State cookie dropped ("The state parameter is invalid")
 
@@ -383,21 +454,16 @@ asChild prop"`:
 After login completes in the top-level context, the framed preview needs a
 refresh to pick up the new session cookie.
 
-### Configuration lives outside the code
+### Register callback and logout URLs
 
-Callback/logout URLs and application settings are configured on the tenant,
-not in the app. Once an M2M grant is available, use the CLI:
+Callback/logout URLs are required application settings configured on the tenant,
+not in the app and MUST be configured appropriately. Once an M2M grant is available, use the CLI:
 
 ```bash
 auth0 apps update <client-id> \
   --callbacks "https://<project>.v0.build/auth/callback,http://localhost:3000/auth/callback" \
   --logout-urls "https://<project>.v0.build"
 ```
-
-The Vercel Auth0 integration auto-syncs real Vercel deployment domains and
-owns the `AUTH0_*` env vars, so hand-edited values can be overwritten — don't
-assume env vars alone prove which tenant an environment uses; confirm with
-`auth0 apps show <client-id>` or the dashboard.
 
 Non-Vercel origins are never auto-synced, so register them explicitly. The one
 that gets the preview working is the app's **stable v0 preview URL**
@@ -406,8 +472,11 @@ across rebuilds, so registering it once is what makes login succeed in the
 preview. (Per-deployment Vercel URLs change every build and aren't worth
 registering by hand.) Also register `localhost` for local dev.
 
-**No M2M grant yet, or the CLI isn't available:** register the URLs by hand
-instead:
+**No M2M grant yet, or the CLI isn't available in the chat's shell:** see
+"Getting `AUTH0_*` into the chat's shell" above before touching the
+dashboard — most cases are project-linking, not a missing grant. Only once
+that's ruled out is manual dashboard editing the right move, and even then
+treat it as a last resort, not the default:
 
 1. In the Auth0 dashboard, pick the tenant the app's env vars point at
    (top-left tenant switcher — there may be separate Development/Staging/
@@ -423,3 +492,10 @@ instead:
      `https://<project>.v0.build`.
 4. **Save Changes** at the bottom. Give the exact origin — Auth0 matches these
    URLs exactly, so a missing entry is what causes callback/logout rejections.
+
+Whichever path registered the URLs, re-verify them after any integration
+reconnect or resync — the Vercel Auth0 integration auto-syncs real Vercel
+deployment domains and owns the `AUTH0_*` env vars, so it can overwrite
+hand-edited or script-edited callback lists without warning. Confirm with
+`auth0 apps show <client-id>` or the dashboard before assuming a prior
+registration still holds.
