@@ -108,6 +108,14 @@ only after the developer confirms the target team and project.
 Skipping this and configuring the wrong tenant, or configuring correctly but
 with M2M credentials that don't actually work (placeholder values, wrong
 environment), is the most common failure mode here.
+
+If the failure was reported by a user rather than reproduced directly (a
+published app rejecting logins), you can't decode `redirect_uri` from your
+own request — instead pull the tenant's logs
+(`GET /api/v2/logs?q=type:f` — `type:f` is the failed-login event type) and
+read the `redirect_uri` off the matching failed event. This also confirms
+which environment/tenant is actually failing before you change anything.
+
 Reconnecting the integration is destructive to prior tenant config — it
 provisions a **new** tenant and application client, so treat any reconnect as
 "redo tenant setup," not "resume it."
@@ -235,12 +243,15 @@ real M2M client for that environment and wiring it in:
    **Client Secret**.
 4. Set those two values as `AUTH0_MANAGEMENT_API_CLIENT_ID` and
    `AUTH0_MANAGEMENT_API_CLIENT_SECRET` on the Vercel project, scoped to that
-   specific environment, replacing the placeholder values. Do this either:
+   specific environment, replacing the placeholder values. This is the
+   developer's call, since it means putting Production/Staging Management
+   API access in the agent's hands — ask rather than assume. Do this either:
    - directly in the Vercel project's environment variable settings
-     yourself, or
-   - by pasting the Client ID/Secret into the v0 chat and having the agent
-     save them as env vars on that environment through its own tooling —
-     don't have the agent print, log, or echo the secret back once saved.
+     themselves, or
+   - if the developer is willing to grant the agent access, by pasting the
+     Client ID/Secret into the v0 chat and having the agent save them as env
+     vars on that environment through its own tooling — don't have the agent
+     print, log, or echo the secret back once saved.
 5. Re-run the token-mint `curl` against that environment to confirm before
    relying on it.
 
@@ -308,10 +319,18 @@ const auth0 = new Auth0Client({
 ```
 
 `V0_RUNTIME_URL` is only set inside the v0 preview; it's absent in
-Production, where the SDK's own inference (or an explicit `APP_BASE_URL`) is
-correct. Verify by inspecting the actual `redirect_uri` on the login
-redirect, not just that the page compiles — see "Redirect goes to localhost"
-below for the same check applied to the localhost-fallback failure mode.
+Production. Don't assume the SDK's inference is safe there either — Vercel's
+inferred host on a real deployment is the per-deployment hashed URL (e.g.
+`myapp-qrfarr7z6-team.vercel.app`), which changes on every publish and can
+never stay registered on the tenant. Pin `APP_BASE_URL` explicitly to the
+stable production alias (`VERCEL_PROJECT_PRODUCTION_URL`, or the custom
+domain if one is set) instead: confirm the stable alias → set it as
+`APP_BASE_URL` on the Production environment → redeploy → register that one
+stable URL (see "Deploy and verify" step 2). This keeps `redirect_uri`
+deterministic across publishes instead of drifting with every deploy.
+Verify by inspecting the actual `redirect_uri` on the login redirect, not
+just that the page compiles — see "Redirect goes to localhost" below for the
+same check applied to the localhost-fallback failure mode.
 
 The native-integration quickstart's own walkthrough only wires up the
 Production environment. Preview and Development are provisioned automatically
@@ -322,9 +341,12 @@ testing.
 
 1. Follow the co-loaded Next.js reference to install `@auth0/nextjs-auth0`,
    configure `Auth0Client`, add the proxy/middleware, and add login/logout UI.
-2. Verify the generated Auth0 application has the production callback and
-   logout URLs. The integration populates localhost and callback URLs initially;
-   update them with the CLI when the canonical domain or callback path changes:
+2. Confirm `APP_BASE_URL` is pinned to the stable production alias (see
+   "Use the generated configuration safely" above) — not the per-deployment
+   hashed URL, which changes every publish. Then verify the generated Auth0
+   application has the matching production callback and logout URLs. The
+   integration populates localhost and callback URLs initially; update them
+   with the CLI when the canonical domain or callback path changes:
 
    ```bash
    auth0 apps update <client-id> \
@@ -381,7 +403,7 @@ that login works before removing the old secret from dependent systems.
 | Marketplace flow creates a different tenant than expected | Native-integration behavior | Expected: it creates a dedicated new Auth0 tenant environment. Use standard Auth0 setup for an existing tenant. |
 | Local app has missing Auth0 variables, or `vercel env pull` only returns `VERCEL_OIDC_TOKEN` | Vercel project link and environment selection | Verify you're linked to the integration's own dedicated project by ID (`prj_...`), not a similarly-named sibling or the default v0 project. Run `vercel link` for that project, then `vercel env pull .env.local --environment=development`; keep the file out of Git. See "Getting `AUTH0_*` into the chat's shell." |
 | Production works but Preview fails | Variable scope | Add or scope the required non-Auth0 variables deliberately; the generated quickstart's walkthrough only covers wiring up Production, even though Preview/Development are each provisioned automatically. |
-| Callback mismatch after deploy | Canonical URL and Auth0 application URLs | See "Deploy and verify" step 2 — update callback/logout URLs with `auth0 apps update` to match `APP_BASE_URL` exactly. |
+| Callback mismatch after deploy (`redirect_uri is not in the list of allowed callback URLs`) | `APP_BASE_URL` pinning, or per-deployment hashed URL drift | Pull the tenant's failed-login logs to see the actual rejected `redirect_uri` first — see "Configure the tenant with the Auth0 CLI." Then see "Deploy and verify" step 2 — pin `APP_BASE_URL` to the stable production alias and update callback/logout URLs with `auth0 apps update` to match exactly. |
 | Login does not render in Vercel's embedded experience | Iframe embedding | See "Deploy and verify" step 5 — enable iframe embedding, scoped to the intended origins, before changing application code. |
 | Integration removal has unexpected account impact | Removal warning | Stop and confirm the removal: deleting the integration removes the connected Auth0 account and downgrades the Vercel installation. |
 | No M2M grant available yet | Integration provisioning stage, or wrong Vercel project linked | Check project linking first — see "Getting `AUTH0_*` into the chat's shell." If genuinely no grant, try `auth0 login` (interactive) next. Only as a last resort hand-edit the dashboard; see "Register callback and logout URLs." |
