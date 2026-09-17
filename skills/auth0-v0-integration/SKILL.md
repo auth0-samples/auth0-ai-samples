@@ -72,6 +72,92 @@ The router co-loads the Next.js reference for the SDK implementation. Do not
 replace its Auth0 routes, middleware/proxy, session handling, or environment
 variable conventions with a marketplace-specific variant.
 
+## The app rendering is not the finish line
+
+A login button that renders is not a working login flow. URL registration,
+iframe embedding, and branding (see "Deploy and verify" below) must happen
+in the same pass as the build — not as fixes triggered by an error the user
+reports later. Skipping straight to "does it render" and stopping there is
+the most common way this flow ships broken; the information to prevent both
+known failure modes already exists in this skill, but it's easy to stop
+before reaching it.
+
+### Before declaring the task done
+
+- [ ] The preview origin's and `localhost`'s `/auth/callback` URLs are
+      registered on the tenant — verified with `auth0 apps show <client-id>`,
+      not just "the CLI command ran."
+- [ ] Logout URLs are registered for the same origins; web origins are
+      confirmed covered (Auth0's default-from-callbacks behavior, or an
+      explicit `--web-origins` entry).
+- [ ] A live login attempt redirects (302) to Universal Login rather than
+      failing with a callback-mismatch error.
+- [ ] If the app has any custom branding, Universal Login's colors, heading
+      copy, and logo match the app **as seen on the live rendered page** —
+      not just "the branding API call returned 200."
+
+## Deploy and verify
+
+Do all five of these in one pass, in order, every time:
+
+1. Follow the co-loaded Next.js reference to install `@auth0/nextjs-auth0`,
+   configure `Auth0Client`, add the proxy/middleware, and add login/logout UI.
+2. Pin `APP_BASE_URL` (see "Use the generated configuration safely" below) —
+   not the per-deployment hashed URL, which changes every publish. Then
+   register the matching callback and logout URLs on the Auth0 application
+   now, in this same pass — see "Register callback and logout URLs" — do
+   not wait for a login attempt to fail first. The integration populates
+   localhost and callback URLs initially; update them with the CLI when the
+   canonical domain or callback path changes:
+
+   ```bash
+   auth0 apps update <client-id> \
+     --callbacks "https://<canonical-domain>/auth/callback" \
+     --logout-urls "https://<canonical-domain>"
+   ```
+
+3. Enable iframe embedding for the intended origins now if the app runs in
+   Vercel's embedded preview — see "Login page won't frame" under "Auth0 in
+   the v0 preview" for the tenant setting, origin scoping, and dashboard
+   path (not yet a CLI flag). Don't wait for the framed login to fail first;
+   set this alongside the callback/logout URLs in step 2.
+4. **Apply Universal Login branding now if the app has any custom design** —
+   this is not optional polish and not a fix for a user complaint; it's part
+   of the same build pass as steps 1-3. Do not leave the default Auth0
+   branding on a login page that's supposed to look like part of the app.
+   At minimum, set the primary/page background color and button/input
+   border radius to match the app; pull the values from the app's own
+   theme/CSS rather than guessing. Use the full `auth0` skill's branding
+   guidance for the exact CLI/Management API calls (`auth0 branding ...`,
+   or `PATCH /api/v2/branding` and `PUT /api/v2/branding/themes/default`) —
+   see "Getting `AUTH0_*` into the chat's shell" below; fall back to the
+   dashboard only if project linking genuinely isn't possible.
+
+   **`logo_url` must resolve to a permanent, publicly fetchable URL** — Auth0
+   fetches it server-side, and two origins that look reachable are not:
+   - The v0 preview origin is session-gated, so pointing `logo_url` at it is
+     a silent no-op — Auth0 fails to fetch it while the request that *set*
+     `logo_url` still returns 200.
+   - The app's own `public/` path is not safe either, even once deployed:
+     the v0 preview origin returns a redirect (302) for `public/` assets
+     instead of serving the file, so a logo referenced from that path fails
+     to load while every Auth0-side branding check still passes.
+
+   Host the logo on a permanent public CDN URL instead (e.g. Vercel Blob
+   created with `access: 'public'`), or skip the logo in preview and set it
+   once deployed to a public production URL. When a logo "won't appear,"
+   trust the live DOM's `img.src` and a direct `curl` of that URL over a
+   headless screenshot — screenshots can cache a stale or placeholder
+   render and make a broken `logo_url` look fine. Re-check all branding
+   after any tenant reconnect — see "Callback mismatch / login fails after
+   reconnecting the integration" in Troubleshoot.
+5. Deploy to the selected Vercel Production environment and verify with a
+   real login attempt — not just that the page renders. Complete login,
+   callback, session, protected-route, and logout checks on the deployed
+   URL, and confirm branding renders correctly on the live login page if the
+   app has custom branding. Run through the pre-completion checklist above
+   before calling this done.
+
 ## Install the native integration
 
 ### Vercel Marketplace
@@ -337,48 +423,6 @@ Production environment. Preview and Development are provisioned automatically
 too, but may still need non-Auth0 variables added or scoped manually before
 testing.
 
-## Deploy and verify
-
-1. Follow the co-loaded Next.js reference to install `@auth0/nextjs-auth0`,
-   configure `Auth0Client`, add the proxy/middleware, and add login/logout UI.
-2. Confirm `APP_BASE_URL` is pinned to the stable production alias (see
-   "Use the generated configuration safely" above) — not the per-deployment
-   hashed URL, which changes every publish. Then verify the generated Auth0
-   application has the matching production callback and logout URLs. The
-   integration populates localhost and callback URLs initially; update them
-   with the CLI when the canonical domain or callback path changes:
-
-   ```bash
-   auth0 apps update <client-id> \
-     --callbacks "https://<canonical-domain>/auth/callback" \
-     --logout-urls "https://<canonical-domain>"
-   ```
-
-3. Deploy to the selected Vercel Production environment and complete login,
-   callback, session, protected-route, and logout checks on the deployed URL.
-4. **You MUST match Universal Login branding to the app being secured before
-   calling this done.** This step is frequently skipped — it is not optional
-   polish. Do not leave the default Auth0 branding on a login page that's
-   supposed to look like part of the app. At minimum, set the primary/page
-   background color and button/input border radius to match the app; pull
-   the values from the app's own theme/CSS rather than guessing. Use the full
-   `auth0` skill's branding guidance for the exact CLI/Management API calls
-   (`auth0 branding ...`, or `PATCH /api/v2/branding` and `PUT
-   /api/v2/branding/themes/default`) — see "Getting `AUTH0_*` into the
-   chat's shell" above; fall back to the dashboard only if project linking
-   genuinely isn't possible.
-   **`logo_url` must be a URL Auth0's servers can fetch publicly** — the v0
-   preview origin is session-gated, so pointing `logo_url` at it is a silent
-   no-op (Auth0 fails to fetch it and the request otherwise succeeds). Host
-   the logo somewhere public first, or skip the logo in preview and set it
-   once deployed to a public production URL. Re-check all branding after any
-   tenant reconnect — see "Callback mismatch / login fails after reconnecting
-   the integration" in Troubleshoot.
-5. If login fails in Vercel's embedded experience, enable iframe embedding —
-   see "Login page won't frame" under "Auth0 in the v0 preview" for the
-   tenant setting, origin scoping, and dashboard path (not yet a CLI flag).
-   Check this before changing callback URLs or SDK code.
-
 ## Manage the integration
 
 Use the CLI for application-level changes (callback/logout URLs, grant types,
@@ -403,8 +447,7 @@ that login works before removing the old secret from dependent systems.
 | Marketplace flow creates a different tenant than expected | Native-integration behavior | Expected: it creates a dedicated new Auth0 tenant environment. Use standard Auth0 setup for an existing tenant. |
 | Local app has missing Auth0 variables, or `vercel env pull` only returns `VERCEL_OIDC_TOKEN` | Vercel project link and environment selection | Verify you're linked to the integration's own dedicated project by ID (`prj_...`), not a similarly-named sibling or the default v0 project. Run `vercel link` for that project, then `vercel env pull .env.local --environment=development`; keep the file out of Git. See "Getting `AUTH0_*` into the chat's shell." |
 | Production works but Preview fails | Variable scope | Add or scope the required non-Auth0 variables deliberately; the generated quickstart's walkthrough only covers wiring up Production, even though Preview/Development are each provisioned automatically. |
-| Callback mismatch after deploy (`redirect_uri is not in the list of allowed callback URLs`) | `APP_BASE_URL` pinning, or per-deployment hashed URL drift | Pull the tenant's failed-login logs to see the actual rejected `redirect_uri` first — see "Configure the tenant with the Auth0 CLI." Then see "Deploy and verify" step 2 — pin `APP_BASE_URL` to the stable production alias and update callback/logout URLs with `auth0 apps update` to match exactly. |
-| Login does not render in Vercel's embedded experience | Iframe embedding | See "Deploy and verify" step 5 — enable iframe embedding, scoped to the intended origins, before changing application code. |
+| Login/callback fails or doesn't render, despite following "The app rendering is not the finish line" | Should be prevented by that workflow — treat as a diagnostic gap, not a new bug | Pull the tenant's failed-login logs (see "Configure the tenant with the Auth0 CLI") for the actual rejected `redirect_uri`/reason, then fix per "Deploy and verify" steps 2-3. |
 | Integration removal has unexpected account impact | Removal warning | Stop and confirm the removal: deleting the integration removes the connected Auth0 account and downgrades the Vercel installation. |
 | No M2M grant available yet | Integration provisioning stage, or wrong Vercel project linked | Check project linking first — see "Getting `AUTH0_*` into the chat's shell." If genuinely no grant, try `auth0 login` (interactive) next. Only as a last resort hand-edit the dashboard; see "Register callback and logout URLs." |
 | `DomainResolutionError` on every route | `process.env.AUTH0_DOMAIN` missing at request time | The preview runtime doesn't auto-inject project env vars; pull into `.env.local` (Development environment) and confirm the value is present. Harden `middleware.ts` to skip Auth0 handling when config is absent so the site degrades instead of 500ing. |
@@ -484,7 +527,8 @@ not in the app and MUST be configured appropriately. Once an M2M grant is availa
 ```bash
 auth0 apps update <client-id> \
   --callbacks "https://<project>.v0.build/auth/callback,http://localhost:3000/auth/callback" \
-  --logout-urls "https://<project>.v0.build"
+  --logout-urls "https://<project>.v0.build" \
+  --web-origins "https://<project>.v0.build,http://localhost:3000"
 ```
 
 Non-Vercel origins are never auto-synced, so register them explicitly. The one
@@ -493,6 +537,12 @@ that gets the preview working is the app's **stable v0 preview URL**
 across rebuilds, so registering it once is what makes login succeed in the
 preview. (Per-deployment Vercel URLs change every build and aren't worth
 registering by hand.) Also register `localhost` for local dev.
+
+By default, Auth0 allows every registered callback URL as a web origin too,
+so `--web-origins` is often redundant with `--callbacks`. Pass it explicitly
+anyway when an origin needs CORS/Cross-Origin Authentication access without
+also being a callback path (or to be unambiguous rather than rely on the
+default) — see the checklist above.
 
 **No M2M grant yet, or the CLI isn't available in the chat's shell:** see
 "Getting `AUTH0_*` into the chat's shell" above before touching the
@@ -512,6 +562,10 @@ treat it as a last resort, not the default:
      too for local dev).
    - **Allowed Logout URLs**: the origin the user returns to, e.g.
      `https://<project>.v0.build`.
+   - **Allowed Web Origins**: usually unnecessary — Auth0 allows every
+     registered callback URL as a web origin by default. Add the origin here
+     explicitly only if it needs CORS/Cross-Origin Authentication access
+     without being a callback path.
 4. **Save Changes** at the bottom. Give the exact origin — Auth0 matches these
    URLs exactly, so a missing entry is what causes callback/logout rejections.
 
