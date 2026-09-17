@@ -235,12 +235,15 @@ real M2M client for that environment and wiring it in:
    **Client Secret**.
 4. Set those two values as `AUTH0_MANAGEMENT_API_CLIENT_ID` and
    `AUTH0_MANAGEMENT_API_CLIENT_SECRET` on the Vercel project, scoped to that
-   specific environment, replacing the placeholder values. Do this either:
+   specific environment, replacing the placeholder values. This is the
+   developer's call, since it means putting Production/Staging Management
+   API access in the agent's hands — ask rather than assume. Do this either:
    - directly in the Vercel project's environment variable settings
-     yourself, or
-   - by pasting the Client ID/Secret into the v0 chat and having the agent
-     save them as env vars on that environment through its own tooling —
-     don't have the agent print, log, or echo the secret back once saved.
+     themselves, or
+   - if the developer is willing to grant the agent access, by pasting the
+     Client ID/Secret into the v0 chat and having the agent save them as env
+     vars on that environment through its own tooling — don't have the agent
+     print, log, or echo the secret back once saved.
 5. Re-run the token-mint `curl` against that environment to confirm before
    relying on it.
 
