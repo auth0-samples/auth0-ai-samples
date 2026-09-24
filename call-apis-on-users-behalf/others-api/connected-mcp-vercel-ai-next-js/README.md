@@ -2,7 +2,7 @@
 
 This sample shows how an AI agent can call **remote [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) servers** on the user's behalf without the agent ever holding the user's credentials for those services.
 
-It ships with fourteen pre-configured MCP servers: **Notion**, **GitHub**, **Gmail**, **Google Calendar**, **Google Drive**, **Slack**, **Atlassian**, **HubSpot**, **Asana**, **Linear**, **Salesforce**, **Snowflake**, **Sentry**, and **Cloudflare**. The same pattern extends to any OAuth 2.0-protected MCP server.
+It ships with eleven pre-configured MCP servers: **Notion**, **GitHub**, **Slack**, **Atlassian**, **HubSpot**, **Asana**, **Linear**, **Salesforce**, **Snowflake**, **Sentry**, and **Cloudflare**. The same pattern extends to any OAuth 2.0-protected MCP server.
 
 The agent authenticates to each MCP server with a short-lived access token that Auth0 mints from the user's **Connected Account** via [Token Vault](https://auth0.com/docs/secure/tokens/token-vault). The first time the user invokes a tool for a given service, they're prompted to connect that account; after that, the agent transparently exchanges the user's Auth0 refresh token for a federated access token and presents it as a `Bearer` token to the MCP server.
 
@@ -57,9 +57,6 @@ Set `ENABLED_MCP_SERVERS` to a comma-separated list of connection names to enabl
 | ------------- | --------------------- | --------------------------- |
 | `notion`      | `NOTION_MCP_URL`      | [Notion](#notion)           |
 | `github`      | `GITHUB_MCP_URL`      | [GitHub](#github)           |
-| `gmail`       | `GMAIL_MCP_URL`       | [Google Workspace](#google-workspace-gmail-calendar-drive) |
-| `gcalendar`   | `GCALENDAR_MCP_URL`   | [Google Workspace](#google-workspace-gmail-calendar-drive) |
-| `gdrive`      | `GDRIVE_MCP_URL`      | [Google Workspace](#google-workspace-gmail-calendar-drive) |
 | `slack`       | `SLACK_MCP_URL`       | [Slack](#slack)             |
 | `atlassian`   | `ATLASSIAN_MCP_URL`   | [Atlassian](#atlassian)     |
 | `hubspot`     | `HUBSPOT_MCP_URL`     | [HubSpot](#hubspot)         |
@@ -170,55 +167,6 @@ curl --request POST \
     "authentication": {"active": false}
   }'
 ```
-
-
-### Google Workspace (Gmail, Calendar, Drive)
-
-Gmail, Google Calendar, and Google Drive each have their own MCP server but share a single OAuth client and Auth0 connection.
-
-**1. Complete the GCP setup** by following the [Google Workspace MCP server setup guide](https://developers.google.com/workspace/guides/configure-mcp-servers):
-
-- Enable the **Workspace MCP API** and the individual **Gmail MCP API**, **Google Drive MCP API**, and **Google Calendar MCP API** in your GCP project.
-- Configure the OAuth consent screen and add any test users who will connect.
-- Create an **OAuth 2.0 client ID** (Web application type) with `https://YOUR_AUTH0_DOMAIN/login/callback` as an authorized redirect URI.
-
-Note the **Client ID** and **Client Secret**.
-
-**2. Get a Management API access token**. See the Notion section above for instructions.
-
-**3. Create the Auth0 connection:**
-
-```bash
-curl --request POST \
-  --url "https://$DOMAIN/api/v2/connections" \
-  --header "authorization: Bearer $TOKEN" \
-  --header 'content-type: application/json' \
-  --data '{
-    "name": "google-workspace",
-    "strategy": "google-oauth2",
-    "options": {
-      "client_id": "<GOOGLE_CLIENT_ID>",
-      "client_secret": "<GOOGLE_CLIENT_SECRET>",
-      "email": true,
-      "profile": true,
-      "gmail_readonly": true,
-      "drive_readonly": true,
-      "calendar_read": true,
-      "calendar_events_readonly": true
-    },
-    "enabled_clients": ["<YOUR_APP_CLIENT_ID>"],
-    "connected_accounts": {"active": true},
-    "authentication": {"active": false}
-  }'
-```
-
-**4. Enable the servers in `.env.local`:**
-
-```
-ENABLED_MCP_SERVERS=gmail,gcalendar,gdrive
-```
-
-The MCP URLs default to the standard Google endpoints. Override them with `GMAIL_MCP_URL`, `GCALENDAR_MCP_URL`, or `GDRIVE_MCP_URL` only if needed.
 
 
 ### Slack
