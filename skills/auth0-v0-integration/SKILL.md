@@ -92,9 +92,11 @@ before reaching it.
       explicit `--web-origins` entry).
 - [ ] A live login attempt redirects (302) to Universal Login rather than
       failing with a callback-mismatch error.
-- [ ] If the app has any custom branding, Universal Login's colors, heading
-      copy, and logo match the app **as seen on the live rendered page** —
-      not just "the branding API call returned 200."
+- [ ] If the app has any custom branding, you MUST open the actual hosted
+      login page (navigate to the login link, don't just load the app) and
+      visually check it against the app: page/primary color, app name or
+      heading copy, and logo all match — not just "the branding API call
+      returned 200" or "the app's login button renders."
 
 ## Deploy and verify
 
@@ -154,8 +156,15 @@ Do all five of these in one pass, in order, every time:
 5. Deploy to the selected Vercel Production environment and verify with a
    real login attempt — not just that the page renders. Complete login,
    callback, session, protected-route, and logout checks on the deployed
-   URL, and confirm branding renders correctly on the live login page if the
-   app has custom branding. Run through the pre-completion checklist above
+   URL. **If the app has custom branding, open the login link in an actual
+   browser session** (e.g. the Playwright MCP tools, or a manual click-through)
+   **and visually compare the rendered hosted login page against the app** —
+   page/primary color, app name or heading copy, and logo. A Management API
+   200 or a config file diff does not confirm this; only the rendered page
+   does. (For a logo that specifically won't appear, prefer a direct `curl`
+   of the live `img.src` over a screenshot — see step 4 — since a headless
+   screenshot can cache a stale render and hide a broken `logo_url`.) Run
+   through the pre-completion checklist above
    before calling this done.
 
 ## Install the native integration
