@@ -1,5 +1,6 @@
+using Auth0.AspNetCore.Authentication.Api;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+//using Microsoft.IdentityModel.Tokens;
 using ModelContextProtocol.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,39 +9,33 @@ var authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
 var audience = builder.Configuration["Auth0:Audience"];
 var mcpServerBaseUrl = builder.Configuration["McpServer:BaseUrl"];
 
-builder.Services.AddAuthentication(options =>
+var authBuilder = builder.Services.AddAuthentication(options =>
 {
     options.DefaultChallengeScheme = McpAuthenticationDefaults.AuthenticationScheme;
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.Authority = authority;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidAudience = audience,
-        ValidIssuer = authority
-    };
+});
 
-    options.Events = new JwtBearerEvents
+authBuilder.AddAuth0ApiAuthentication(  //👈 changed code
+    JwtBearerDefaults.AuthenticationScheme,
+    builder.Configuration.GetSection("Auth0"),
+    configureJwtBearer: jwt =>
     {
-        OnTokenValidated = context =>
+        jwt.Events = new JwtBearerEvents
         {
-            Console.WriteLine("Token validated successfully.");
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        }
-    };
-})
-.AddMcp(options =>
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token validated successfully.");
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+authBuilder.AddMcp(options =>
 {
     options.ResourceMetadata = new()
     {
