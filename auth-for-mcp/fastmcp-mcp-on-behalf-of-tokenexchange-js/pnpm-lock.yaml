@@ -9,10 +9,10 @@ importers:
   .:
     dependencies:
       '@auth0/auth0-api-js':
-        specifier: file:./auth0-auth0-api-js-1.4.0.tgz
-        version: file:auth0-auth0-api-js-1.4.0.tgz
+        specifier: ^1.6.0
+        version: 1.6.1
       '@auth0/auth0-fastify-api':
-        specifier: ^1.1.0
+        specifier: ^1.2.0
         version: 1.2.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.2
@@ -24,7 +24,7 @@ importers:
         specifier: ^5.6.1
         version: 5.8.5
       fastmcp:
-        specifier: ^3.12.0
+        specifier: ^3.35.0
         version: 3.35.0
       zod:
         specifier: ^4.0.17
@@ -42,12 +42,8 @@ importers:
 
 packages:
 
-  '@auth0/auth0-api-js@1.5.0':
-    resolution: {integrity: sha512-PswanU7PxQHLpJ1PAkjAHegc1NlhGCNTapG6z1rqL1+DMRzTJaI6E6OciEb4fZcOJAGrmnBhBzVXH6x1Y0/8nQ==}
-
-  '@auth0/auth0-api-js@file:auth0-auth0-api-js-1.4.0.tgz':
-    resolution: {integrity: sha512-cJJiMaoodiT0qNbjrnJLXsd93WFDy2/pPZ5YmlhFmzTxwlMv+NEoJpGTF/YPEiTSE6uJCkIxaRezs+lJyR4TXQ==, tarball: file:auth0-auth0-api-js-1.4.0.tgz}
-    version: 1.4.0
+  '@auth0/auth0-api-js@1.6.1':
+    resolution: {integrity: sha512-HGe6ss1XS7xp3RD/CoL1O/OjTz7ykWv3M+xuXcridd15jxY31/JDZQspeOjDX3mOjVUHvdTLWmMEw0M0BbbrfQ==}
 
   '@auth0/auth0-auth-js@1.6.0':
     resolution: {integrity: sha512-/WYYNlsqhWA6I60pMVLFVeOgjOUCLdJThEAsjN8pAgYY09BTxbPaRIEVDgGu6ckoJpkmKvEYlHPO/vwRNrvX6w==}
@@ -1102,13 +1098,7 @@ packages:
 
 snapshots:
 
-  '@auth0/auth0-api-js@1.5.0':
-    dependencies:
-      '@auth0/auth0-auth-js': 1.6.0
-      jose: 6.2.2
-      oauth4webapi: 3.8.5
-
-  '@auth0/auth0-api-js@file:auth0-auth0-api-js-1.4.0.tgz':
+  '@auth0/auth0-api-js@1.6.1':
     dependencies:
       '@auth0/auth0-auth-js': 1.6.0
       jose: 6.2.2
@@ -1121,7 +1111,7 @@ snapshots:
 
   '@auth0/auth0-fastify-api@1.2.0':
     dependencies:
-      '@auth0/auth0-api-js': 1.5.0
+      '@auth0/auth0-api-js': 1.6.1
       fastify: 5.8.5
       fastify-plugin: 5.1.0
 
