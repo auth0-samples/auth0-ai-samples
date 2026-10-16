@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@auth0/auth0-api-js": "^1.2.1",
-    "@modelcontextprotocol/sdk": "^1.17.2",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@openfga/sdk": "^0.9.1",
     "dotenv": "^17.2.1",
     "fastmcp": "^3.35.0",
