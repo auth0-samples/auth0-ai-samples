@@ -7,7 +7,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-python-dotenv = "1.0.1"
+python-dotenv = "1.2.2"
 langchain = "0.3.26"
 langchain-community = "0.3.17"
 langgraph = "0.5.3"
