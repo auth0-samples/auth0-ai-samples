@@ -6,11 +6,11 @@ Explore the following examples demonstrating the integration of **Auth0** with M
 
 - **MCP TypeScript SDK + Auth0 MCP SDK (JavaScript):**
    A store assistant MCP server built on the MCP TypeScript SDK v2 and `@auth0/ai-mcp`. It verifies access tokens, enforces tool scopes, and calls downstream APIs on behalf of the signed-in user (on-behalf-of token exchange) or as itself (client credentials).
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-mcp-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-mcp-js) | [Starter (without Auth0)](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-mcp-js-starter)
 
 - **FastMCP + Auth0 MCP SDK (JavaScript):**
    An orders assistant MCP server built on FastMCP and `@auth0/ai-fastmcp`. It verifies access tokens, enforces tool scopes, and calls an orders API on behalf of the signed-in user.
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-fastmcp-js)
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-fastmcp-js) | [Starter (without Auth0)](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-fastmcp-js-starter)
 
 - **FastMCP + TypeScript (JavaScript):**
    A minimal FastMCP server secured with Auth0 using `@auth0/ai-fastmcp`.
