@@ -1,15 +1,18 @@
 # Example FastMCP MCP Server with Auth0 Integration
 
-This is a practical example of securing a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs) server
-with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript framework. It demonstrates
-real-world OAuth 2.0 and OIDC integration with JWT token verification and scope enforcement.
+The smallest way to secure a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs) server
+with Auth0 using the [FastMCP](https://github.com/punkpeye/fastmcp) TypeScript framework. One `createFastMcpAuth` call from [`@auth0/ai-fastmcp`](https://github.com/auth0/auth0-ai-js/tree/main/packages/ai-fastmcp) verifies the access token on every request, answers a missing or invalid token with a `WWW-Authenticate` challenge, and serves the protected resource metadata. A caller without the scope of a tool gets an error result for that tool only.
+
+For on-behalf-of token exchange and a downstream API, see the full samples [`ai-fastmcp-js`](../ai-fastmcp-js) and [`ai-mcp-js`](../ai-mcp-js).
+
+Node.js 20 or later is required.
 
 ## Available Tools
 
 The server exposes the following tools:
 
-- `whoami` - Returns authenticated user information and granted scopes
-- `greet` - Personalized greeting demonstrating authenticated tool access
+- `whoami` - Returns authenticated user information and granted scopes (scope `tool:whoami`)
+- `greet` - Personalized greeting demonstrating authenticated tool access (scope `tool:greet`)
 - `get_datetime` - Returns the current UTC date and time (no scope required)
 
 ## Install dependencies
@@ -78,14 +81,14 @@ This step creates the API (also known as a Resource Server) that represents your
 default for your tenant.
 
 1. Create the API: This command registers the API with Auth0, defines its signing algorithm, enables Role-Based Access
-   Control (RBAC), and specifies the available scopes. Replace `http://localhost:3001/` and `MCP Tools API`
-   with your desired identifier and name. Add your tool-specific scopes to the scopes array.
+   Control (RBAC), and specifies the available scopes. Replace `http://localhost:3001/mcp` and `MCP Tools API`
+   with your desired identifier and name. The identifier is the public MCP URL and must equal `AUTH0_AUDIENCE`. Add your tool-specific scopes to the scopes array.
 
    Note that `rfc9068_profile_authz` is used instead of `rfc9068_profile` as the token dialect to enable RBAC. [Learn more](https://auth0.com/docs/get-started/apis/enable-role-based-access-control-for-apis#token-dialect-options)
 
 ```
 auth0 api post resource-servers --data '{
-  "identifier": "http://localhost:3001/",
+  "identifier": "http://localhost:3001/mcp",
   "name": "MCP Tools API",
   "signing_alg": "RS256",
   "token_dialect": "rfc9068_profile_authz",
@@ -112,14 +115,14 @@ auth0 roles create --name "Tool User" --description "Grants access to basic MCP 
 ```
 
 2. Assign Permissions to Roles: After creating roles, note the ID from the output (e.g. `rol_`) and and assign the API
-   permissions to it. Replace `YOUR_ROLE_ID`, `http://localhost:3001/`, and the list of scopes.
+   permissions to it. Replace `YOUR_ROLE_ID`, `http://localhost:3001/mcp`, and the list of scopes.
 
 ```
 # Example for admin role (all scopes)
-auth0 roles permissions add YOUR_ADMIN_ROLE_ID --api-id "http://localhost:3001/" --permissions "tool:whoami,tool:greet"
+auth0 roles permissions add YOUR_ADMIN_ROLE_ID --api-id "http://localhost:3001/mcp" --permissions "tool:whoami,tool:greet"
 
 # Example for user role (one scope)
-auth0 roles permissions add YOUR_USER_ROLE_ID --api-id "http://localhost:3001/" --permissions "tool:whoami"
+auth0 roles permissions add YOUR_USER_ROLE_ID --api-id "http://localhost:3001/mcp" --permissions "tool:whoami"
 ```
 
 3. Assign Roles to Users: Find users and assign them to the roles.
@@ -136,15 +139,17 @@ auth0 users roles assign "auth0|USER_ID_HERE" --roles "YOUR_ROLE_ID_HERE"
 
 ## Configuration
 
-Rename `.env.example` to `.env` and configure the domain and audience:
+Copy `.env.example` to `.env` and configure the domain and audience:
 
 ```
 # Auth0 tenant domain
-AUTH0_DOMAIN=example-tenant.us.auth0.com
+AUTH0_DOMAIN=your-tenant.us.auth0.com
 
-# Auth0 API Identifier
-AUTH0_AUDIENCE=http://localhost:3001/
+# Auth0 API Identifier, which is also the public MCP URL
+AUTH0_AUDIENCE=http://localhost:3001/mcp
 ```
+
+This sample does not exchange tokens, so it needs no client id or secret.
 
 With the configuration in place, the example can be started by running:
 
@@ -169,8 +174,14 @@ In the MCP Inspector, select `Streamable HTTP` as the `Transport Type`, enter `h
 You can use cURL to verify that the server is running:
 
 ```bash
-# Test that the server is running and accessible - check OAuth resource metadata
-curl -v http://localhost:3001/.well-known/oauth-protected-resource
+# A request without a token is answered with 401 and a WWW-Authenticate header that carries resource_metadata
+curl -si -X POST http://localhost:3001/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}'
+
+# Check the OAuth protected resource metadata
+curl -v http://localhost:3001/.well-known/oauth-protected-resource/mcp
 
 # Test MCP initialization (requires valid Auth0 access token)
 curl -X POST http://localhost:3001/mcp \
@@ -186,3 +197,12 @@ curl -X POST http://localhost:3001/mcp \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
 ```
+
+## Check
+
+```bash
+npm run type-check
+npm test
+```
+
+`npm test` starts the server with placeholder settings and checks the 401 challenge and the metadata document. It makes no call to Auth0.

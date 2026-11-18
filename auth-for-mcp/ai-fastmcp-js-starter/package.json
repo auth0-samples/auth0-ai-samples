@@ -1,0 +1,41 @@
+{
+  "name": "ai-fastmcp-js-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Starter for the orders MCP server on FastMCP: the same project without the Auth0 MCP SDK wiring",
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "start": "tsx --env-file=.env src/server.ts",
+    "start:api": "tsx --env-file=.env src/orders-server.ts",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "author": {
+    "name": "Auth0 Inc.",
+    "url": "https://auth0.com"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@auth0/ai-fastmcp": "1.0.0-beta.1",
+    "@auth0/ai-mcp": "1.0.0-beta.1",
+    "fastmcp": "^4.22.0",
+    "jose": "^6.0.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.6",
+    "eslint": "^9.22.0",
+    "globals": "^15.11.0",
+    "msw": "^2.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^3.0.9"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

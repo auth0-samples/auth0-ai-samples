@@ -1,17 +1,21 @@
 {
   "name": "fastmcp-mcp",
   "version": "0.0.0",
-  "description": "Example implementation of an MCP server using FastMCP framework with Auth0.",
+  "description": "FastMCP server secured with Auth0 using @auth0/ai-fastmcp",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "tsx src/index.ts --project tsconfig.json"
+    "start": "tsx --env-file=.env src/index.ts",
+    "type-check": "tsc --noEmit",
+    "test": "tsx scripts/smoke.ts"
   },
   "dependencies": {
-    "@auth0/auth0-api-js": "^1.2.1",
-    "@modelcontextprotocol/sdk": "^1.17.2",
-    "dotenv": "^17.2.1",
-    "fastmcp": "^3.35.0",
-    "zod": "^4.0.17"
+    "@auth0/ai-fastmcp": "1.0.0-beta.1",
+    "@auth0/ai-mcp": "1.0.0-beta.1",
+    "fastmcp": "^4.22.0",
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.8.0",
