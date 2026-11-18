@@ -1,23 +1,27 @@
 {
   "name": "express-mcp-js",
   "version": "0.0.0",
-  "description": "Express MCP Server Example — Example implementation of an MCP server using Express.js with Auth0",
+  "description": "Express MCP server secured with Auth0 using @auth0/ai-mcp",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "tsx src/index.ts --project tsconfig.json"
+    "start": "tsx --env-file=.env src/index.ts",
+    "type-check": "tsc --noEmit",
+    "test": "tsx scripts/smoke.ts"
   },
   "dependencies": {
-    "@auth0/auth0-api-js": "^1.2.1",
-    "@modelcontextprotocol/sdk": "^1.17.0",
+    "@auth0/ai-mcp": "1.0.0-beta.1",
+    "@modelcontextprotocol/server": "^2.3.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "zod": "^3.25.76"
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "ts-node": "^10.9.2",
+    "@types/node": "^22.10.6",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
