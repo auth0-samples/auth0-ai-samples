@@ -1,5 +1,7 @@
 # Orders MCP server on FastMCP with Auth0 token delegation (`@auth0/ai-fastmcp`)
 
+This is the finished server. To build it step by step, start from [`ai-fastmcp-js-starter`](../ai-fastmcp-js-starter), the same project without the Auth0 MCP SDK wiring.
+
 A small MCP server built with FastMCP and `@auth0/ai-fastmcp`. It plays an order assistant. It checks the access token on every request, then calls an orders API as the signed-in shopper (an on-behalf-of token exchange). A second small process plays the orders API and verifies every token it receives.
 
 ## What it shows
