@@ -4,8 +4,16 @@
 
 Explore the following examples demonstrating the integration of **Auth0** with Model Context Protocol (MCP) servers:
 
+- **MCP TypeScript SDK + Auth0 MCP SDK (JavaScript):**
+   A store assistant MCP server built on the MCP TypeScript SDK v2 and `@auth0/ai-mcp`. It verifies access tokens, enforces tool scopes, and calls downstream APIs on behalf of the signed-in user (on-behalf-of token exchange) or as itself (client credentials).
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-mcp-js)
+
+- **FastMCP + Auth0 MCP SDK (JavaScript):**
+   An orders assistant MCP server built on FastMCP and `@auth0/ai-fastmcp`. It verifies access tokens, enforces tool scopes, and calls an orders API on behalf of the signed-in user.
+   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/ai-fastmcp-js)
+
 - **FastMCP + TypeScript (JavaScript):**
-   A FastMCP server example implementation of an MCP server using FastMCP framework with Auth0.
+   A minimal FastMCP server secured with Auth0 using `@auth0/ai-fastmcp`.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js)
 
 - **FastMCP + Python:**
@@ -21,7 +29,7 @@ Explore the following examples demonstrating the integration of **Auth0** with M
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-customtokenexchange-python)
 
 - **Express + TypeScript (JavaScript):**
-   A Express server example implementation of an MCP server using Express framework with Auth0.
+   A minimal Express MCP server secured with Auth0 using `@auth0/ai-mcp`.
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/express-mcp-js)
 
 - **Hono + Cloudflare Workers + TypeScript (JavaScript):**
