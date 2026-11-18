@@ -1,5 +1,7 @@
 # Online store MCP server with Auth0 token delegation (`@auth0/ai-mcp`)
 
+This is the finished server. To build it step by step, start from [`ai-mcp-js-starter`](../ai-mcp-js-starter), the same project without the Auth0 MCP SDK wiring.
+
 A small MCP server built with `@auth0/ai-mcp` and the MCP TypeScript SDK. It plays an online store assistant. It checks the access token on every request, then calls the store's Orders, Inventory and Analytics APIs, either as the signed-in shopper (on-behalf-of token exchange) or as itself (client credentials). A second small process plays the store APIs and verifies every token it receives.
 
 ## What it shows
