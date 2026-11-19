@@ -15,5 +15,5 @@ dependencies = [
     "langgraph-api==0.2.102",
     "langgraph-runtime-inmem==0.6.0",
     "langgraph>=0.5.4",
-    "pydantic-settings>=2.10.1",
+    "pydantic-settings>=2.14.2",
 ]
