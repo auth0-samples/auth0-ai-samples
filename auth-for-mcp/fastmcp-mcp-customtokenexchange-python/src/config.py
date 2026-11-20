@@ -28,7 +28,6 @@ class Config:
 
     # Server configuration
     port: int = int(os.getenv("PORT", "3001"))
-    mcp_server_url: str = os.getenv("MCP_SERVER_URL", f"http://localhost:{port}")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
 
     # CORS configuration

@@ -1,4 +1,6 @@
-# Example FastMCP MCP Server with Auth0 for On-Behalf-Of Token Exchange (Python)
+# Example MCP Server with Auth0 for On-Behalf-Of Token Exchange (Python)
+
+This example shows how an MCP server can call a downstream API on behalf of the signed-in user. It uses the [`auth0-ai-mcp`](https://github.com/auth0/auth0-ai-python/tree/main/packages/auth0-ai-mcp) package with the official MCP Python SDK. The package verifies the caller's access token, publishes the OAuth protected resource metadata that MCP clients use to find Auth0, checks scopes for each tool, and exchanges the caller's token for a downstream API token.
 
 ## Available Tools
 
@@ -16,6 +18,14 @@ Install the dependencies using Poetry:
 poetry install
 ```
 
+## Auth0 Tenant Setup
+
+Follow the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup) in the FastMCP example to create the MCP server API (`http://localhost:3001/`) with the `tool:greet` and `tool:whoami` permissions. Then set up the token exchange:
+
+1. Create an API for the upstream service with the identifier `http://localhost:8787/` and a `read:private` permission. Turn on **Allow Skipping User Consent for Verifiable First-Party Clients** for it.
+2. Create a Custom API Client for your MCP server API. This is a client with `app_type` set to `resource_server` and `resource_server_identifier` set to `http://localhost:3001/`. Enable On-Behalf-Of token exchange on it by setting `token_exchange` to `{"allow_any_profile_of_type": ["on_behalf_of_token_exchange"]}`. Its client ID and secret go in `MCP_AUTH0_CLIENT_ID` and `MCP_AUTH0_CLIENT_SECRET`.
+3. Create a client grant that gives that client the `read:private` scope on `http://localhost:8787/` with `subject_type` set to `user`.
+
 ## Configuration
 
 Create a `.env` file in the project root and configure the following environment variables:
@@ -24,14 +34,11 @@ Create a `.env` file in the project root and configure the following environment
 # Auth0 tenant domain
 AUTH0_DOMAIN=example-tenant.us.auth0.com
 
-# Auth0 API Identifier
+# Auth0 API Identifier, must match your Auth0 API exactly including the trailing slash
 AUTH0_AUDIENCE=http://localhost:3001/
 
 # Server port
 PORT=3001
-
-# MCP server URL
-MCP_SERVER_URL=http://localhost:3001
 
 # MCP Auth0 client credentials and configuration
 MCP_AUTH0_CLIENT_ID=your-client-id
@@ -41,7 +48,7 @@ MCP_AUTH0_CLIENT_SECRET=your-client-secret
 MCP_AUTH0_EXCHANGE_SCOPE=read:private
 
 # Upstream API configuration
-API_AUTH0_AUDIENCE=your-api-audience
+API_AUTH0_AUDIENCE=http://localhost:8787/
 API_BASE_URL=http://localhost:8787
 ```
 
@@ -62,7 +69,7 @@ The API service validates incoming tokens and returns authenticated user informa
 
 ### 2. MCP Server (`poetry run python -m src.server`)
 
-The MCP (Model Context Protocol) server implements on-behalf-of token exchange with Auth0:
+The MCP (Model Context Protocol) server verifies access tokens and exchanges them on behalf of the user:
 
 - **Port**: 3001 (configurable via `PORT`)
 - **Transport**: HTTP streaming at `/` endpoint
@@ -96,59 +103,45 @@ npx @modelcontextprotocol/inspector
 
 The server will start up and the UI will be accessible at http://localhost:6274.
 
-In the MCP Inspector, select `Streamable HTTP` as the `Transport Type`, enter `http://localhost:3001/mcp` as the URL, and select `Via Proxy` for `Connection Type`.
+In the MCP Inspector, select `Streamable HTTP` as the `Transport Type`, enter `http://localhost:3001/` as the URL, and select `Via Proxy` for `Connection Type`.
 
 ### Using cURL
 You can use cURL to verify that the server is running:
 
 ```sh
-# Test that the server is running and accessible - check OAuth resource metadata
+# A request with no token returns 401 and a WWW-Authenticate header
+curl -i -X POST http://localhost:3001/ -H "Content-Type: application/json" -d '{}'
+
+# Check the OAuth resource metadata
 curl -v http://localhost:3001/.well-known/oauth-protected-resource
 
-# Test MCP initialization (requires valid Auth0 access token)
-curl -X POST http://localhost:3001/mcp \
+# Test MCP initialization (requires valid Auth0 access token) and keep the session ID for the next calls
+SESSION_ID=$(curl -s -D - -o /dev/null -X POST http://localhost:3001/ \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "curl-test", "version": "1.0.0"}}}'
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "curl-test", "version": "1.0.0"}}}' \
+  | grep -i '^mcp-session-id:' | cut -d' ' -f2 | tr -d '\r')
 
 # Test get_datetime tool (no scope required) - outputs ISO string like 2025-10-31T14:12:03.123Z
-curl -X POST http://localhost:3001/mcp \
+curl -X POST http://localhost:3001/ \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Mcp-Session-Id: $SESSION_ID" \
   -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "get_datetime", "arguments": {}}}'
 
 # Test greet tool (tool:greet permission required) - outputs Upstream API response when OBO flow succeeds
-curl -X POST http://localhost:3001/mcp \
+curl -X POST http://localhost:3001/ \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Mcp-Session-Id: $SESSION_ID" \
   -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "greet", "arguments": {"name": "World"}}}'
 
 # sample response from greet tool:
 event: message
-id: b79cc975-0b9a-4ad7-9f0b-60709f33dcaa_1777299634174_47cmz49v
-data:
-{
-  "result": {
-    "content": [
-      {
-        "type": "text",
-        "text": "Hello, World (auth0|69d9483f2d2c4494f9de0d8c)!\n\
-        \n\
-        Upstream API Response:\n\
-        {\n\
-          \"msg\": \"Hello from upstream API\",\n\
-          \"sub\": \"auth0|69d9483f2d2c4494f9de0d8c\",\n\
-          \"scopes\": \"read:private\"\n\
-        }"
-      }
-    ]
-  },
-  "jsonrpc": "2.0",
-  "id": 2
-}
+data: {"jsonrpc":"2.0","id":2,"result":{"content":[{"type":"text","text":"Hello, World (auth0|69d9483f2d2c4494f9de0d8c)!\nUpstream API Response: {\n  \"msg\": \"Hello from upstream API\",\n  \"sub\": \"auth0|69d9483f2d2c4494f9de0d8c\",\n  \"scopes\": [\n    \"read:private\"\n  ]\n}"}],"isError":false}}
 ```
 
 **Note:** Use the MCP Inspector or other MCP-compatible clients for comprehensive testing.
@@ -158,11 +151,10 @@ data:
 This example demonstrates the following On-Behalf-Of (OBO) Token Exchange flow:
 
 1. **Client authenticates** to the MCP server with an Auth0 access token
-2. **MCP server validates** the token and creates a session
+2. **MCP server validates** the token and checks the scopes the tool needs
 3. **Client calls `greet` tool** on the MCP server
-4. **MCP server exchanges** the original token for a new token with different audience using OBO:
+4. **MCP server exchanges** the original token for a new token with a different audience by calling `get_token_on_behalf_of` from `auth0-ai-mcp`:
    - Subject token: Original MCP access token
-   - Subject token type: `urn:ietf:params:oauth:token-type:access_token`
    - Target audience: Upstream API (`API_AUTH0_AUDIENCE`)
    - Requested scope: `read:private`
 5. **MCP server calls upstream API** using the exchanged token

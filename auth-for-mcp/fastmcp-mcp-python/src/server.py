@@ -1,64 +1,43 @@
 from __future__ import annotations
 
-import contextlib
 import logging
-from collections.abc import AsyncIterator
 
-from starlette.applications import Starlette
+from auth0_ai_mcp import create_mcp_client
+from auth0_ai_mcp.middleware import Auth0AsgiMiddleware
+from mcp.server.mcpserver import MCPServer
 from starlette.middleware.cors import CORSMiddleware
-from starlette.routing import Mount
 
-from .auth0 import Auth0Mcp
 from .config import get_config
-from .tools import register_tools
+from .tools import TOOL_SCOPES, register_tools
 
 config = get_config()
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-auth0_mcp = Auth0Mcp(
-    name="Example FastMCP Server",
-    audience=config.auth0_audience,
+mcp_client = create_mcp_client(
     domain=config.auth0_domain,
-    mcp_server_url=config.mcp_server_url
-)
-register_tools(auth0_mcp)
-
-@contextlib.asynccontextmanager
-async def lifespan(app: Starlette) -> AsyncIterator[None]:
-    async with contextlib.AsyncExitStack() as stack:
-        await stack.enter_async_context(auth0_mcp.mcp.session_manager.run())
-        yield
-
-starlette_app = Starlette(
-    debug=config.debug,
-    routes=[
-        # Add discovery metadata route
-        Mount("/", app=auth0_mcp.auth_metadata_router()),
-
-        # Main MCP app route with authentication middleware
-        Mount(
-            "/",
-            app=auth0_mcp.mcp.streamable_http_app(),
-            middleware=auth0_mcp.auth_middleware()
-        ),
-    ],
-    lifespan=lifespan,
-    exception_handlers=auth0_mcp.exception_handlers(),
+    audience=config.auth0_audience,
 )
 
-# Wrap ASGI application with CORS middleware to expose Mcp-Session-Id header
-# for browser-based clients (ensures 500 errors get proper CORS headers)
+mcp = MCPServer("Example MCP Server")
+register_tools(mcp)
 
+# The metadata and bearer token checks come from the middleware, so no other auth code is needed
+auth_app = Auth0AsgiMiddleware(
+    mcp.streamable_http_app(streamable_http_path="/"),
+    mcp_client=mcp_client,
+    scopes_supported=TOOL_SCOPES,
+)
+
+# CORS exposes Mcp-Session-Id for browser clients and sits outside auth so 401s carry CORS headers
 app = CORSMiddleware(
-    starlette_app,
+    auth_app,
     allow_origins=config.cors_origins,
-    allow_methods=["GET", "POST", "DELETE"], # MCP streamable HTTP methods
+    allow_methods=["GET", "POST", "DELETE"],
     expose_headers=["Mcp-Session-Id"],
 )
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, port=config.port)

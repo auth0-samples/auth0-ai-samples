@@ -10,9 +10,7 @@ from dotenv import load_dotenv
 class Config:
     auth0_domain: str
     auth0_audience: str
-    mcp_server_url: str
     port: int = 3001
-    debug: bool = True
     cors_origins: list[str] = field(default_factory=lambda: ["*"])
 
     @classmethod
@@ -28,9 +26,7 @@ class Config:
         return cls(
             auth0_domain=auth0_domain,
             auth0_audience=auth0_audience,
-            mcp_server_url=os.getenv("MCP_SERVER_URL", "http://localhost:3001"),
             port=int(os.getenv("PORT", "3001")),
-            debug=os.getenv("DEBUG", "false").lower() == "true",
             cors_origins=os.getenv("CORS_ORIGINS", "*").split(","),
         )
 
