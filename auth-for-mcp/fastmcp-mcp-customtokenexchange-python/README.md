@@ -23,7 +23,7 @@ poetry install
 Follow the [Auth0 Tenant Setup guide](https://github.com/auth0-samples/auth0-ai-samples/tree/main/auth-for-mcp/fastmcp-mcp-js/README.md#auth0-tenant-setup) in the FastMCP example to create the MCP server API (`http://localhost:3001/`) with the `tool:greet` and `tool:whoami` permissions. Then set up the token exchange:
 
 1. Create an API for the upstream service with the identifier `http://localhost:8787/` and a `read:private` permission.
-2. Create a Custom Token Exchange Action (trigger `custom-token-exchange`) that verifies the subject token and sets the user. Add the `jose` dependency and two secrets, `AUTH0_DOMAIN` (your tenant domain) and `MCP_AUDIENCE` (`http://localhost:3001/`), then deploy it:
+2. Create a Custom Token Exchange Action (trigger `custom-token-exchange`) that verifies the subject token and sets the user. Add the `jose` dependency and two secrets, `AUTH0_DOMAIN` (your tenant domain) and `MCP_AUDIENCE` (`http://localhost:3001/`), then deploy it. Actions run on Node.js, so the Action is JavaScript even though the server is Python:
 
    ```js
    const { createRemoteJWKSet, jwtVerify } = require('jose');
